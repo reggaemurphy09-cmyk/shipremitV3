@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="ShipRemit"/>
+  <meta name="theme-color" content="#0a1628"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ShipRemit — Forgot Password</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+```
+body {
+  min-height: 100vh;
+  background: #0a1628;
+  font-family: 'DM Sans', sans-serif;
+  color: #f0ece3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.bg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: linear-gradient(160deg, #07101f 0%, #0a1e3d 60%, #061525 100%);
+}
+
+.card {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 420px;
+  background: #0f2040;
+  border: 1px solid rgba(201,148,58,0.2);
+  border-radius: 16px;
+  padding: 2.5rem 2.25rem 2rem;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+  animation: card-in 0.7s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.logo-area {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 2rem;
+}
+.logo-icon {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, #c9943a, #e8b85a);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; box-shadow: 0 4px 16px rgba(201,148,58,0.35); flex-shrink: 0;
+}
+.logo-name { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #f0ece3; line-height: 1; }
+.logo-tagline { font-size: 0.72rem; color: #c9943a; letter-spacing: 0.12em; text-transform: uppercase; margin-top: 3px; }
+
+.divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(201,148,58,0.25), transparent); margin-bottom: 1.75rem; }
+
+/* ── States ── */
+.state { display: none; }
+.state.active { display: block; }
+
+h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #f0ece3; margin-bottom: 0.3rem; }
+.subtitle { font-size: 0.85rem; color: #8a9ab5; -webkit-text-fill-color: #8a9ab5; margin-bottom: 1.75rem; line-height: 1.5; }
+
+.field { margin-bottom: 1.1rem; }
+label { display: block; font-size: 0.78rem; color: #e8b85a; -webkit-text-fill-color: #e8b85a; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+.input-wrap { position: relative; }
+.input-wrap .icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; color: #8a9ab5; pointer-events: none; }
+input {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(201,148,58,0.2); border-radius: 9px;
+  color: #f0ece3; -webkit-text-fill-color: #f0ece3;
+  font-family: 'DM Sans', sans-serif; font-size: 0.92rem;
+  padding: 11px 14px 11px 42px; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+}
+input::placeholder { color: rgba(138,154,181,0.5); -webkit-text-fill-color: rgba(138,154,181,0.5); }
+input:focus { border-color: #c9943a; background: rgba(201,148,58,0.06); box-shadow: 0 0 0 3px rgba(201,148,58,0.12); }
+
+.btn-primary {
+  width: 100%;
+  background: linear-gradient(135deg, #c9943a, #e8b85a);
+  color: #1a0e00; border: none; border-radius: 9px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 600;
+  padding: 13px; cursor: pointer; letter-spacing: 0.04em;
+  box-shadow: 0 4px 20px rgba(201,148,58,0.35);
+  transition: opacity 0.2s, transform 0.15s;
+  position: relative; margin-top: 0.25rem;
+}
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+.btn-primary .spinner {
+  display: none; width: 16px; height: 16px;
+  border: 2px solid rgba(26,14,0,0.3); border-top-color: #1a0e00;
+  border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.btn-primary.loading .btn-text { display: none; }
+.btn-primary.loading .spinner  { display: block; }
+
+.alert {
+  display: none; border-radius: 8px; padding: 10px 13px;
+  font-size: 0.82rem; margin-top: 1rem; text-align: center;
+}
+.alert.error   { background: rgba(224,92,92,0.12); border: 1px solid rgba(224,92,92,0.3); color: #ff9a9a; -webkit-text-fill-color: #ff9a9a; }
+.alert.show { display: block; }
+
+/* ── Success state ── */
+.success-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: rgba(76,175,130,0.12); border: 2px solid #4caf82;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; margin: 0 auto 1.25rem;
+  animation: pop 0.4s cubic-bezier(0.22,1,0.36,1);
+}
+@keyframes pop { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
+.success-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #f0ece3; text-align: center; margin-bottom: 0.5rem; }
+.success-msg   { font-size: 0.85rem; color: #8a9ab5; -webkit-text-fill-color: #8a9ab5; text-align: center; line-height: 1.6; margin-bottom: 1.5rem; }
+.email-highlight { color: #e8b85a; -webkit-text-fill-color: #e8b85a; font-weight: 600; }
+
+.btn-ghost {
+  width: 100%; background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(201,148,58,0.2); color: #8a9ab5;
+  -webkit-text-fill-color: #8a9ab5;
+  border-radius: 9px; font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem; padding: 12px; cursor: pointer;
+  transition: all 0.2s; margin-bottom: 0.5rem;
+}
+.btn-ghost:hover { color: #f0ece3; -webkit-text-fill-color: #f0ece3; border-color: rgba(201,148,58,0.4); }
+
+.bottom-text {
+  text-align: center; margin-top: 1.5rem;
+  font-size: 0.83rem; color: #8a9ab5; -webkit-text-fill-color: #8a9ab5;
+}
+.bottom-text a { color: #c9943a; -webkit-text-fill-color: #c9943a; text-decoration: none; font-weight: 500; }
+.bottom-text a:hover { color: #e8b85a; -webkit-text-fill-color: #e8b85a; }
+
+.card-footer {
+  margin-top: 1.75rem; padding-top: 1rem;
+  border-top: 1px solid rgba(201,148,58,0.15);
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px; font-size: 0.72rem; color: rgba(138,154,181,0.45);
+  -webkit-text-fill-color: rgba(138,154,181,0.45); letter-spacing: 0.06em;
+}
+```
+
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+
+  <div class="card">
+    <div class="logo-area">
+      <div class="logo-icon">⚓</div>
+      <div>
+        <div class="logo-name">ShipRemit</div>
+        <div class="logo-tagline">Seafarer Remittance</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+```
+<!-- State 1: Enter email -->
+<div class="state active" id="stateForm">
+  <h2>Forgot password?</h2>
+  <p class="subtitle">Enter your registered email and we'll send you a reset link.</p>
+
+  <div class="field">
+    <label>Email Address</label>
+    <div class="input-wrap">
+      <span class="icon">✉</span>
+      <input type="email" id="emailInput" placeholder="you@example.com" autocomplete="email"/>
+    </div>
+  </div>
+
+  <button class="btn-primary" id="resetBtn" onclick="sendReset()">
+    <span class="btn-text">Send Reset Link</span>
+    <span class="spinner"></span>
+  </button>
+
+  <div class="alert error" id="errorMsg"></div>
+
+  <p class="bottom-text">Remember your password? <a href="login.html">Sign in</a></p>
+</div>
+
+<!-- State 2: Success -->
+<div class="state" id="stateSuccess">
+  <div class="success-icon">✉</div>
+  <div class="success-title">Check your email</div>
+  <p class="success-msg">
+    We sent a password reset link to<br>
+    <span class="email-highlight" id="sentToEmail">—</span><br><br>
+    Click the link in the email to reset your password. Check your spam folder if you don't see it.
+  </p>
+  <button class="btn-primary" onclick="location.href='login.html'">
+    <span class="btn-text">← Back to Login</span>
+  </button>
+  <button class="btn-ghost" onclick="resendEmail()" style="margin-top:0.5rem">Resend Email</button>
+</div>
+
+<div class="card-footer">
+  <span>🔒</span> Secured &amp; encrypted &nbsp;·&nbsp; ShipRemit © 2025
+</div>
+```
+
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey:            "AIzaSyDjspj1rS3F3zt_VhCvY6ypDsU9IfAAvP0",
+      authDomain:        "shipremit.firebaseapp.com",
+      databaseURL:       "https://shipremit-default-rtdb.firebaseio.com",
+      projectId:         "shipremit",
+      storageBucket:     "shipremit.firebasestorage.app",
+      messagingSenderId: "516183209213",
+      appId:             "1:516183209213:web:d2ffdaa25b14b96de17a94",
+      measurementId:     "G-0SE4CEQP5X"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    let lastEmail = '';
+
+    async function sendReset() {
+      const email = document.getElementById('emailInput').value.trim();
+      const btn   = document.getElementById('resetBtn');
+      const err   = document.getElementById('errorMsg');
+
+      err.classList.remove('show');
+
+      if (!email || !email.includes('@')) {
+        err.textContent = 'Please enter a valid email address.';
+        err.classList.add('show');
+        return;
+      }
+
+      btn.disabled = true; btn.classList.add('loading');
+
+      try {
+        await auth.sendPasswordResetEmail(email);
+        lastEmail = email;
+        document.getElementById('sentToEmail').textContent = email;
+        document.getElementById('stateForm').classList.remove('active');
+        document.getElementById('stateSuccess').classList.add('active');
+      } catch(e) {
+        const map = {
+          'auth/user-not-found':      'No account found with this email.',
+          'auth/invalid-email':       'Please enter a valid email address.',
+          'auth/too-many-requests':   'Too many attempts. Please try again later.',
+          'auth/network-request-failed': 'Network error. Check your connection.',
+        };
+        err.textContent = map[e.code] || 'Failed to send reset email. Try again.';
+        err.classList.add('show');
+      }
+
+      btn.disabled = false; btn.classList.remove('loading');
+    }
+
+    async function resendEmail() {
+      if (!lastEmail) return;
+      try {
+        await auth.sendPasswordResetEmail(lastEmail);
+        alert('Reset email resent to ' + lastEmail);
+      } catch(e) {
+        alert('Failed to resend. Please try again.');
+      }
+    }
+
+    document.getElementById('emailInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') sendReset();
+    });
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
+          .catch(err => console.warn('[PWA] Service Worker failed:', err));
+      });
+    }
+  </script>
+
+</body>
+</html>
