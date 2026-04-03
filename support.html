@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="ShipRemit"/>
+  <meta name="theme-color" content="#0a1628"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>ShipRemit — Support</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { min-height: 100vh; background: #0a1628; font-family: 'DM Sans', sans-serif; color: #f0ece3; display: flex; overflow-x: hidden; }
+    .bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(160deg, #07101f 0%, #0a1e3d 60%, #061525 100%); }
+    .sidebar { position: fixed; top: 0; left: 0; width: 240px; height: 100vh; background: #060f1e; border-right: 1px solid rgba(201,148,58,0.2); display: flex; flex-direction: column; z-index: 100; transition: transform 0.3s cubic-bezier(0.22,1,0.36,1); }
+    .sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 1.5rem 1.25rem 1.25rem; border-bottom: 1px solid rgba(201,148,58,0.2); }
+    .logo-icon { width: 38px; height: 38px; background: linear-gradient(135deg, #c9943a, #e8b85a); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .logo-name { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #f0ece3; }
+    .logo-tag  { font-size: 0.62rem; color: #c9943a; letter-spacing: 0.1em; text-transform: uppercase; }
+    nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
+    .nav-label { font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(138,154,181,0.45); padding: 0.75rem 0.5rem 0.4rem; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; cursor: pointer; color: #8a9ab5; font-size: 0.88rem; text-decoration: none; transition: all 0.2s; margin-bottom: 2px; }
+    .nav-item:hover { background: rgba(201,148,58,0.08); color: #f0ece3; }
+    .nav-item.active { background: rgba(201,148,58,0.12); color: #e8b85a; font-weight: 500; }
+    .nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+    .sidebar-user { padding: 1rem 1.25rem; border-top: 1px solid rgba(201,148,58,0.2); display: flex; align-items: center; gap: 10px; }
+    .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: #162545; border: 2px solid rgba(201,148,58,0.2); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+    .user-name { font-size: 0.85rem; font-weight: 500; color: #f0ece3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-rank { font-size: 0.7rem; color: #8a9ab5; }
+    .logout-btn { background: none; border: none; color: #8a9ab5; cursor: pointer; font-size: 16px; margin-left: auto; transition: color 0.2s; }
+    .logout-btn:hover { color: #e05c5c; }
+    .mobile-header { display: none; position: fixed; top: 0; left: 0; right: 0; height: 56px; background: #060f1e; border-bottom: 1px solid rgba(201,148,58,0.2); align-items: center; padding: 0 1rem; gap: 12px; z-index: 200; }
+    .hamburger { background: none; border: none; color: #8a9ab5; cursor: pointer; font-size: 20px; }
+    .mobile-logo { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #f0ece3; }
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 99; }
+    .overlay.show { display: block; }
+    .main { margin-left: 240px; flex: 1; position: relative; z-index: 1; padding: 2rem 1.75rem 3rem; width: calc(100% - 240px); min-width: 0; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: #8a9ab5; font-size: 0.82rem; text-decoration: none; margin-bottom: 0.6rem; transition: color 0.2s; }
+    .back-link:hover { color: #c9943a; }
+    .page-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #f0ece3; margin-bottom: 0.25rem; }
+    .page-subtitle { font-size: 0.85rem; color: #8a9ab5; margin-bottom: 1.75rem; }
+
+```
+.layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+
+.card { background: #0f2040; border: 1px solid rgba(201,148,58,0.2); border-radius: 14px; overflow: hidden; margin-bottom: 0; }
+.card-head { padding: 1rem 1.25rem; border-bottom: 1px solid rgba(201,148,58,0.2); }
+.card-head h3 { font-size: 0.9rem; font-weight: 600; color: #f0ece3; display: flex; align-items: center; gap: 8px; }
+.card-body { padding: 1.25rem; }
+
+/* Contact options */
+.contact-btn {
+  display: flex; align-items: center; gap: 14px;
+  padding: 1rem; border-radius: 10px;
+  border: 1px solid rgba(201,148,58,0.2);
+  background: rgba(255,255,255,0.03);
+  text-decoration: none; transition: all 0.2s;
+  margin-bottom: 0.75rem;
+}
+.contact-btn:last-child { margin-bottom: 0; }
+.contact-btn:hover { border-color: rgba(201,148,58,0.4); background: rgba(201,148,58,0.06); }
+.contact-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.contact-icon.green  { background: rgba(76,175,130,0.12); }
+.contact-icon.yellow { background: rgba(232,184,90,0.12); }
+.contact-icon.blue   { background: rgba(126,184,247,0.12); }
+.contact-label { font-size: 0.88rem; font-weight: 500; color: #f0ece3; -webkit-text-fill-color: #f0ece3; }
+.contact-sub   { font-size: 0.75rem; color: #8a9ab5; -webkit-text-fill-color: #8a9ab5; margin-top: 2px; }
+.contact-arrow { margin-left: auto; color: #8a9ab5; -webkit-text-fill-color: #8a9ab5; font-size: 14px; }
+
+/* FAQ */
+.faq-item { border-bottom: 1px solid rgba(201,148,58,0.08); }
+.faq-item:last-child { border-bottom: none; }
+.faq-q {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.9rem 0; cursor: pointer; gap: 1rem;
+  font-size: 0.88rem; font-weight: 500; color: #f0ece3; -webkit-text-fill-color: #f0ece3;
+  transition: color 0.2s;
+}
+.faq-q:hover { color: #e8b85a; -webkit-text-fill-color: #e8b85a; }
+.faq-arrow { color: #8a9ab5; -webkit-text-fill-color: #8a9ab5; font-size: 12px; transition: transform 0.2s; flex-shrink: 0; }
+.faq-item.open .faq-arrow { transform: rotate(180deg); }
+.faq-a { display: none; padding: 0 0 0.9rem; font-size: 0.83rem; color: #8a9ab5; -webkit-text-fill-color: #8a9ab5; line-height: 1.6; }
+.faq-item.open .faq-a { display: block; }
+
+/* Agent info card */
+.agent-card {
+  background: linear-gradient(135deg, rgba(201,148,58,0.1), rgba(201,148,58,0.05));
+  border: 1px solid rgba(201,148,58,0.3);
+  border-radius: 12px; padding: 1.25rem;
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 1.25rem;
+}
+.agent-icon { font-size: 2.5rem; flex-shrink: 0; }
+.agent-title { font-size: 0.88rem; font-weight: 600; color: #e8b85a; -webkit-text-fill-color: #e8b85a; margin-bottom: 4px; }
+.agent-text  { font-size: 0.8rem; color: #8a9ab5; -webkit-text-fill-color: #8a9ab5; line-height: 1.5; }
+
+@media (max-width: 780px) { .layout { grid-template-columns: 1fr; } }
+@media (max-width: 680px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; width: 100%; padding: 4.75rem 0.9rem 5rem; }
+  .mobile-header { display: flex; }
+}
+```
+
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">⚓</div>
+      <div><div class="logo-name">ShipRemit</div><div class="logo-tag">Seafarer Remittance</div></div>
+    </div>
+    <nav>
+      <div class="nav-label">Main</div>
+      <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a class="nav-item" href="send.html"><span class="nav-icon">💸</span> Send Money</a>
+      <a class="nav-item" href="transactions.html"><span class="nav-icon">📋</span> Transactions</a>
+      <a class="nav-item" href="recipients.html"><span class="nav-icon">👥</span> Recipients</a>
+      <div class="nav-label">Account</div>
+      <a class="nav-item" href="profile.html"><span class="nav-icon">👤</span> My Profile</a>
+      <a class="nav-item" href="notifications.html"><span class="nav-icon">🔔</span> Notifications</a>
+      <a class="nav-item active" href="support.html"><span class="nav-icon">💬</span> Support</a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-avatar">👤</div>
+      <div style="flex:1;min-width:0">
+        <div class="user-name" id="sidebarName">—</div>
+        <div class="user-rank" id="sidebarRank">—</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">⏻</button>
+    </div>
+  </aside>
+
+  <div class="mobile-header">
+    <button class="hamburger" onclick="openSidebar()">☰</button>
+    <span class="mobile-logo">💬 Support</span>
+  </div>
+
+  <main class="main">
+    <a class="back-link" href="dashboard.html">← Back to Dashboard</a>
+    <div class="page-title">Support</div>
+    <div class="page-subtitle">We're here to help you send money safely</div>
+
+```
+<!-- Agent card -->
+<div class="agent-card">
+  <div class="agent-icon">⚓</div>
+  <div>
+    <div class="agent-title">Your ShipRemit Agent</div>
+    <div class="agent-text">Murphy Sabando is your on-board agent. Hand your cash directly to Murphy and submit your transfer request through the app. Murphy will process your remittance and confirm once done.</div>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- Contact -->
+  <div class="card">
+    <div class="card-head"><h3>📞 Contact Agent</h3></div>
+    <div class="card-body">
+      <a class="contact-btn" href="tel:+639277265041">
+        <div class="contact-icon green">📞</div>
+        <div>
+          <div class="contact-label">Call Murphy</div>
+          <div class="contact-sub">+63 927 726 5041</div>
+        </div>
+        <span class="contact-arrow">›</span>
+      </a>
+      <a class="contact-btn" href="sms:+639277265041">
+        <div class="contact-icon yellow">💬</div>
+        <div>
+          <div class="contact-label">Send SMS</div>
+          <div class="contact-sub">Text your query</div>
+        </div>
+        <span class="contact-arrow">›</span>
+      </a>
+      <a class="contact-btn" href="/cdn-cgi/l/email-protection#4c3e292b2b2d296221393e3c24357c750c2b212d2520622f2321">
+        <div class="contact-icon blue">✉</div>
+        <div>
+          <div class="contact-label">Email Support</div>
+          <div class="contact-sub"><span class="__cf_email__" data-cfemail="eb998e8c8c8a8ec5869e999b8392dbd2ab8c868a8287c5888486">[email&#160;protected]</span></div>
+        </div>
+        <span class="contact-arrow">›</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="card">
+    <div class="card-head"><h3>❓ Frequently Asked Questions</h3></div>
+    <div class="card-body">
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          How do I send money? <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">Hand your cash to Murphy (your agent), then open the app and go to Send Money. Enter the amount, select your recipient, upload a photo of your cash, and confirm. Murphy will process your transfer.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          How long does a transfer take? <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">Most transfers are completed within 24 hours after Murphy confirms receipt of your cash. You'll see the status update in your Transactions page.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          What is the service fee? <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">The service fee is set by your agent and shown clearly before you confirm your transfer. It's automatically calculated when you enter your send amount.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          My balance is zero. What do I do? <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">Your balance is topped up by your agent Murphy after you hand over your cash. Contact Murphy directly and your balance will be updated in the app.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Can I cancel a transfer? <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">Contact Murphy immediately if you need to cancel. Transfers that are already Processing or Completed cannot be reversed. Reach out as early as possible.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          I forgot my password. What do I do? <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">Go to the login page and tap "Forgot password?" Enter your email address and we'll send you a reset link immediately.</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+```
+
+  </main>
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey:"AIzaSyDjspj1rS3F3zt_VhCvY6ypDsU9IfAAvP0",authDomain:"shipremit.firebaseapp.com",
+      databaseURL:"https://shipremit-default-rtdb.firebaseio.com",projectId:"shipremit",
+      storageBucket:"shipremit.firebasestorage.app",messagingSenderId:"516183209213",
+      appId:"1:516183209213:web:d2ffdaa25b14b96de17a94"
+    };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const db   = firebase.database();
+
+    auth.onAuthStateChanged(async user => {
+      if (!user) { window.location.href = 'login.html'; return; }
+      try {
+        const snap = await db.ref('users/' + user.uid).once('value');
+        const p = snap.val() || {};
+        document.getElementById('sidebarName').textContent = p.fullName || user.displayName || 'User';
+        document.getElementById('sidebarRank').textContent = p.rank || 'Seafarer';
+      } catch(e) {}
+    });
+
+    function toggleFaq(el) {
+      const item = el.parentElement;
+      item.classList.toggle('open');
+    }
+
+
+    // ── Auto-hide mobile header on scroll ─────────────────────────────────────
+    let lastScroll = 0;
+    window.addEventListener('scroll', () => {
+      const header = document.querySelector('.mobile-header');
+      if (!header) return;
+      const current = window.scrollY;
+      if (current > lastScroll && current > 60) {
+        header.classList.add('hide');
+      } else {
+        header.classList.remove('hide');
+      }
+      lastScroll = current <= 0 ? 0 : current;
+    }, { passive: true });
+
+    function logout()       { auth.signOut().then(() => location.href='login.html'); }
+    function openSidebar()  {
+      document.getElementById('sidebar').classList.add('open');
+      document.getElementById('overlay').classList.add('show');
+      const h = document.querySelector('.mobile-header');
+      if (h) h.classList.add('hide');
+    }
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('overlay').classList.remove('show');
+      const h = document.querySelector('.mobile-header');
+      if (h) h.classList.remove('hide');
+    }
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
+          .catch(err => console.warn('[PWA] Service Worker failed:', err));
+      });
+    }
+  </script>
+
+</body>
+</html>
