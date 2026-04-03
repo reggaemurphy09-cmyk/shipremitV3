@@ -1274,11 +1274,9 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
 
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js')
-          .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
-          .catch(err => console.warn('[PWA] Service Worker failed:', err));
-      });
+      navigator.serviceWorker.register('service-worker.js', { scope: '/' })
+        .then(reg => console.log('[PWA] SW registered:', reg.scope))
+        .catch(err => console.warn('[PWA] SW failed:', err));
     }
   </script>
 
