@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="ShipRemit"/>
+  <meta name="theme-color" content="#0a1628"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>ShipRemit — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+```
+:root { --sidebar-w: 240px; }
+
+body {
+  min-height: 100vh;
+  background: #0a1628;
+  font-family: 'DM Sans', sans-serif;
+  color: #f0ece3;
+  display: flex; overflow-x: hidden;
+}
+
+.bg { display: none; }
+.grid-lines { display: none; }
+
+/* ── Loading ── */
+#loadingOverlay {
+  position: fixed; inset: 0; background: #0a1628;
+  z-index: 9999; display: flex; align-items: center;
+  justify-content: center; flex-direction: column; gap: 1rem;
+  transition: opacity 0.4s;
+}
+#loadingOverlay.hidden { opacity: 0; pointer-events: none; }
+.loading-logo { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #f0ece3; }
+.loading-sub  { font-size: 0.8rem; color: #8a9ab5; }
+.spin { width: 36px; height: 36px; border: 3px solid rgba(201,148,58,0.2); border-top-color: #c9943a; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Access denied ── */
+#accessDenied {
+  display: none; position: fixed; inset: 0;
+  background: #0a1628; z-index: 9998;
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 1rem; text-align: center; padding: 2rem;
+}
+#accessDenied.show { display: flex; }
+.denied-icon  { font-size: 4rem; }
+.denied-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #f0ece3; }
+.denied-sub   { color: #8a9ab5; font-size: 0.9rem; }
+.denied-btn   {
+  margin-top: 0.5rem;
+  background: linear-gradient(135deg, #c9943a, #e8b85a);
+  color: #1a0e00; border: none; border-radius: 9px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600;
+  padding: 11px 24px; cursor: pointer;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  position: fixed; top: 0; left: 0;
+  width: var(--sidebar-w); height: 100vh;
+  background: #060f1e;
+  border-right: 1px solid rgba(201,148,58,0.2);
+  display: flex; flex-direction: column;
+  z-index: 100;
+  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+.sidebar-logo {
+  display: flex; align-items: center; gap: 10px;
+  padding: 1.5rem 1.25rem 1.25rem;
+  border-bottom: 1px solid rgba(201,148,58,0.2);
+}
+.logo-icon {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, #c9943a, #e8b85a);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; box-shadow: 0 4px 12px rgba(201,148,58,0.3);
+}
+.logo-name { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #f0ece3; }
+.logo-tag  { font-size: 0.6rem; color: #c9943a; letter-spacing: 0.1em; text-transform: uppercase; }
+.admin-badge {
+  display: inline-block; background: rgba(224,92,92,0.18);
+  border: 1px solid rgba(224,92,92,0.35); color: #ff9a9a;
+  font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 4px; margin-top: 2px;
+}
+
+nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
+.nav-label { font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(138,154,181,0.4); padding: 0.75rem 0.5rem 0.4rem; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 8px;
+  cursor: pointer; color: #8a9ab5;
+  font-size: 0.87rem; text-decoration: none;
+  transition: all 0.2s; margin-bottom: 2px;
+}
+.nav-item:hover  { background: rgba(201,148,58,0.08); color: #f0ece3; }
+.nav-item.active { background: rgba(201,148,58,0.12); color: #e8b85a; font-weight: 500; }
+.nav-icon { font-size: 16px; width: 20px; text-align: center; }
+.nav-badge {
+  margin-left: auto; background: #e05c5c; color: #fff;
+  font-size: 0.62rem; font-weight: 700; padding: 1px 7px; border-radius: 10px;
+}
+
+.sidebar-admin-info {
+  padding: 1rem 1.25rem; border-top: 1px solid rgba(201,148,58,0.2);
+  display: flex; align-items: center; gap: 10px;
+}
+.admin-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: #1a2a3a;
+  border: 2px solid rgba(224,92,92,0.3);
+  display: flex; align-items: center; justify-content: center; font-size: 15px;
+}
+.admin-name  { font-size: 0.85rem; font-weight: 500; color: #f0ece3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.admin-label { font-size: 0.68rem; color: #ff9a9a; }
+.logout-btn  { background: none; border: none; color: #8a9ab5; cursor: pointer; font-size: 16px; margin-left: auto; transition: color 0.2s; }
+.logout-btn:hover { color: #e05c5c; }
+
+/* ── Mobile header ── */
+.mobile-header {
+  display: none; position: fixed;
+  top: 0; left: 0; right: 0; height: 56px;
+  background: #060f1e;
+  border-bottom: 1px solid rgba(201,148,58,0.2);
+  align-items: center; padding: 0 1rem; gap: 12px;
+  z-index: 200;
+  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+.mobile-header.hide { transform: translateY(-100%); }
+.hamburger { background: none; border: none; color: #8a9ab5; cursor: pointer; font-size: 20px; }
+.mobile-logo { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: #f0ece3; }
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 99; }
+.overlay.show { display: block; }
+
+/* ── Main ── */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1; position: relative; z-index: 1;
+  padding: 2rem 1.75rem 3rem;
+  width: calc(100% - var(--sidebar-w));
+  min-width: 0;
+}
+
+/* ── Tab system ── */
+.tab-bar {
+  display: flex; gap: 0.3rem;
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid rgba(201,148,58,0.2);
+  flex-wrap: wrap;
+}
+.tab-btn {
+  padding: 9px 18px; border: none; background: none;
+  color: #8a9ab5; font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem; cursor: pointer; border-radius: 8px 8px 0 0;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s; white-space: nowrap; margin-bottom: -1px;
+}
+.tab-btn:hover  { color: #f0ece3; background: rgba(201,148,58,0.05); }
+.tab-btn.active { color: #e8b85a; border-bottom-color: #c9943a; font-weight: 500; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── Page header ── */
+.page-header { margin-bottom: 1.5rem; }
+.page-title  { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #f0ece3; }
+.page-subtitle { font-size: 0.85rem; color: #8a9ab5; margin-top: 3px; }
+
+/* ── Stats grid ── */
+.stats-grid {
+  display: grid; gap: 1rem;
+  grid-template-columns: repeat(4,1fr);
+  margin-bottom: 1.5rem;
+}
+.stat-card {
+  background: #0f2040;
+  border: 1px solid rgba(201,148,58,0.2); border-radius: 12px;
+  padding: 1.1rem 1.25rem;
+  position: relative; overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.stat-card:hover { border-color: rgba(201,148,58,0.4); transform: translateY(-2px); }
+.stat-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, #c9943a, #e8b85a); opacity: 0.5;
+}
+.stat-card.red::before    { background: linear-gradient(90deg, #e05c5c, #ff8a8a); }
+.stat-card.green::before  { background: linear-gradient(90deg, #4caf82, #7de8b8); }
+.stat-card.blue::before   { background: linear-gradient(90deg, #4a90d9, #7eb8f7); }
+.stat-icon  { font-size: 20px; margin-bottom: 0.5rem; }
+.stat-label { font-size: 0.68rem; color: #8a9ab5; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+.stat-value { font-size: 1.5rem; font-weight: 600; color: #f0ece3; }
+.stat-sub   { font-size: 0.7rem; color: #8a9ab5; margin-top: 3px; }
+
+/* ── Card ── */
+.card {
+  background: #0f2040;
+  border: 1px solid rgba(201,148,58,0.2); border-radius: 12px;
+  overflow: hidden; margin-bottom: 1rem;
+}
+.card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.25rem; border-bottom: 1px solid rgba(201,148,58,0.2);
+}
+.card-head h3 { font-size: 0.9rem; font-weight: 600; color: #f0ece3; display: flex; align-items: center; gap: 8px; }
+.card-body { padding: 1.25rem; }
+
+/* ── Filters bar ── */
+.filters-bar {
+  display: flex; gap: 0.75rem; flex-wrap: wrap;
+  padding: 1rem 1.25rem; border-bottom: 1px solid rgba(201,148,58,0.2);
+  align-items: center;
+}
+.search-wrap { position: relative; flex: 1; min-width: 180px; }
+.search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: #8a9ab5; font-size: 14px; pointer-events: none; }
+.search-input {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(201,148,58,0.2); border-radius: 8px;
+  color: #f0ece3; -webkit-text-fill-color: #f0ece3;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem; padding: 8px 12px 8px 34px; outline: none;
+}
+.search-input::placeholder { color: rgba(138,154,181,0.45); -webkit-text-fill-color: rgba(138,154,181,0.45); }
+.search-input:focus { border-color: #c9943a; box-shadow: 0 0 0 3px rgba(201,148,58,0.1); }
+
+.filter-btn {
+  padding: 7px 14px; border-radius: 7px;
+  border: 1px solid rgba(201,148,58,0.2);
+  background: rgba(255,255,255,0.03);
+  color: #8a9ab5; font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.filter-btn:hover  { border-color: rgba(201,148,58,0.4); color: #f0ece3; }
+.filter-btn.active { background: rgba(201,148,58,0.12); border-color: #c9943a; color: #e8b85a; }
+
+.sel {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(201,148,58,0.2); border-radius: 8px;
+  color: #f0ece3; -webkit-text-fill-color: #f0ece3;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem; padding: 8px 12px; outline: none;
+  cursor: pointer; -webkit-appearance: none;
+}
+.sel option { background: #0f2040; color: #f0ece3; }
+
+/* ── Table ── */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; min-width: 500px; }
+tbody td { color: #f0ece3; -webkit-text-fill-color: #f0ece3; }
+tbody td .tx-name { color: #f0ece3 !important; -webkit-text-fill-color: #f0ece3 !important; }
+tbody td .tx-sub  { color: #8a9ab5 !important; -webkit-text-fill-color: #8a9ab5 !important; }
+tbody td .tx-ref  { color: #c9943a !important; -webkit-text-fill-color: #c9943a !important; }
+tbody td .tx-amt  { color: #f0ece3 !important; -webkit-text-fill-color: #f0ece3 !important; }
+tbody td .tx-php  { color: #8a9ab5 !important; -webkit-text-fill-color: #8a9ab5 !important; }
+th {
+  font-size: 0.67rem; color: #8a9ab5;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 10px 1.25rem; text-align: left;
+  border-bottom: 1px solid rgba(201,148,58,0.2);
+  font-weight: 500; white-space: nowrap;
+}
+td {
+  padding: 11px 1.25rem; color: #f0ece3;
+  border-bottom: 1px solid rgba(201,148,58,0.06);
+  font-size: 0.84rem; vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tbody tr { transition: background 0.15s; cursor: pointer; }
+tbody tr:hover { background: rgba(201,148,58,0.04); }
+
+/* ── Status badges ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 20px;
+  font-size: 0.68rem; font-weight: 600; letter-spacing: 0.03em; white-space: nowrap;
+}
+.badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.b-pending    { background: rgba(232,184,90,0.15);  color: #e8b85a; }
+.b-processing { background: rgba(126,184,247,0.15); color: #7eb8f7; }
+.b-completed  { background: rgba(76,175,130,0.15);  color: #4caf82; }
+.b-failed     { background: rgba(224,92,92,0.15);   color: #e05c5c; }
+.b-active     { background: rgba(76,175,130,0.15);  color: #4caf82; }
+.b-suspended  { background: rgba(224,92,92,0.15);   color: #e05c5c; }
+.b-admin      { background: rgba(224,92,92,0.15);   color: #ff9a9a; }
+.b-sender     { background: rgba(126,184,247,0.15); color: #7eb8f7; }
+
+/* ── Action buttons ── */
+.act-btn {
+  padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(201,148,58,0.2);
+  background: rgba(255,255,255,0.04); color: #8a9ab5;
+  font-family: 'DM Sans', sans-serif; font-size: 0.73rem;
+  cursor: pointer; transition: all 0.2s; margin-right: 4px; white-space: nowrap;
+}
+.act-btn:hover        { border-color: rgba(201,148,58,0.4); color: #f0ece3; }
+.act-btn.approve      { border-color: rgba(76,175,130,0.4); color: #4caf82; }
+.act-btn.approve:hover{ background: rgba(76,175,130,0.12); }
+.act-btn.reject       { border-color: rgba(224,92,92,0.4); color: #e05c5c; }
+.act-btn.reject:hover { background: rgba(224,92,92,0.12); }
+.act-btn.view         { border-color: rgba(126,184,247,0.3); color: #7eb8f7; }
+.act-btn.view:hover   { background: rgba(126,184,247,0.1); }
+
+/* ── Text helpers ── */
+.tx-ref  { font-size: 0.75rem; color: #c9943a; font-weight: 600; letter-spacing: 0.04em; }
+.tx-name { font-weight: 500; color: #f0ece3; }
+.tx-sub  { font-size: 0.71rem; color: #8a9ab5; margin-top: 1px; }
+.tx-amt  { font-weight: 600; color: #f0ece3; }
+.tx-php  { font-size: 0.71rem; color: #8a9ab5; }
+
+/* ── Empty ── */
+.empty { text-align: center; padding: 3rem 1.5rem; }
+.empty-icon  { font-size: 2.5rem; display: block; margin-bottom: 0.5rem; opacity: 0.35; }
+.empty-title { font-size: 0.95rem; font-weight: 500; color: #f0ece3; margin-bottom: 0.3rem; }
+.empty-sub   { font-size: 0.8rem; color: #8a9ab5; }
+
+/* ── Skeleton ── */
+.skel {
+  display: inline-block; border-radius: 5px;
+  background: linear-gradient(90deg, #162545 25%, #0f2040 50%, #162545 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+/* ── Pagination ── */
+.pagination {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.9rem 1.25rem; border-top: 1px solid rgba(201,148,58,0.2);
+  flex-wrap: wrap; gap: 0.5rem;
+}
+.page-info { font-size: 0.78rem; color: #8a9ab5; }
+.page-btns { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+.pg-btn {
+  width: 30px; height: 30px; border-radius: 6px;
+  border: 1px solid rgba(201,148,58,0.2);
+  background: rgba(255,255,255,0.03);
+  color: #8a9ab5; cursor: pointer; font-size: 0.78rem;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+}
+.pg-btn:hover  { border-color: rgba(201,148,58,0.4); color: #f0ece3; }
+.pg-btn.active { background: rgba(201,148,58,0.12); border-color: #c9943a; color: #e8b85a; }
+.pg-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* ── Modal ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75); z-index: 500;
+  align-items: center; justify-content: center; padding: 1rem;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: #0d1e38; border: 1px solid rgba(201,148,58,0.2); border-radius: 16px;
+  width: 100%; max-width: 520px; max-height: 92vh; overflow-y: auto;
+  animation: modal-in 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+@keyframes modal-in { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
+.modal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(201,148,58,0.2);
+}
+.modal-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #f0ece3; }
+.modal-close { background: none; border: none; color: #8a9ab5; cursor: pointer; font-size: 20px; transition: color 0.2s; }
+.modal-close:hover { color: #f0ece3; }
+.modal-body { padding: 1.5rem; }
+.modal-foot { padding: 1rem 1.5rem; border-top: 1px solid rgba(201,148,58,0.2); display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+.d-section { margin-bottom: 1.2rem; }
+.d-title {
+  font-size: 0.67rem; color: #c9943a; letter-spacing: 0.1em;
+  text-transform: uppercase; margin-bottom: 0.7rem;
+  display: flex; align-items: center; gap: 8px;
+}
+.d-title::after { content:''; flex:1; height:1px; background: rgba(201,148,58,0.2); }
+.d-row {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 5px 0; border-bottom: 1px solid rgba(201,148,58,0.06); gap: 1rem;
+}
+.d-row:last-child { border-bottom: none; }
+.d-label { font-size: 0.77rem; color: #8a9ab5; flex-shrink: 0; }
+.d-val   { font-size: 0.84rem; font-weight: 500; color: #f0ece3; text-align: right; word-break: break-all; }
+.d-val.big { color: #e8b85a; font-size: 1.05rem; font-weight: 700; }
+
+.photo-thumb {
+  width: 100%; border-radius: 8px; border: 1px solid rgba(201,148,58,0.2);
+  margin-top: 0.5rem; cursor: pointer; transition: opacity 0.2s;
+}
+.photo-thumb:hover { opacity: 0.85; }
+
+.status-sel {
+  width: 100%;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(201,148,58,0.2);
+  border-radius: 8px; color: #f0ece3; -webkit-text-fill-color: #f0ece3;
+  font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
+  padding: 9px 12px; outline: none; cursor: pointer; -webkit-appearance: none;
+}
+.status-sel option { background: #0f2040; color: #f0ece3; }
+
+.btn-primary {
+  flex: 1; background: linear-gradient(135deg, #c9943a, #e8b85a);
+  color: #1a0e00; border: none; border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600;
+  padding: 10px; cursor: pointer; transition: opacity 0.2s, transform 0.15s;
+  box-shadow: 0 4px 14px rgba(201,148,58,0.3); position: relative;
+}
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn-primary .spi {
+  display: none; width: 14px; height: 14px;
+  border: 2px solid rgba(26,14,0,0.3); border-top-color: #1a0e00;
+  border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto;
+}
+.btn-primary.loading .bt { display: none; }
+.btn-primary.loading .spi { display: block; }
+
+.btn-ghost {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(201,148,58,0.2);
+  color: #8a9ab5; border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+  padding: 10px 16px; cursor: pointer; transition: all 0.2s;
+}
+.btn-ghost:hover { color: #f0ece3; border-color: rgba(201,148,58,0.4); }
+
+.btn-danger {
+  background: rgba(224,92,92,0.15); border: 1px solid rgba(224,92,92,0.3);
+  color: #e05c5c; border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+  padding: 10px 16px; cursor: pointer; transition: all 0.2s;
+}
+.btn-danger:hover { background: rgba(224,92,92,0.25); }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 1.5rem; right: 1.5rem;
+  background: #162545; border: 1px solid rgba(201,148,58,0.2);
+  border-radius: 10px; padding: 12px 18px;
+  font-size: 0.85rem; color: #f0ece3;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  z-index: 1000; transform: translateY(20px); opacity: 0;
+  transition: all 0.3s; pointer-events: none; max-width: 320px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-color: rgba(76,175,130,0.4); color: #7de8b8; }
+.toast.error   { border-color: rgba(224,92,92,0.4);  color: #ff9a9a; }
+
+/* ── Two-col ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+/* ── Activity list ── */
+.activity-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid rgba(201,148,58,0.06);
+}
+.activity-item:last-child { border-bottom: none; }
+.act-text { font-size: 0.82rem; color: #f0ece3; }
+.act-time { font-size: 0.7rem; color: #8a9ab5; margin-top: 2px; }
+
+/* ── User cell ── */
+.u-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #162545; border: 1px solid rgba(201,148,58,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600;
+  color: #e8b85a !important;
+  -webkit-text-fill-color: #e8b85a !important;
+  flex-shrink: 0;
+}
+.user-cell { display: flex; align-items: center; gap: 9px; }
+
+/* ── Settings inputs ── */
+.settings-input {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(201,148,58,0.2); border-radius: 9px;
+  color: #f0ece3; -webkit-text-fill-color: #f0ece3;
+  font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600;
+  padding: 10px 12px; outline: none;
+}
+.settings-input:focus { border-color: #c9943a; box-shadow: 0 0 0 3px rgba(201,148,58,0.1); }
+.settings-textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(201,148,58,0.2); border-radius: 9px;
+  color: #f0ece3; -webkit-text-fill-color: #f0ece3;
+  font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
+  padding: 10px 12px; outline: none; resize: vertical;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1000px) { .stats-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 800px)  {
+  .two-col { grid-template-columns: 1fr; }
+  /* transactions table - hide method and date */
+  #panel-transactions th:nth-child(4), #panel-transactions td:nth-child(4),
+  #panel-transactions th:nth-child(5), #panel-transactions td:nth-child(5) { display: none; }
+  /* users table - hide balance, transactions, joined */
+  #panel-users th:nth-child(3), #panel-users td:nth-child(3),
+  #panel-users th:nth-child(4), #panel-users td:nth-child(4),
+  #panel-users th:nth-child(5), #panel-users td:nth-child(5) { display: none; }
+}
+@media (max-width: 680px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; width: 100%; padding: 4.75rem 0.9rem 5rem; }
+  .mobile-header { display: flex; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .tab-btn { font-size: 0.78rem; padding: 8px 12px; }
+  /* transactions - also hide sender col */
+  #panel-transactions th:nth-child(2), #panel-transactions td:nth-child(2) { display: none; }
+  /* users - keep only user, role, actions */
+  #panel-users th:nth-child(2), #panel-users td:nth-child(2) { display: none; }
+}
+@media (max-width: 420px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .main { padding: 4.5rem 0.75rem 5rem; }
+}
+```
+
+  </style>
+</head>
+<body>
+
+  <div id="loadingOverlay">
+    <div class="loading-logo">⚓ ShipRemit</div>
+    <div class="spin"></div>
+    <div class="loading-sub">Loading admin panel...</div>
+  </div>
+
+  <div id="accessDenied">
+    <div class="denied-icon">🚫</div>
+    <div class="denied-title">Access Denied</div>
+    <div class="denied-sub">This panel is for administrators only.<br>Please sign in with an admin account.</div>
+    <button class="denied-btn" onclick="location.href='login.html'">← Back to Login</button>
+  </div>
+
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar -->
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">⚓</div>
+      <div>
+        <div class="logo-name">ShipRemit</div>
+        <div class="logo-tag">Admin Panel</div>
+        <div class="admin-badge">Administrator</div>
+      </div>
+    </div>
+    <nav>
+      <div class="nav-label">Dashboard</div>
+      <a class="nav-item active" href="#" onclick="switchTab('overview',this)"><span class="nav-icon">📊</span> Overview</a>
+      <div class="nav-label">Manage</div>
+      <a class="nav-item" href="#" onclick="switchTab('transactions',this)"><span class="nav-icon">💸</span> Transactions <span class="nav-badge" id="pendingBadge" style="display:none">0</span></a>
+      <a class="nav-item" href="#" onclick="switchTab('users',this)"><span class="nav-icon">👥</span> Users</a>
+      <div class="nav-label">Settings</div>
+      <a class="nav-item" href="#" onclick="switchTab('settings',this)"><span class="nav-icon">⚙️</span> Settings</a>
+      <a class="nav-item" href="dashboard.html"><span class="nav-icon">↩</span> Sender View</a>
+    </nav>
+    <div class="sidebar-admin-info">
+      <div class="admin-avatar">🛡</div>
+      <div style="flex:1;min-width:0">
+        <div class="admin-name" id="adminName">Admin</div>
+        <div class="admin-label">Administrator</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">⏻</button>
+    </div>
+  </aside>
+
+  <!-- Mobile header -->
+
+  <div class="mobile-header">
+    <button class="hamburger" onclick="openSidebar()">☰</button>
+    <span class="mobile-logo">🛡 Admin Panel</span>
+  </div>
+
+  <!-- Main -->
+
+  <main class="main">
+
+```
+<div class="page-header">
+  <div class="page-title">Admin Dashboard</div>
+  <div class="page-subtitle">Manage transactions, users, and settings</div>
+</div>
+
+<!-- Tab bar -->
+<div class="tab-bar">
+  <button class="tab-btn active" id="tab-overview"     onclick="switchTab('overview',this)">📊 Overview</button>
+  <button class="tab-btn"        id="tab-transactions" onclick="switchTab('transactions',this)">💸 Transactions</button>
+  <button class="tab-btn"        id="tab-users"        onclick="switchTab('users',this)">👥 Users</button>
+  <button class="tab-btn"        id="tab-settings"     onclick="switchTab('settings',this)">⚙️ Settings</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 1: OVERVIEW
+══════════════════════════════════════════ -->
+<div class="tab-panel active" id="panel-overview">
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div class="stat-label">Total Volume</div>
+      <div class="stat-value" id="ovTotalVol">—</div>
+      <div class="stat-sub">All completed sends</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-icon">✅</div>
+      <div class="stat-label">Completed</div>
+      <div class="stat-value" id="ovCompleted">—</div>
+      <div class="stat-sub" id="ovCompletedSub">transactions</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-icon">⏳</div>
+      <div class="stat-label">Pending Review</div>
+      <div class="stat-value" id="ovPending">—</div>
+      <div class="stat-sub">Needs action</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-icon">👥</div>
+      <div class="stat-label">Total Users</div>
+      <div class="stat-value" id="ovUsers">—</div>
+      <div class="stat-sub">Registered senders</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+
+    <!-- Recent transactions -->
+    <div class="card">
+      <div class="card-head">
+        <h3>💸 Recent Transactions</h3>
+        <a href="#" onclick="switchTab('transactions',null)" style="font-size:0.75rem;color:#c9943a;text-decoration:none;">View all →</a>
+      </div>
+      <div id="ovRecentTx">
+        <div style="padding:1.5rem 1.25rem">
+          <div class="skel" style="width:100%;height:14px;margin-bottom:10px"></div>
+          <div class="skel" style="width:80%;height:14px;margin-bottom:10px"></div>
+          <div class="skel" style="width:90%;height:14px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent activity / new users -->
+    <div class="card">
+      <div class="card-head">
+        <h3>🆕 Recent Registrations</h3>
+      </div>
+      <div class="card-body" id="ovRecentUsers">
+        <div class="skel" style="width:100%;height:14px;margin-bottom:10px"></div>
+        <div class="skel" style="width:75%;height:14px;margin-bottom:10px"></div>
+        <div class="skel" style="width:85%;height:14px"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 2: TRANSACTIONS
+══════════════════════════════════════════ -->
+<div class="tab-panel" id="panel-transactions">
+
+  <div class="card" style="margin-bottom:0">
+    <div class="filters-bar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" type="text" id="txSearch" placeholder="Search ref, name, email..." oninput="applyTxFilters()"/>
+      </div>
+      <div style="display:flex;gap:0.4rem;flex-wrap:wrap" id="txStatusBtns">
+        <button class="filter-btn active" onclick="setTxFilter('all',this)">All</button>
+        <button class="filter-btn" onclick="setTxFilter('pending',this)">Pending</button>
+        <button class="filter-btn" onclick="setTxFilter('processing',this)">Processing</button>
+        <button class="filter-btn" onclick="setTxFilter('completed',this)">Completed</button>
+        <button class="filter-btn" onclick="setTxFilter('failed',this)">Failed</button>
+      </div>
+      <select class="sel" id="txSort" onchange="applyTxFilters()">
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+        <option value="amount-hi">Amount ↓</option>
+        <option value="amount-lo">Amount ↑</option>
+      </select>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Reference</th>
+            <th>Sender</th>
+            <th>Recipient</th>
+            <th>Amount</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="txTableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <span class="page-info" id="txPageInfo">—</span>
+      <div class="page-btns" id="txPageBtns"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 3: USERS
+══════════════════════════════════════════ -->
+<div class="tab-panel" id="panel-users">
+
+  <div class="card" style="margin-bottom:0">
+    <div class="filters-bar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" type="text" id="userSearch" placeholder="Search name, email, vessel..." oninput="applyUserFilters()"/>
+      </div>
+      <div style="display:flex;gap:0.4rem;flex-wrap:wrap">
+        <button class="filter-btn active" onclick="setUserFilter('all',this)">All</button>
+        <button class="filter-btn" onclick="setUserFilter('sender',this)">Senders</button>
+        <button class="filter-btn" onclick="setUserFilter('admin',this)">Admins</button>
+      </div>
+      <select class="sel" id="userSort" onchange="applyUserFilters()">
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+        <option value="name">Name A→Z</option>
+      </select>
+    </div>
+
+    <div id="userCardList" style="padding:0.5rem 0"></div>
+
+    <div class="pagination">
+      <span class="page-info" id="userPageInfo">—</span>
+      <div class="page-btns" id="userPageBtns"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 4: SETTINGS
+══════════════════════════════════════════ -->
+<div class="tab-panel" id="panel-settings">
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-head"><h3>💱 Exchange Rate</h3></div>
+      <div class="card-body">
+        <p style="font-size:0.82rem;color:#8a9ab5;margin-bottom:1rem;">Set the USD → PHP rate used for new transactions.</p>
+        <div style="margin-bottom:1rem">
+          <label style="font-size:0.72rem;color:#e8b85a;letter-spacing:0.08em;text-transform:uppercase;display:block;margin-bottom:5px;">Current Rate (₱ per $1)</label>
+          <div style="position:relative">
+            <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#e8b85a;font-weight:600">₱</span>
+            <input type="number" id="rateInput" step="0.01" placeholder="56.20" class="settings-input" style="padding-left:30px"/>
+          </div>
+        </div>
+        <button class="btn-primary" style="width:100%" onclick="saveRate()">
+          <span class="bt">Save Rate</span><span class="spi"></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>💳 Service Fee</h3></div>
+      <div class="card-body">
+        <p style="font-size:0.82rem;color:#8a9ab5;margin-bottom:1rem;">Set the service fee percentage charged per transaction.</p>
+        <div style="margin-bottom:1rem">
+          <label style="font-size:0.72rem;color:#e8b85a;letter-spacing:0.08em;text-transform:uppercase;display:block;margin-bottom:5px;">Fee Percentage (%)</label>
+          <div style="position:relative">
+            <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#8a9ab5">%</span>
+            <input type="number" id="feeInput" step="0.1" min="0" max="10" placeholder="1.5" class="settings-input"/>
+          </div>
+        </div>
+        <button class="btn-primary" style="width:100%" onclick="saveFee()">
+          <span class="bt">Save Fee</span><span class="spi"></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>📢 Announcement</h3></div>
+      <div class="card-body">
+        <p style="font-size:0.82rem;color:#8a9ab5;margin-bottom:1rem;">Set a notice shown to all users on the dashboard.</p>
+        <div style="margin-bottom:1rem">
+          <label style="font-size:0.72rem;color:#e8b85a;letter-spacing:0.08em;text-transform:uppercase;display:block;margin-bottom:5px;">Message</label>
+          <textarea id="announcementInput" placeholder="e.g. Maintenance scheduled on Dec 25..." rows="3" class="settings-textarea"></textarea>
+        </div>
+        <button class="btn-primary" style="width:100%" onclick="saveAnnouncement()">
+          <span class="bt">Save Announcement</span><span class="spi"></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>🛡 Admin Access</h3></div>
+      <div class="card-body">
+        <p style="font-size:0.82rem;color:#8a9ab5;margin-bottom:1rem;">Grant admin role to a registered user by their UID or email.</p>
+        <div style="margin-bottom:1rem">
+          <label style="font-size:0.72rem;color:#e8b85a;letter-spacing:0.08em;text-transform:uppercase;display:block;margin-bottom:5px;">User Email</label>
+          <input type="email" id="adminGrantEmail" placeholder="user@email.com" class="settings-input" style="font-size:0.88rem;font-weight:400"/>
+        </div>
+        <button class="btn-primary" style="width:100%" onclick="grantAdmin()">
+          <span class="bt">Grant Admin Role</span><span class="spi"></span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+```
+
+  </main>
+
+  <!-- ── Transaction Detail Modal ── -->
+
+  <div class="modal-overlay" id="txModal" onclick="closeModal('txModal',event)">
+    <div class="modal">
+      <div class="modal-head">
+        <div class="modal-title">Transaction Details</div>
+        <button class="modal-close" onclick="closeModalDirect('txModal')">✕</button>
+      </div>
+      <div class="modal-body" id="txModalBody"></div>
+      <div class="modal-foot">
+        <button class="btn-ghost" onclick="closeModalDirect('txModal')">Close</button>
+        <div style="flex:1">
+          <select class="status-sel" id="txStatusSel">
+            <option value="pending">Pending</option>
+            <option value="processing">Processing</option>
+            <option value="completed">Completed</option>
+            <option value="failed">Failed</option>
+          </select>
+        </div>
+        <button class="btn-primary" onclick="updateTxStatus()">
+          <span class="bt">Update Status</span><span class="spi"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── User Detail Modal ── -->
+
+  <div class="modal-overlay" id="userModal" onclick="closeModal('userModal',event)">
+    <div class="modal">
+      <div class="modal-head">
+        <div class="modal-title">User Details</div>
+        <button class="modal-close" onclick="closeModalDirect('userModal')">✕</button>
+      </div>
+      <div class="modal-body" id="userModalBody"></div>
+      <div class="modal-foot" id="userModalFoot"></div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+
+  <div class="toast" id="toast"></div>
+
+  <!-- Firebase -->
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script>
+    // ── Firebase ──────────────────────────────────────────────────────────────
+    const firebaseConfig = {
+      apiKey:            "AIzaSyDjspj1rS3F3zt_VhCvY6ypDsU9IfAAvP0",
+      authDomain:        "shipremit.firebaseapp.com",
+      databaseURL:       "https://shipremit-default-rtdb.firebaseio.com",
+      projectId:         "shipremit",
+      storageBucket:     "shipremit.firebasestorage.app",
+      messagingSenderId: "516183209213",
+      appId:             "1:516183209213:web:d2ffdaa25b14b96de17a94",
+      measurementId:     "G-0SE4CEQP5X"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db   = firebase.database();
+
+    // ── State ─────────────────────────────────────────────────────────────────
+    const ADMIN_EMAIL = 'reggae.murphy09@gmail.com'; // your admin email
+    let allTx       = [], filteredTx  = [], txPage = 1;
+    let allUsers    = [], filteredUsers = [], userPage = 1;
+    let txStatusFilter   = 'all';
+    let userRoleFilter   = 'all';
+    let selectedTxId     = null;
+    let selectedUserId   = null;
+    const PAGE = 10;
+
+    // ── Auth guard ────────────────────────────────────────────────────────────
+    const loadingFailsafe = setTimeout(hideLoading, 8000);
+
+    auth.onAuthStateChanged(async user => {
+      if (!user) {
+        clearTimeout(loadingFailsafe);
+        hideLoading();
+        window.location.href = 'login.html';
+        return;
+      }
+
+      try {
+        const snap = await db.ref('users/' + user.uid + '/role').once('value');
+        const role = snap.val();
+
+        const isAdmin = (role === 'admin') || (user.email === ADMIN_EMAIL);
+        if (!isAdmin) {
+          document.getElementById('accessDenied').classList.add('show');
+          return;
+        }
+
+        if (role !== 'admin') {
+          await db.ref('users/' + user.uid + '/role').set('admin');
+        }
+
+        document.getElementById('adminName').textContent = user.displayName || user.email || 'Admin';
+        await Promise.all([ loadAllTransactions(), loadAllUsers(), loadSettings() ]);
+
+      } catch(e) {
+        console.warn('Admin init error:', e);
+      } finally {
+        clearTimeout(loadingFailsafe);
+        hideLoading();
+      }
+    });
+
+    function hideLoading() {
+      const o = document.getElementById('loadingOverlay');
+      if (!o) return;
+      o.classList.add('hidden');
+      setTimeout(() => { if (o.parentNode) o.remove(); }, 500);
+    }
+
+    // ── Load all transactions ─────────────────────────────────────────────────
+    async function loadAllTransactions() {
+      try {
+        const snap = await db.ref('transactions').orderByChild('createdAt').once('value');
+        const data = snap.val() || {};
+        allTx = Object.entries(data)
+          .map(([id, t]) => ({ id, ...t }))
+          .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      } catch(e) { allTx = []; }
+
+      const pending = allTx.filter(t => t.status === 'pending' || t.status === 'processing').length;
+      const badge   = document.getElementById('pendingBadge');
+      if (pending) { badge.textContent = pending; badge.style.display = 'inline'; }
+
+      computeOverviewStats();
+      applyTxFilters();
+      renderOverviewTx();
+    }
+
+    // ── Load all users ────────────────────────────────────────────────────────
+    async function loadAllUsers() {
+      try {
+        const snap = await db.ref('users').once('value');
+        const data = snap.val() || {};
+        allUsers = Object.entries(data)
+          .map(([uid, u]) => ({ uid, ...u }))
+          .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      } catch(e) { allUsers = []; }
+      // Update the user count stat now that allUsers is populated
+      document.getElementById('ovUsers').textContent = allUsers.length;
+      applyUserFilters();
+      renderOverviewUsers();
+    }
+
+    // ── Load settings ─────────────────────────────────────────────────────────
+    async function loadSettings() {
+      try {
+        const snap = await db.ref('settings').once('value');
+        const s = snap.val() || {};
+        if (s.exchangeRate)  document.getElementById('rateInput').value         = s.exchangeRate;
+        if (s.serviceFee)    document.getElementById('feeInput').value          = s.serviceFee;
+        if (s.announcement)  document.getElementById('announcementInput').value = s.announcement;
+      } catch(e) {}
+    }
+
+    // ── Overview stats ────────────────────────────────────────────────────────
+    function computeOverviewStats() {
+      let vol = 0, comp = 0, pend = 0;
+      allTx.forEach(t => {
+        if (t.status === 'completed') { vol += parseFloat(t.amount) || 0; comp++; }
+        if (t.status === 'pending' || t.status === 'processing') pend++;
+      });
+      document.getElementById('ovTotalVol').textContent    = '$' + fmt(vol);
+      document.getElementById('ovCompleted').textContent   = comp;
+      document.getElementById('ovCompletedSub').textContent= comp + ' transactions';
+      document.getElementById('ovPending').textContent     = pend;
+      document.getElementById('ovUsers').textContent       = allUsers.length;
+    }
+
+    // ── Overview recent transactions ──────────────────────────────────────────
+    function renderOverviewTx() {
+      const el   = document.getElementById('ovRecentTx');
+      const recent = allTx.slice(0, 6);
+      if (!recent.length) { el.innerHTML = '<div class="empty"><span class="empty-icon">📭</span><div class="empty-sub">No transactions yet.</div></div>'; return; }
+      el.innerHTML = `<table style="width:100%;border-collapse:collapse">
+        <thead><tr>
+          <th style="font-size:0.65rem;color:#8a9ab5;padding:8px 1.25rem;letter-spacing:0.08em;text-transform:uppercase;border-bottom:1px solid rgba(201,148,58,0.2)">Ref</th>
+          <th style="font-size:0.65rem;color:#8a9ab5;padding:8px 1.25rem;letter-spacing:0.08em;text-transform:uppercase;border-bottom:1px solid rgba(201,148,58,0.2)">Recipient</th>
+          <th style="font-size:0.65rem;color:#8a9ab5;padding:8px 1.25rem;letter-spacing:0.08em;text-transform:uppercase;border-bottom:1px solid rgba(201,148,58,0.2)">Amount</th>
+          <th style="font-size:0.65rem;color:#8a9ab5;padding:8px 1.25rem;letter-spacing:0.08em;text-transform:uppercase;border-bottom:1px solid rgba(201,148,58,0.2)">Status</th>
+        </tr></thead>
+        <tbody>
+          ${recent.map(t => `<tr onclick="openTxModal('${t.id}')" style="cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='rgba(201,148,58,0.04)'" onmouseout="this.style.background=''">
+            <td style="padding:9px 1.25rem;font-size:0.75rem;color:#f0ece3;-webkit-text-fill-color:#f0ece3;border-bottom:1px solid rgba(201,148,58,0.05)"><span style="color:#c9943a;-webkit-text-fill-color:#c9943a;font-weight:600">${escHtml(t.refCode||'—')}</span></td>
+            <td style="padding:9px 1.25rem;font-size:0.82rem;color:#f0ece3;-webkit-text-fill-color:#f0ece3;border-bottom:1px solid rgba(201,148,58,0.05)">${escHtml(t.recipientName||'—')}</td>
+            <td style="padding:9px 1.25rem;font-size:0.82rem;font-weight:600;color:#f0ece3;-webkit-text-fill-color:#f0ece3;border-bottom:1px solid rgba(201,148,58,0.05)">$${fmt(t.amount||0)}</td>
+            <td style="padding:9px 1.25rem;border-bottom:1px solid rgba(201,148,58,0.05)"><span class="badge b-${t.status||'pending'}">${cap(t.status||'pending')}</span></td>
+          </tr>`).join('')}
+        </tbody></table>`;
+    }
+
+    function renderOverviewUsers() {
+      const el = document.getElementById('ovRecentUsers');
+      const recent = allUsers.slice(0, 6);
+      if (!recent.length) { el.innerHTML = '<div style="color:#8a9ab5;font-size:0.82rem">No users yet.</div>'; return; }
+      el.innerHTML = recent.map(u => `
+        <div class="activity-item">
+          <div class="u-avatar">${(u.fullName||u.email||'?').charAt(0).toUpperCase()}</div>
+          <div style="flex:1;min-width:0">
+            <div class="act-text">${escHtml(u.fullName||'Unknown')}</div>
+            <div class="act-time">${escHtml(u.email||'')} · ${escHtml(u.rank||'Seafarer')}</div>
+          </div>
+          <span class="badge b-${u.role||'sender'}">${cap(u.role||'sender')}</span>
+        </div>`).join('');
+    }
+
+    // ── Transactions tab ──────────────────────────────────────────────────────
+    let txStatusF = 'all';
+    function setTxFilter(s, btn) {
+      txStatusF = s;
+      document.querySelectorAll('#txStatusBtns .filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      txPage = 1; applyTxFilters();
+    }
+
+    function applyTxFilters() {
+      const q    = (document.getElementById('txSearch')?.value||'').trim().toLowerCase();
+      const sort = document.getElementById('txSort')?.value || 'newest';
+      filteredTx = allTx.filter(t => {
+        const ms = txStatusF === 'all' || t.status === txStatusF;
+        const mq = !q ||
+          (t.refCode||'').toLowerCase().includes(q) ||
+          (t.recipientName||'').toLowerCase().includes(q) ||
+          (t.senderEmail||'').toLowerCase().includes(q) ||
+          (t.recipientBank||'').toLowerCase().includes(q);
+        return ms && mq;
+      });
+      filteredTx.sort((a,b) => {
+        if (sort==='newest')    return (b.createdAt||0)-(a.createdAt||0);
+        if (sort==='oldest')    return (a.createdAt||0)-(b.createdAt||0);
+        if (sort==='amount-hi') return (parseFloat(b.amount)||0)-(parseFloat(a.amount)||0);
+        if (sort==='amount-lo') return (parseFloat(a.amount)||0)-(parseFloat(b.amount)||0);
+        return 0;
+      });
+      txPage = 1; renderTxPage();
+    }
+
+    function renderTxPage() {
+      const total  = filteredTx.length;
+      const pages  = Math.max(1, Math.ceil(total / PAGE));
+      txPage       = Math.min(txPage, pages);
+      const start  = (txPage - 1) * PAGE;
+      const slice  = filteredTx.slice(start, start + PAGE);
+
+      document.getElementById('txPageInfo').textContent =
+        total ? `Showing ${start+1}–${Math.min(txPage*PAGE,total)} of ${total}` : 'No results';
+
+      const tbody = document.getElementById('txTableBody');
+      if (!slice.length) {
+        tbody.innerHTML = `<tr><td colspan="7"><div class="empty">
+          <span class="empty-icon">📭</span>
+          <div class="empty-title">No transactions found</div>
+          <div class="empty-sub">Try adjusting your filters.</div>
+        </div></td></tr>`;
+      } else {
+        tbody.innerHTML = slice.map(t => `
+          <tr onclick="openTxModal('${t.id}')">
+            <td><div class="tx-ref">${escHtml(t.refCode||'—')}</div><div class="tx-sub">${fmtDate(t.createdAt)}</div></td>
+            <td><div class="tx-name">${escHtml(t.senderEmail||'—')}</div></td>
+            <td><div class="tx-name">${escHtml(t.recipientName||'—')}</div><div class="tx-sub">${escHtml(t.recipientBank||'')}</div></td>
+            <td><div class="tx-amt">$${fmt(t.amount||0)}</div><div class="tx-php">₱${fmt(t.phpAmount||0)}</div></td>
+            <td>${fmtDate(t.createdAt)}</td>
+            <td><span class="badge b-${t.status||'pending'}">${cap(t.status||'pending')}</span></td>
+            <td onclick="event.stopPropagation()">
+              ${t.status==='pending'||t.status==='processing' ? `
+                <button class="act-btn approve" onclick="quickUpdate('${t.id}','completed')">✓ Done</button>
+                <button class="act-btn reject"  onclick="quickUpdate('${t.id}','failed')">✕ Fail</button>
+              ` : `<button class="act-btn view" onclick="openTxModal('${t.id}')">View</button>`}
+            </td>
+          </tr>`).join('');
+      }
+
+      renderPagination('tx', total, pages);
+    }
+
+    // ── Users tab ─────────────────────────────────────────────────────────────
+    let userRoleF = 'all';
+    function setUserFilter(r, btn) {
+      userRoleF = r;
+      document.querySelectorAll('#panel-users .filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      userPage = 1; applyUserFilters();
+    }
+
+    function applyUserFilters() {
+      const q    = (document.getElementById('userSearch')?.value||'').trim().toLowerCase();
+      const sort = document.getElementById('userSort')?.value || 'newest';
+      filteredUsers = allUsers.filter(u => {
+        const mr = userRoleF === 'all' || (u.role||'sender') === userRoleF;
+        const mq = !q ||
+          (u.fullName||'').toLowerCase().includes(q) ||
+          (u.email||'').toLowerCase().includes(q) ||
+          (u.vesselName||'').toLowerCase().includes(q) ||
+          (u.rank||'').toLowerCase().includes(q);
+        return mr && mq;
+      });
+      filteredUsers.sort((a,b) => {
+        if (sort==='newest') return (b.createdAt||0)-(a.createdAt||0);
+        if (sort==='oldest') return (a.createdAt||0)-(b.createdAt||0);
+        if (sort==='name')   return (a.fullName||'').localeCompare(b.fullName||'');
+        return 0;
+      });
+      userPage = 1; renderUserPage();
+    }
+
+    function renderUserPage() {
+      const total  = filteredUsers.length;
+      const pages  = Math.max(1, Math.ceil(total / PAGE));
+      userPage     = Math.min(userPage, pages);
+      const start  = (userPage - 1) * PAGE;
+      const slice  = filteredUsers.slice(start, start + PAGE);
+
+      document.getElementById('userPageInfo').textContent =
+        total ? `Showing ${start+1}–${Math.min(userPage*PAGE,total)} of ${total}` : 'No results';
+
+      const container = document.getElementById('userCardList');
+
+      if (!slice.length) {
+        container.innerHTML = `<div class="empty">
+          <span class="empty-icon">👥</span>
+          <div class="empty-title">No users found</div>
+          <div class="empty-sub">Try adjusting your search.</div>
+        </div>`;
+        return;
+      }
+
+      container.innerHTML = slice.map(u => {
+        const txCount = allTx.filter(t => t.senderUid === u.uid).length;
+        const bal = parseFloat(u.balance || 0);
+        const initial = (u.fullName||u.email||'?').charAt(0).toUpperCase();
+        const balColor = bal > 0 ? '#4caf82' : '#8a9ab5';
+        return `
+          <div onclick="openUserModal('${u.uid}')"
+            style="display:flex;align-items:center;gap:12px;padding:14px 1.25rem;border-bottom:1px solid rgba(201,148,58,0.08);cursor:pointer;transition:background 0.15s;"
+            onmouseover="this.style.background='rgba(201,148,58,0.05)'"
+            onmouseout="this.style.background=''">
+
+            <div style="width:40px;height:40px;border-radius:50%;background:#162545;border:1px solid rgba(201,148,58,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:#e8b85a;-webkit-text-fill-color:#e8b85a;flex-shrink:0">
+              ${initial}
+            </div>
+
+            <div style="flex:1;min-width:0">
+              <div style="font-size:0.88rem;font-weight:500;color:#f0ece3;-webkit-text-fill-color:#f0ece3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                ${escHtml(u.fullName||'—')}
+              </div>
+              <div style="font-size:0.72rem;color:#8a9ab5;-webkit-text-fill-color:#8a9ab5;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                ${escHtml(u.email||'')} · ${escHtml(u.rank||'Seafarer')}
+              </div>
+            </div>
+
+            <div style="text-align:right;flex-shrink:0">
+              <div style="font-size:0.9rem;font-weight:700;color:${balColor};-webkit-text-fill-color:${balColor}">
+                $${fmt(bal)}
+              </div>
+              <div style="font-size:0.68rem;color:#8a9ab5;-webkit-text-fill-color:#8a9ab5;margin-top:2px">
+                ${txCount} tx · <span style="color:${u.role==='admin'?'#ff9a9a':'#7eb8f7'};-webkit-text-fill-color:${u.role==='admin'?'#ff9a9a':'#7eb8f7'}">${cap(u.role||'sender')}</span>
+              </div>
+            </div>
+
+            <div style="color:#8a9ab5;-webkit-text-fill-color:#8a9ab5;font-size:16px;flex-shrink:0">›</div>
+          </div>`;
+      }).join('');
+
+      renderPagination('user', total, pages);
+    }
+
+    // ── Pagination ────────────────────────────────────────────────────────────
+    function renderPagination(type, total, pages) {
+      const infoId = type + 'PageInfo';
+      const btnsId = type + 'PageBtns';
+      const pg     = type === 'tx' ? txPage : userPage;
+      const el     = document.getElementById(btnsId);
+      if (pages <= 1) { el.innerHTML = ''; return; }
+
+      let html = `<button class="pg-btn" onclick="changePage('${type}',${pg-1})" ${pg===1?'disabled':''}>‹</button>`;
+      for (let i = 1; i <= pages; i++) {
+        if (pages > 7 && i > 2 && i < pages - 1 && Math.abs(i - pg) > 1) {
+          if (i === 3 || i === pages - 2) html += `<span style="color:var(--muted);padding:0 4px">…</span>`;
+          continue;
+        }
+        html += `<button class="pg-btn ${i===pg?'active':''}" onclick="changePage('${type}',${i})">${i}</button>`;
+      }
+      html += `<button class="pg-btn" onclick="changePage('${type}',${pg+1})" ${pg===pages?'disabled':''}>›</button>`;
+      el.innerHTML = html;
+    }
+
+    function changePage(type, n) {
+      if (type === 'tx')   { txPage   = n; renderTxPage(); }
+      if (type === 'user') { userPage = n; renderUserPage(); }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ── Transaction modal ─────────────────────────────────────────────────────
+    function openTxModal(id) {
+      const t = allTx.find(x => x.id === id);
+      if (!t) return;
+      selectedTxId = id;
+
+      document.getElementById('txStatusSel').value = t.status || 'pending';
+      document.getElementById('txModalBody').innerHTML = `
+        <div class="d-section">
+          <div class="d-title">Amount</div>
+          <div class="d-row"><span class="d-label">Send amount</span><span class="d-val big">$${fmt(t.totalPaid||t.amount||0)}</span></div>
+          <div class="d-row"><span class="d-label">PHP received</span><span class="d-val">₱${fmt(t.phpAmount||0)}</span></div>
+          <div class="d-row"><span class="d-label">Rate</span><span class="d-val">1 USD = ₱${(t.exchangeRate||56.20).toFixed(2)}</span></div>
+          <div class="d-row"><span class="d-label">Fee</span><span class="d-val">$${fmt(t.fee||0)}</span></div>
+        </div>
+        <div class="d-section">
+          <div class="d-title">Sender</div>
+          <div class="d-row"><span class="d-label">Email</span><span class="d-val">${escHtml(t.senderEmail||'—')}</span></div>
+          <div class="d-row"><span class="d-label">UID</span><span class="d-val" style="font-size:0.72rem;color:#8a9ab5;-webkit-text-fill-color:#8a9ab5">${escHtml(t.senderUid||'—')}</span></div>
+        </div>
+        <div class="d-section">
+          <div class="d-title">Recipient</div>
+          <div class="d-row"><span class="d-label">Name</span><span class="d-val">${escHtml(t.recipientName||'—')}</span></div>
+          <div class="d-row"><span class="d-label">Bank</span><span class="d-val">${escHtml(t.recipientBank||'—')}</span></div>
+          <div class="d-row"><span class="d-label">Account</span><span class="d-val">${escHtml(t.recipientAccount||'—')}</span></div>
+        </div>
+        <div class="d-section">
+          <div class="d-title">Payment</div>
+          <div class="d-row"><span class="d-label">Method</span><span class="d-val">${escHtml(t.paymentMethod||'—')}</span></div>
+          ${t.paymentRef ? `<div class="d-row"><span class="d-label">Reference</span><span class="d-val">${escHtml(t.paymentRef)}</span></div>` : ''}
+          ${t.notes      ? `<div class="d-row"><span class="d-label">Notes</span><span class="d-val">${escHtml(t.notes)}</span></div>` : ''}
+          ${t.cashPhotoURL ? `
+            <div class="d-row" style="flex-direction:column;align-items:flex-start;gap:6px">
+              <span class="d-label">Cash Photo</span>
+              <img class="photo-thumb" src="${escHtml(t.cashPhotoURL)}" alt="Cash photo"
+                onclick="window.open('${escHtml(t.cashPhotoURL)}','_blank')"/>
+            </div>` : ''}
+        </div>
+        <div class="d-section">
+          <div class="d-title">Info</div>
+          <div class="d-row"><span class="d-label">Ref Code</span><span class="d-val" style="color:#e8b85a;-webkit-text-fill-color:#e8b85a;font-weight:700">${escHtml(t.refCode||'—')}</span></div>
+          <div class="d-row"><span class="d-label">Date</span><span class="d-val">${fmtDateFull(t.createdAt)}</span></div>
+          <div class="d-row"><span class="d-label">Current Status</span><span class="d-val"><span class="badge b-${t.status||'pending'}">${cap(t.status||'pending')}</span></span></div>
+        </div>`;
+
+      document.getElementById('txModal').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    async function updateTxStatus() {
+      if (!selectedTxId) return;
+      const btn    = document.querySelector('#txModal .btn-primary');
+      const newSt  = document.getElementById('txStatusSel').value;
+      btn.disabled = true; btn.classList.add('loading');
+
+      try {
+        await db.ref('transactions/' + selectedTxId + '/status').set(newSt);
+        // Update local state
+        const tx = allTx.find(t => t.id === selectedTxId);
+        if (tx) tx.status = newSt;
+        applyTxFilters();
+        computeOverviewStats();
+        renderOverviewTx();
+        closeModalDirect('txModal');
+        showToast('✅ Status updated to ' + cap(newSt), 'success');
+      } catch(e) {
+        showToast('❌ Update failed. Try again.', 'error');
+      }
+      btn.disabled = false; btn.classList.remove('loading');
+    }
+
+    async function quickUpdate(id, status) {
+      try {
+        await db.ref('transactions/' + id + '/status').set(status);
+        const tx = allTx.find(t => t.id === id);
+        if (tx) tx.status = status;
+        applyTxFilters();
+        computeOverviewStats();
+        renderOverviewTx();
+        showToast(`✅ Transaction marked as ${cap(status)}`, 'success');
+      } catch(e) {
+        showToast('❌ Update failed.', 'error');
+      }
+    }
+
+    // ── User modal ────────────────────────────────────────────────────────────
+    function openUserModal(uid) {
+      const u = allUsers.find(x => x.uid === uid);
+      if (!u) return;
+      selectedUserId = uid;
+      const txCount = allTx.filter(t => t.senderUid === uid).length;
+      const txTotal = allTx.filter(t => t.senderUid === uid && t.status === 'completed')
+        .reduce((s, t) => s + (parseFloat(t.amount) || 0), 0);
+      const bal = parseFloat(u.balance || 0);
+
+      document.getElementById('userModalBody').innerHTML = `
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:1.25rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(201,148,58,0.2)">
+          <div style="width:52px;height:52px;border-radius:50%;background:#162545;border:2px solid rgba(201,148,58,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">
+            ${(u.fullName||u.email||'?').charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.05rem;color:#f0ece3">${escHtml(u.fullName||'—')}</div>
+            <div style="font-size:0.78rem;color:#8a9ab5">${escHtml(u.email||'')}</div>
+            <span class="badge b-${u.role||'sender'}" style="margin-top:4px">${cap(u.role||'sender')}</span>
+          </div>
+        </div>
+
+        <div class="d-section">
+          <div class="d-title">💰 Balance</div>
+          <div style="background:rgba(201,148,58,0.08);border:1px solid rgba(201,148,58,0.2);border-radius:10px;padding:1rem;margin-bottom:0.75rem;display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:0.7rem;color:#8a9ab5;text-transform:uppercase;letter-spacing:0.08em">Available Balance</div>
+              <div style="font-size:1.5rem;font-weight:700;color:${bal>0?'#4caf82':'#f0ece3'}">$${fmt(bal)}</div>
+            </div>
+            <div style="font-size:2rem">💵</div>
+          </div>
+          <div style="display:flex;gap:0.5rem;align-items:center">
+            <input type="number" id="topUpAmount" placeholder="Amount to add (USD)" min="1" step="0.01"
+              style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(201,148,58,0.2);border-radius:8px;color:#f0ece3;-webkit-text-fill-color:#f0ece3;font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:9px 12px;outline:none;"/>
+            <button onclick="topUpBalance('${uid}')" style="background:linear-gradient(135deg,#c9943a,#e8b85a);color:#1a0e00;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;padding:9px 14px;cursor:pointer;white-space:nowrap">+ Add</button>
+          </div>
+          <div style="display:flex;gap:0.5rem;margin-top:0.5rem">
+            <input type="number" id="deductAmount" placeholder="Amount to deduct" min="1" step="0.01"
+              style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(224,92,92,0.2);border-radius:8px;color:#f0ece3;-webkit-text-fill-color:#f0ece3;font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:9px 12px;outline:none;"/>
+            <button onclick="deductBalance('${uid}')" style="background:rgba(224,92,92,0.15);border:1px solid rgba(224,92,92,0.3);color:#e05c5c;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;padding:9px 14px;cursor:pointer;white-space:nowrap">− Deduct</button>
+          </div>
+          <div id="balanceMsg" style="font-size:0.78rem;margin-top:6px;min-height:18px"></div>
+        </div>
+
+        <div class="d-section">
+          <div class="d-title">Profile</div>
+          <div class="d-row"><span class="d-label">Rank</span><span class="d-val">${escHtml(u.rank||'—')}</span></div>
+          <div class="d-row"><span class="d-label">Vessel</span><span class="d-val">${escHtml(u.vesselName||'—')}</span></div>
+          <div class="d-row"><span class="d-label">Agency</span><span class="d-val">${escHtml(u.agency||'—')}</span></div>
+          <div class="d-row"><span class="d-label">Mobile</span><span class="d-val">${escHtml(u.mobile||'—')}</span></div>
+          <div class="d-row"><span class="d-label">Nationality</span><span class="d-val">${escHtml(u.nationality||'—')}</span></div>
+          <div class="d-row"><span class="d-label">Joined</span><span class="d-val">${fmtDateFull(u.createdAt)}</span></div>
+        </div>
+        <div class="d-section">
+          <div class="d-title">Remittance Summary</div>
+          <div class="d-row"><span class="d-label">Total Transactions</span><span class="d-val">${txCount}</span></div>
+          <div class="d-row"><span class="d-label">Total Sent (Completed)</span><span class="d-val big">$${fmt(txTotal)}</span></div>
+        </div>`;
+
+      document.getElementById('userModalFoot').innerHTML = `
+        <button class="btn-ghost" onclick="closeModalDirect('userModal')">Close</button>
+        ${u.role !== 'admin'
+          ? `<button class="btn-primary" onclick="setUserRole('${uid}','admin')"><span class="bt">🛡 Make Admin</span><span class="spi"></span></button>`
+          : `<button class="btn-danger" onclick="setUserRole('${uid}','sender')">Revoke Admin</button>`}`;
+
+      document.getElementById('userModal').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    // ── Top up / deduct balance ───────────────────────────────────────────────
+    async function topUpBalance(uid) {
+      const input = document.getElementById('topUpAmount');
+      const msg   = document.getElementById('balanceMsg');
+      const amt   = parseFloat(input.value);
+      if (!amt || amt <= 0) { msg.style.color='#e05c5c'; msg.textContent='Enter a valid amount.'; return; }
+
+      try {
+        const snap    = await db.ref('users/' + uid + '/balance').once('value');
+        const current = parseFloat(snap.val() || 0);
+        const newBal  = +(current + amt).toFixed(2);
+        await db.ref('users/' + uid + '/balance').set(newBal);
+
+        // Update local
+        const u = allUsers.find(x => x.uid === uid);
+        if (u) u.balance = newBal;
+
+        msg.style.color = '#4caf82';
+        msg.textContent = `✓ Added $${fmt(amt)} · New balance: $${fmt(newBal)}`;
+        input.value = '';
+        applyUserFilters();
+        showToast(`✅ Balance topped up: $${fmt(newBal)}`, 'success');
+      } catch(e) {
+        msg.style.color = '#e05c5c';
+        msg.textContent = 'Failed to update balance.';
+      }
+    }
+
+    async function deductBalance(uid) {
+      const input = document.getElementById('deductAmount');
+      const msg   = document.getElementById('balanceMsg');
+      const amt   = parseFloat(input.value);
+      if (!amt || amt <= 0) { msg.style.color='#e05c5c'; msg.textContent='Enter a valid amount.'; return; }
+
+      try {
+        const snap    = await db.ref('users/' + uid + '/balance').once('value');
+        const current = parseFloat(snap.val() || 0);
+        if (amt > current) { msg.style.color='#e05c5c'; msg.textContent=`Insufficient balance ($${fmt(current)}).`; return; }
+        const newBal  = +(current - amt).toFixed(2);
+        await db.ref('users/' + uid + '/balance').set(newBal);
+
+        const u = allUsers.find(x => x.uid === uid);
+        if (u) u.balance = newBal;
+
+        msg.style.color = '#e8b85a';
+        msg.textContent = `✓ Deducted $${fmt(amt)} · New balance: $${fmt(newBal)}`;
+        input.value = '';
+        applyUserFilters();
+        showToast(`✅ Balance deducted: $${fmt(newBal)} remaining`, 'success');
+      } catch(e) {
+        msg.style.color = '#e05c5c';
+        msg.textContent = 'Failed to update balance.';
+      }
+    }
+
+    // ── Quick top-up from table row ───────────────────────────────────────────
+    function openTopUp(uid, name, currentBal) {
+      openUserModal(uid);
+    }
+
+    async function setUserRole(uid, role) {
+      try {
+        await db.ref('users/' + uid + '/role').set(role);
+        const u = allUsers.find(x => x.uid === uid);
+        if (u) u.role = role;
+        applyUserFilters();
+        renderOverviewUsers();
+        closeModalDirect('userModal');
+        showToast(`✅ User role set to ${cap(role)}`, 'success');
+      } catch(e) {
+        showToast('❌ Failed to update role.', 'error');
+      }
+    }
+
+    // ── Settings ──────────────────────────────────────────────────────────────
+    async function saveRate() {
+      const val = parseFloat(document.getElementById('rateInput').value);
+      if (!val || val <= 0) { showToast('❌ Enter a valid rate.', 'error'); return; }
+      await db.ref('settings/exchangeRate').set(val);
+      showToast('✅ Exchange rate saved: ₱' + val.toFixed(2), 'success');
+    }
+
+    async function saveFee() {
+      const val = parseFloat(document.getElementById('feeInput').value);
+      if (isNaN(val) || val < 0) { showToast('❌ Enter a valid fee.', 'error'); return; }
+      await db.ref('settings/serviceFee').set(val);
+      showToast('✅ Service fee saved: ' + val + '%', 'success');
+    }
+
+    async function saveAnnouncement() {
+      const val = document.getElementById('announcementInput').value.trim();
+      await db.ref('settings/announcement').set(val);
+      showToast('✅ Announcement saved.', 'success');
+    }
+
+    async function grantAdmin() {
+      const email = document.getElementById('adminGrantEmail').value.trim().toLowerCase();
+      if (!email) { showToast('❌ Enter an email address.', 'error'); return; }
+      // Find user by email in allUsers
+      const u = allUsers.find(x => (x.email||'').toLowerCase() === email);
+      if (!u) { showToast('❌ User not found. They must register first.', 'error'); return; }
+      await db.ref('users/' + u.uid + '/role').set('admin');
+      u.role = 'admin';
+      applyUserFilters();
+      document.getElementById('adminGrantEmail').value = '';
+      showToast('✅ Admin granted to ' + email, 'success');
+    }
+
+    // ── Tab switcher ──────────────────────────────────────────────────────────
+    function switchTab(name, btn) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('panel-' + name).classList.add('active');
+      const tabBtn = document.getElementById('tab-' + name);
+      if (tabBtn) tabBtn.classList.add('active');
+      // Also update sidebar
+      document.querySelectorAll('.sidebar .nav-item').forEach(i => i.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+
+    // ── Modal helpers ─────────────────────────────────────────────────────────
+    function closeModal(id, e) { if (e.target === document.getElementById(id)) closeModalDirect(id); }
+    function closeModalDirect(id) { document.getElementById(id).classList.remove('show'); document.body.style.overflow = ''; }
+
+    // ── Toast ─────────────────────────────────────────────────────────────────
+    let toastTimer;
+    function showToast(msg, type = '') {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className   = 'toast ' + type + ' show';
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+    function fmt(n)     { return Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+    function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function cap(s)     { return s.charAt(0).toUpperCase()+s.slice(1); }
+    function fmtDate(ts) { return ts ? new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'; }
+    function fmtDateFull(ts) { return ts ? new Date(ts).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—'; }
+
+    // ── Auto-hide mobile header on scroll ─────────────────────────────────────
+    let lastScroll = 0;
+    window.addEventListener('scroll', () => {
+      const header = document.querySelector('.mobile-header');
+      if (!header) return;
+      const current = window.scrollY;
+      if (current > lastScroll && current > 60) {
+        header.classList.add('hide');
+      } else {
+        header.classList.remove('hide');
+      }
+      lastScroll = current <= 0 ? 0 : current;
+    }, { passive: true });
+
+    function logout() { auth.signOut().then(() => location.href='login.html'); }
+        function openSidebar()  {
+      document.getElementById('sidebar').classList.add('open');
+      document.getElementById('overlay').classList.add('show');
+      const h = document.querySelector('.mobile-header');
+      if (h) h.classList.add('hide');
+    }
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('overlay').classList.remove('show');
+      const h = document.querySelector('.mobile-header');
+      if (h) h.classList.remove('hide');
+    }
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
+          .catch(err => console.warn('[PWA] Service Worker failed:', err));
+      });
+    }
+  </script>
+
+</body>
+</html>
