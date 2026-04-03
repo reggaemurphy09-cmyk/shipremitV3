@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="ShipRemit"/>
+  <meta name="theme-color" content="#0a1628"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ShipRemit — Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+```
+:root {
+  --navy:    #0a1628;
+  --navy2:   #0f2040;
+  --brass:   #c9943a;
+  --brass2:  #e8b85a;
+  --white:   #f0ece3;
+  --muted:   #8a9ab5;
+  --danger:  #e05c5c;
+  --card-bg: rgba(15, 32, 64, 0.85);
+  --border:  rgba(201, 148, 58, 0.25);
+}
+
+body {
+  min-height: 100vh;
+  background: var(--navy);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Animated ocean background */
+.ocean-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 20% 80%, rgba(12, 60, 120, 0.6) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(8, 40, 90, 0.5) 0%, transparent 50%),
+    linear-gradient(160deg, #07101f 0%, #0a1e3d 50%, #061525 100%);
+}
+
+.wave {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  height: 180px;
+  opacity: 0.08;
+  animation: wave 12s linear infinite;
+}
+.wave:nth-child(2) { animation-delay: -4s; opacity: 0.05; height: 140px; }
+.wave:nth-child(3) { animation-delay: -8s; opacity: 0.04; height: 100px; }
+
+@keyframes wave {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Subtle grid lines */
+.grid-lines {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(201,148,58,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,148,58,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  z-index: 0;
+}
+
+/* Floating compass rose */
+.compass {
+  position: fixed;
+  right: -60px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 320px;
+  height: 320px;
+  opacity: 0.06;
+  animation: spin-slow 60s linear infinite;
+}
+@keyframes spin-slow { to { transform: translateY(-50%) rotate(360deg); } }
+
+.compass svg { width: 100%; height: 100%; }
+
+/* Card */
+.card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  margin: 1.5rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2.5rem 2.25rem 2rem;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,148,58,0.1) inset;
+  animation: card-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Logo area */
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 2rem;
+}
+.logo-icon {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, var(--brass), var(--brass2));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 4px 16px rgba(201,148,58,0.35);
+  flex-shrink: 0;
+}
+.logo-text {
+  display: flex;
+  flex-direction: column;
+}
+.logo-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  color: var(--white);
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+.logo-tagline {
+  font-size: 0.72rem;
+  color: var(--brass);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin-bottom: 1.75rem;
+}
+
+h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 0.3rem;
+}
+.subtitle {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 1.75rem;
+}
+
+/* Form */
+.field { margin-bottom: 1.1rem; }
+label {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--brass2);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.input-wrap {
+  position: relative;
+}
+.input-wrap .icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: var(--muted);
+  pointer-events: none;
+}
+input {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.92rem;
+  padding: 11px 14px 11px 40px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+input::placeholder { color: rgba(138,154,181,0.5); }
+input:focus {
+  border-color: var(--brass);
+  background: rgba(201,148,58,0.05);
+  box-shadow: 0 0 0 3px rgba(201,148,58,0.12);
+}
+
+/* Toggle password */
+.toggle-pw {
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 15px;
+  padding: 2px;
+  transition: color 0.2s;
+}
+.toggle-pw:hover { color: var(--brass2); }
+
+/* Remember / forgot row */
+.row-aux {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.remember {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.remember input[type=checkbox] {
+  width: auto;
+  padding: 0;
+  accent-color: var(--brass);
+  width: 15px;
+  height: 15px;
+}
+.forgot {
+  font-size: 0.82rem;
+  color: var(--brass);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.forgot:hover { color: var(--brass2); }
+
+/* Buttons */
+.btn-primary {
+  width: 100%;
+  background: linear-gradient(135deg, var(--brass), var(--brass2));
+  color: #1a0e00;
+  border: none;
+  border-radius: 9px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 13px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(201,148,58,0.35);
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(201,148,58,0.45); }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+.btn-primary .spinner {
+  display: none;
+  width: 16px; height: 16px;
+  border: 2px solid rgba(26,14,0,0.3);
+  border-top-color: #1a0e00;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.btn-primary.loading .btn-text { display: none; }
+.btn-primary.loading .spinner { display: block; }
+
+/* Error */
+.error-msg {
+  display: none;
+  background: rgba(224,92,92,0.12);
+  border: 1px solid rgba(224,92,92,0.3);
+  color: #ff9a9a;
+  font-size: 0.82rem;
+  border-radius: 8px;
+  padding: 10px 13px;
+  margin-top: 1rem;
+  text-align: center;
+}
+.error-msg.show { display: block; }
+
+/* Bottom */
+.bottom-text {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.83rem;
+  color: var(--muted);
+}
+.bottom-text a {
+  color: var(--brass);
+  text-decoration: none;
+  font-weight: 500;
+}
+.bottom-text a:hover { color: var(--brass2); }
+
+/* Footer strip */
+.card-footer {
+  margin-top: 1.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: rgba(138,154,181,0.5);
+  letter-spacing: 0.06em;
+}
+.card-footer span { font-size: 10px; }
+```
+
+  </style>
+</head>
+<body>
+
+  <div class="ocean-bg"></div>
+  <div class="grid-lines"></div>
+
+  <!-- Wave SVGs -->
+
+  <svg class="wave" viewBox="0 0 1440 180" preserveAspectRatio="none">
+    <path fill="#4a90d9" d="M0,80 C360,160 1080,0 1440,80 L1440,180 L0,180 Z"/>
+  </svg>
+  <svg class="wave" viewBox="0 0 1440 180" preserveAspectRatio="none">
+    <path fill="#4a90d9" d="M0,100 C400,20 1040,160 1440,100 L1440,180 L0,180 Z"/>
+  </svg>
+  <svg class="wave" viewBox="0 0 1440 180" preserveAspectRatio="none">
+    <path fill="#4a90d9" d="M0,120 C480,60 960,140 1440,120 L1440,180 L0,180 Z"/>
+  </svg>
+
+  <!-- Compass rose decoration -->
+
+  <div class="compass">
+    <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="100" cy="100" r="95" stroke="#c9943a" stroke-width="1"/>
+      <circle cx="100" cy="100" r="70" stroke="#c9943a" stroke-width="0.5"/>
+      <circle cx="100" cy="100" r="8" fill="#c9943a"/>
+      <!-- N/S/E/W points -->
+      <polygon points="100,5 106,90 100,100 94,90" fill="#c9943a"/>
+      <polygon points="100,195 106,110 100,100 94,110" fill="#c9943a" opacity=".5"/>
+      <polygon points="5,100 90,94 100,100 90,106" fill="#c9943a" opacity=".5"/>
+      <polygon points="195,100 110,94 100,100 110,106" fill="#c9943a" opacity=".5"/>
+      <!-- Diagonal points -->
+      <polygon points="145,55 108,92 100,100 92,108 55,145 93,108" fill="#c9943a" opacity=".3"/>
+      <polygon points="55,55 92,92 100,100 108,108 145,145 107,108" fill="#c9943a" opacity=".3"/>
+      <text x="100" y="22" text-anchor="middle" fill="#c9943a" font-size="12" font-family="serif">N</text>
+      <text x="100" y="186" text-anchor="middle" fill="#c9943a" font-size="10" font-family="serif">S</text>
+      <text x="183" y="104" text-anchor="middle" fill="#c9943a" font-size="10" font-family="serif">E</text>
+      <text x="17" y="104" text-anchor="middle" fill="#c9943a" font-size="10" font-family="serif">W</text>
+    </svg>
+  </div>
+
+  <!-- Main Card -->
+
+  <div class="card">
+    <div class="logo-area">
+      <div class="logo-icon">⚓</div>
+      <div class="logo-text">
+        <div class="logo-name">ShipRemit</div>
+        <div class="logo-tagline">Seafarer Remittance</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+
+```
+<h2>Welcome back</h2>
+<p class="subtitle">Sign in to send money home</p>
+
+<div class="field">
+  <label>Email address</label>
+  <div class="input-wrap">
+    <span class="icon">✉</span>
+    <input type="email" id="emailInput" placeholder="you@example.com" autocomplete="email"/>
+  </div>
+</div>
+
+<div class="field">
+  <label>Password</label>
+  <div class="input-wrap">
+    <span class="icon">🔒</span>
+    <input type="password" id="passwordInput" placeholder="••••••••" autocomplete="current-password"/>
+    <button class="toggle-pw" id="togglePw" type="button" aria-label="Toggle password">👁</button>
+  </div>
+</div>
+
+<div class="row-aux">
+  <label class="remember">
+    <input type="checkbox" id="rememberMe"/> Remember me
+  </label>
+  <a href="forgot.html" class="forgot">Forgot password?</a>
+</div>
+
+<button class="btn-primary" id="loginBtn">
+  <span class="btn-text">Sign In</span>
+  <span class="spinner"></span>
+</button>
+
+<div class="error-msg" id="errorMsg"></div>
+
+<p class="bottom-text">
+  Don't have an account? <a href="register.html">Create one</a>
+</p>
+
+<div class="card-footer">
+  <span>🔒</span> Secured &amp; encrypted &nbsp;·&nbsp; ShipRemit © 2025
+</div>
+```
+
+  </div>
+
+  <!-- Firebase v8 compat SDK -->
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+  <script>
+    // ── Firebase config ─────────────────────────────────────────────────────
+    const firebaseConfig = {
+      apiKey:            "AIzaSyDjspj1rS3F3zt_VhCvY6ypDsU9IfAAvP0",
+      authDomain:        "shipremit.firebaseapp.com",
+      databaseURL:       "https://shipremit-default-rtdb.firebaseio.com",
+      projectId:         "shipremit",
+      storageBucket:     "shipremit.firebasestorage.app",
+      messagingSenderId: "516183209213",
+      appId:             "1:516183209213:web:d2ffdaa25b14b96de17a94",
+      measurementId:     "G-0SE4CEQP5X"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // ── DOM refs ────────────────────────────────────────────────────────────
+    const emailInput    = document.getElementById('emailInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const rememberMe    = document.getElementById('rememberMe');
+    const loginBtn      = document.getElementById('loginBtn');
+    const errorMsg      = document.getElementById('errorMsg');
+    const togglePw      = document.getElementById('togglePw');
+
+    // ── Toggle password visibility ─────────────────────────────────────────
+    togglePw.addEventListener('click', () => {
+      const isText = passwordInput.type === 'text';
+      passwordInput.type = isText ? 'password' : 'text';
+      togglePw.textContent = isText ? '👁' : '🙈';
+    });
+
+    // ── Auth persistence based on "remember me" ────────────────────────────
+    auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+
+    rememberMe.addEventListener('change', () => {
+      const p = rememberMe.checked
+        ? firebase.auth.Auth.Persistence.LOCAL
+        : firebase.auth.Auth.Persistence.SESSION;
+      auth.setPersistence(p);
+    });
+
+    // ── Auth state observer: redirect if already logged in ─────────────────
+    auth.onAuthStateChanged(user => {
+      if (user) window.location.href = 'dashboard.html';
+    });
+
+    // ── Login handler ──────────────────────────────────────────────────────
+    function setLoading(on) {
+      loginBtn.disabled = on;
+      loginBtn.classList.toggle('loading', on);
+    }
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.classList.add('show');
+    }
+
+    function hideError() {
+      errorMsg.classList.remove('show');
+    }
+
+    function friendlyError(code) {
+      const map = {
+        'auth/user-not-found':      'No account found with this email.',
+        'auth/wrong-password':      'Incorrect password. Please try again.',
+        'auth/invalid-email':       'Please enter a valid email address.',
+        'auth/user-disabled':       'This account has been disabled.',
+        'auth/too-many-requests':   'Too many attempts. Please try again later.',
+        'auth/network-request-failed': 'Network error. Check your connection.',
+        'auth/invalid-credential':  'Invalid email or password.'
+      };
+      return map[code] || 'Login failed. Please try again.';
+    }
+
+    loginBtn.addEventListener('click', async () => {
+      hideError();
+      const email    = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      if (!email || !password) {
+        showError('Please enter your email and password.');
+        return;
+      }
+
+      setLoading(true);
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+        // onAuthStateChanged will handle redirect
+      } catch (err) {
+        showError(friendlyError(err.code));
+        setLoading(false);
+      }
+    });
+
+    // Allow Enter key
+    [emailInput, passwordInput].forEach(el => {
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Enter') loginBtn.click();
+      });
+    });
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
+          .catch(err => console.warn('[PWA] Service Worker failed:', err));
+      });
+    }
+  </script>
+
+</body>
+</html>
