@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="ShipRemit"/>
+  <meta name="theme-color" content="#0a1628"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>ShipRemit — Notifications</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { min-height: 100vh; background: #0a1628; font-family: 'DM Sans', sans-serif; color: #f0ece3; display: flex; overflow-x: hidden; }
+    .bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(160deg, #07101f 0%, #0a1e3d 60%, #061525 100%); }
+    .sidebar { position: fixed; top: 0; left: 0; width: 240px; height: 100vh; background: #060f1e; border-right: 1px solid rgba(201,148,58,0.2); display: flex; flex-direction: column; z-index: 100; transition: transform 0.3s cubic-bezier(0.22,1,0.36,1); }
+    .sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 1.5rem 1.25rem 1.25rem; border-bottom: 1px solid rgba(201,148,58,0.2); }
+    .logo-icon { width: 38px; height: 38px; background: linear-gradient(135deg, #c9943a, #e8b85a); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .logo-name { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #f0ece3; }
+    .logo-tag  { font-size: 0.62rem; color: #c9943a; letter-spacing: 0.1em; text-transform: uppercase; }
+    nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
+    .nav-label { font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(138,154,181,0.45); padding: 0.75rem 0.5rem 0.4rem; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; cursor: pointer; color: #8a9ab5; font-size: 0.88rem; text-decoration: none; transition: all 0.2s; margin-bottom: 2px; }
+    .nav-item:hover { background: rgba(201,148,58,0.08); color: #f0ece3; }
+    .nav-item.active { background: rgba(201,148,58,0.12); color: #e8b85a; font-weight: 500; }
+    .nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+    .sidebar-user { padding: 1rem 1.25rem; border-top: 1px solid rgba(201,148,58,0.2); display: flex; align-items: center; gap: 10px; }
+    .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: #162545; border: 2px solid rgba(201,148,58,0.2); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+    .user-name { font-size: 0.85rem; font-weight: 500; color: #f0ece3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-rank { font-size: 0.7rem; color: #8a9ab5; }
+    .logout-btn { background: none; border: none; color: #8a9ab5; cursor: pointer; font-size: 16px; margin-left: auto; transition: color 0.2s; }
+    .logout-btn:hover { color: #e05c5c; }
+    .mobile-header { display: none; position: fixed; top: 0; left: 0; right: 0; height: 56px; background: #060f1e; border-bottom: 1px solid rgba(201,148,58,0.2); align-items: center; padding: 0 1rem; gap: 12px; z-index: 200; }
+    .hamburger { background: none; border: none; color: #8a9ab5; cursor: pointer; font-size: 20px; }
+    .mobile-logo { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #f0ece3; }
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 99; }
+    .overlay.show { display: block; }
+    .main { margin-left: 240px; flex: 1; position: relative; z-index: 1; padding: 2rem 1.75rem 3rem; width: calc(100% - 240px); min-width: 0; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: #8a9ab5; font-size: 0.82rem; text-decoration: none; margin-bottom: 0.6rem; transition: color 0.2s; }
+    .back-link:hover { color: #c9943a; }
+    .page-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #f0ece3; margin-bottom: 0.25rem; }
+    .page-subtitle { font-size: 0.85rem; color: #8a9ab5; margin-bottom: 1.75rem; }
+
+```
+/* Notification items */
+.notif-card { background: #0f2040; border: 1px solid rgba(201,148,58,0.2); border-radius: 12px; overflow: hidden; }
+.notif-item { display: flex; align-items: flex-start; gap: 14px; padding: 1rem 1.25rem; border-bottom: 1px solid rgba(201,148,58,0.07); transition: background 0.15s; }
+.notif-item:last-child { border-bottom: none; }
+.notif-item.unread { background: rgba(201,148,58,0.04); }
+.notif-dot { width: 8px; height: 8px; border-radius: 50%; background: #c9943a; flex-shrink: 0; margin-top: 6px; }
+.notif-dot.read { background: transparent; border: 1px solid rgba(138,154,181,0.3); }
+.notif-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.notif-icon.green  { background: rgba(76,175,130,0.12); }
+.notif-icon.yellow { background: rgba(232,184,90,0.12); }
+.notif-icon.blue   { background: rgba(126,184,247,0.12); }
+.notif-body { flex: 1; min-width: 0; }
+.notif-title { font-size: 0.88rem; font-weight: 500; color: #f0ece3; -webkit-text-fill-color: #f0ece3; margin-bottom: 3px; }
+.notif-msg   { font-size: 0.8rem; color: #8a9ab5; -webkit-text-fill-color: #8a9ab5; line-height: 1.4; }
+.notif-time  { font-size: 0.7rem; color: #8a9ab5; -webkit-text-fill-color: #8a9ab5; margin-top: 4px; }
+
+.empty-state { text-align: center; padding: 4rem 1.5rem; }
+.empty-icon  { font-size: 3.5rem; display: block; margin-bottom: 1rem; opacity: 0.3; }
+.empty-title { font-size: 1rem; font-weight: 500; color: #f0ece3; margin-bottom: 0.4rem; }
+.empty-sub   { font-size: 0.83rem; color: #8a9ab5; -webkit-text-fill-color: #8a9ab5; }
+
+@media (max-width: 680px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; width: 100%; padding: 4.75rem 0.9rem 5rem; }
+  .mobile-header { display: flex; }
+}
+```
+
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">⚓</div>
+      <div><div class="logo-name">ShipRemit</div><div class="logo-tag">Seafarer Remittance</div></div>
+    </div>
+    <nav>
+      <div class="nav-label">Main</div>
+      <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a class="nav-item" href="send.html"><span class="nav-icon">💸</span> Send Money</a>
+      <a class="nav-item" href="transactions.html"><span class="nav-icon">📋</span> Transactions</a>
+      <a class="nav-item" href="recipients.html"><span class="nav-icon">👥</span> Recipients</a>
+      <div class="nav-label">Account</div>
+      <a class="nav-item" href="profile.html"><span class="nav-icon">👤</span> My Profile</a>
+      <a class="nav-item active" href="notifications.html"><span class="nav-icon">🔔</span> Notifications</a>
+      <a class="nav-item" href="support.html"><span class="nav-icon">💬</span> Support</a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-avatar">👤</div>
+      <div style="flex:1;min-width:0">
+        <div class="user-name" id="sidebarName">—</div>
+        <div class="user-rank" id="sidebarRank">—</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">⏻</button>
+    </div>
+  </aside>
+
+  <div class="mobile-header">
+    <button class="hamburger" onclick="openSidebar()">☰</button>
+    <span class="mobile-logo">🔔 Notifications</span>
+  </div>
+
+  <main class="main">
+    <a class="back-link" href="dashboard.html">← Back to Dashboard</a>
+    <div class="page-title">Notifications</div>
+    <div class="page-subtitle">Your recent alerts and updates</div>
+
+```
+<div class="notif-card" id="notifList">
+  <!-- Populated by JS -->
+</div>
+```
+
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey:"AIzaSyDjspj1rS3F3zt_VhCvY6ypDsU9IfAAvP0",authDomain:"shipremit.firebaseapp.com",
+      databaseURL:"https://shipremit-default-rtdb.firebaseio.com",projectId:"shipremit",
+      storageBucket:"shipremit.firebasestorage.app",messagingSenderId:"516183209213",
+      appId:"1:516183209213:web:d2ffdaa25b14b96de17a94"
+    };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const db   = firebase.database();
+
+    auth.onAuthStateChanged(async user => {
+      if (!user) { window.location.href = 'login.html'; return; }
+      try {
+        const snap = await db.ref('users/' + user.uid).once('value');
+        const p = snap.val() || {};
+        document.getElementById('sidebarName').textContent = p.fullName || user.displayName || 'User';
+        document.getElementById('sidebarRank').textContent = p.rank || 'Seafarer';
+      } catch(e) {}
+      loadNotifications(user);
+    });
+
+    async function loadNotifications(user) {
+      const list = document.getElementById('notifList');
+      try {
+        // Load recent transactions as notifications
+        const snap = await db.ref('transactions').orderByChild('senderUid').equalTo(user.uid).once('value');
+        const data = snap.val() || {};
+        const txs  = Object.entries(data)
+          .map(([id,t]) => ({id,...t}))
+          .sort((a,b) => (b.createdAt||0)-(a.createdAt||0))
+          .slice(0, 20);
+
+        // Load announcement
+        const settingsSnap = await db.ref('settings/announcement').once('value');
+        const announcement = settingsSnap.val();
+
+        const notifs = [];
+
+        if (announcement) {
+          notifs.push({
+            icon: '📢', iconClass: 'yellow',
+            title: 'Announcement',
+            msg: announcement,
+            time: 'From admin',
+            unread: true
+          });
+        }
+
+        txs.forEach(tx => {
+          const statusMap = {
+            completed:  { icon: '✅', cls: 'green', title: 'Transfer Completed',   msg: `Your transfer of $${fmt(tx.amount)} to ${tx.recipientName||'recipient'} was completed.` },
+            pending:    { icon: '⏳', cls: 'yellow', title: 'Transfer Pending',     msg: `Your transfer of $${fmt(tx.amount)} to ${tx.recipientName||'recipient'} is awaiting processing.` },
+            processing: { icon: '🔄', cls: 'blue',   title: 'Transfer Processing',  msg: `Your transfer of $${fmt(tx.amount)} to ${tx.recipientName||'recipient'} is being processed.` },
+            failed:     { icon: '❌', cls: 'red',    title: 'Transfer Failed',      msg: `Your transfer of $${fmt(tx.amount)} to ${tx.recipientName||'recipient'} failed. Please contact support.` },
+          };
+          const s = statusMap[tx.status] || statusMap.pending;
+          notifs.push({
+            icon: s.icon, iconClass: s.cls,
+            title: s.title, msg: s.msg,
+            time: tx.createdAt ? new Date(tx.createdAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '—',
+            unread: tx.status === 'pending' || tx.status === 'processing'
+          });
+        });
+
+        if (!notifs.length) {
+          list.innerHTML = `<div class="empty-state">
+            <span class="empty-icon">🔔</span>
+            <div class="empty-title">No notifications yet</div>
+            <div class="empty-sub">You'll see transaction updates and announcements here.</div>
+          </div>`;
+          return;
+        }
+
+        list.innerHTML = notifs.map(n => `
+          <div class="notif-item ${n.unread?'unread':''}">
+            <div class="notif-dot ${n.unread?'':'read'}"></div>
+            <div class="notif-icon ${n.iconClass||''}">${n.icon}</div>
+            <div class="notif-body">
+              <div class="notif-title">${n.title}</div>
+              <div class="notif-msg">${n.msg}</div>
+              <div class="notif-time">${n.time}</div>
+            </div>
+          </div>`).join('');
+
+      } catch(e) {
+        list.innerHTML = `<div class="empty-state">
+          <span class="empty-icon">🔔</span>
+          <div class="empty-title">Could not load notifications</div>
+          <div class="empty-sub">Please try again later.</div>
+        </div>`;
+      }
+    }
+
+    function fmt(n) { return Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+    // ── Auto-hide mobile header on scroll ─────────────────────────────────────
+    let lastScroll = 0;
+    window.addEventListener('scroll', () => {
+      const header = document.querySelector('.mobile-header');
+      if (!header) return;
+      const current = window.scrollY;
+      if (current > lastScroll && current > 60) {
+        header.classList.add('hide');
+      } else {
+        header.classList.remove('hide');
+      }
+      lastScroll = current <= 0 ? 0 : current;
+    }, { passive: true });
+
+    function logout()       { auth.signOut().then(() => location.href='login.html'); }
+        function openSidebar()  {
+      document.getElementById('sidebar').classList.add('open');
+      document.getElementById('overlay').classList.add('show');
+      const h = document.querySelector('.mobile-header');
+      if (h) h.classList.add('hide');
+    }
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('overlay').classList.remove('show');
+      const h = document.querySelector('.mobile-header');
+      if (h) h.classList.remove('hide');
+    }
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
+          .catch(err => console.warn('[PWA] Service Worker failed:', err));
+      });
+    }
+  </script>
+
+</body>
+</html>
