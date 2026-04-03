@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="ShipRemit"/>
+  <meta name="theme-color" content="#0a1628"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>ShipRemit — My Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+```
+body {
+  min-height: 100vh;
+  background: #0a1628;
+  font-family: 'DM Sans', sans-serif;
+  color: #f0ece3;
+  display: flex;
+  overflow-x: hidden;
+}
+
+.bg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: linear-gradient(160deg, #07101f 0%, #0a1e3d 60%, #061525 100%);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  position: fixed; top: 0; left: 0;
+  width: 240px; height: 100vh;
+  background: #060f1e;
+  border-right: 1px solid rgba(201,148,58,0.2);
+  display: flex; flex-direction: column;
+  z-index: 100;
+  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+.sidebar-logo {
+  display: flex; align-items: center; gap: 10px;
+  padding: 1.5rem 1.25rem 1.25rem;
+  border-bottom: 1px solid rgba(201,148,58,0.2);
+}
+.logo-icon {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, #c9943a, #e8b85a);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; box-shadow: 0 4px 12px rgba(201,148,58,0.3); flex-shrink: 0;
+}
+.logo-name { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #f0ece3; }
+.logo-tag  { font-size: 0.62rem; color: #c9943a; letter-spacing: 0.1em; text-transform: uppercase; }
+
+nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
+.nav-label { font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(138,154,181,0.45); padding: 0.75rem 0.5rem 0.4rem; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 8px;
+  cursor: pointer; color: #8a9ab5;
+  font-size: 0.88rem; text-decoration: none;
+  transition: all 0.2s; margin-bottom: 2px;
+}
+.nav-item:hover  { background: rgba(201,148,58,0.08); color: #f0ece3; }
+.nav-item.active { background: rgba(201,148,58,0.12); color: #e8b85a; font-weight: 500; }
+.nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+
+.sidebar-user {
+  padding: 1rem 1.25rem; border-top: 1px solid rgba(201,148,58,0.2);
+  display: flex; align-items: center; gap: 10px;
+}
+.user-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: #162545; border: 2px solid rgba(201,148,58,0.2);
+  display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;
+}
+.user-name { font-size: 0.85rem; font-weight: 500; color: #f0ece3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-rank { font-size: 0.7rem; color: #8a9ab5; }
+.logout-btn { background: none; border: none; color: #8a9ab5; cursor: pointer; font-size: 16px; margin-left: auto; transition: color 0.2s; }
+.logout-btn:hover { color: #e05c5c; }
+
+/* ── Mobile header ── */
+.mobile-header {
+  display: none; position: fixed;
+  top: 0; left: 0; right: 0; height: 56px;
+  background: #060f1e; border-bottom: 1px solid rgba(201,148,58,0.2);
+  align-items: center; padding: 0 1rem; gap: 12px; z-index: 200;
+}
+.hamburger { background: none; border: none; color: #8a9ab5; cursor: pointer; font-size: 20px; }
+.mobile-logo { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #f0ece3; }
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 99; }
+.overlay.show { display: block; }
+
+/* ── Main ── */
+.main {
+  margin-left: 240px; flex: 1; position: relative; z-index: 1;
+  padding: 2rem 1.75rem 3rem;
+  width: calc(100% - 240px); min-width: 0;
+}
+
+/* ── Page header ── */
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: #8a9ab5; font-size: 0.82rem; text-decoration: none;
+  margin-bottom: 0.6rem; transition: color 0.2s;
+}
+.back-link:hover { color: #c9943a; }
+.page-title    { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #f0ece3; margin-bottom: 0.25rem; }
+.page-subtitle { font-size: 0.85rem; color: #8a9ab5; margin-bottom: 1.75rem; }
+
+/* ── Layout ── */
+.layout { display: grid; grid-template-columns: 280px 1fr; gap: 1.25rem; align-items: start; }
+
+/* ── Card ── */
+.card {
+  background: #0f2040; border: 1px solid rgba(201,148,58,0.2);
+  border-radius: 14px; overflow: hidden; margin-bottom: 1.25rem;
+}
+.card:last-child { margin-bottom: 0; }
+.card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.25rem; border-bottom: 1px solid rgba(201,148,58,0.2);
+}
+.card-head h3 { font-size: 0.9rem; font-weight: 600; color: #f0ece3; display: flex; align-items: center; gap: 8px; }
+.card-body { padding: 1.25rem; }
+
+/* ── Profile avatar card ── */
+.avatar-card {
+  background: #0f2040; border: 1px solid rgba(201,148,58,0.2);
+  border-radius: 14px; padding: 1.75rem 1.25rem;
+  text-align: center; margin-bottom: 1.25rem;
+}
+.big-avatar {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: linear-gradient(135deg, #162545, #1a2e50);
+  border: 3px solid rgba(201,148,58,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; font-weight: 700; color: #e8b85a;
+  -webkit-text-fill-color: #e8b85a;
+  margin: 0 auto 1rem;
+}
+.avatar-name { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #f0ece3; margin-bottom: 4px; }
+.avatar-rank { font-size: 0.8rem; color: #c9943a; -webkit-text-fill-color: #c9943a; margin-bottom: 4px; }
+.avatar-email { font-size: 0.75rem; color: #8a9ab5; -webkit-text-fill-color: #8a9ab5; }
+.avatar-badge {
+  display: inline-block; margin-top: 0.75rem;
+  background: rgba(76,175,130,0.12); border: 1px solid rgba(76,175,130,0.3);
+  color: #4caf82; -webkit-text-fill-color: #4caf82;
+  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; padding: 3px 10px; border-radius: 20px;
+}
+
+/* ── Info rows (read-only view) ── */
+.info-row {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 8px 0; border-bottom: 1px solid rgba(201,148,58,0.07);
+  gap: 1rem;
+}
+.info-row:last-child { border-bottom: none; }
+.info-label { font-size: 0.77rem; color: #8a9ab5; -webkit-text-fill-color: #8a9ab5; flex-shrink: 0; }
+.info-val   { font-size: 0.85rem; font-weight: 500; color: #f0ece3; -webkit-text-fill-color: #f0ece3; text-align: right; word-break: break-word; }
+
+/* ── Form fields ── */
+.field { margin-bottom: 1rem; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+
+label {
+  display: block; font-size: 0.73rem; color: #e8b85a;
+  -webkit-text-fill-color: #e8b85a;
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 5px;
+}
+.input-wrap { position: relative; }
+.input-wrap .icon {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  font-size: 15px; color: #8a9ab5; pointer-events: none;
+}
+input, select {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(201,148,58,0.2); border-radius: 9px;
+  color: #f0ece3; -webkit-text-fill-color: #f0ece3;
+  font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+  padding: 10px 12px 10px 38px; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+}
+input[disabled] {
+  opacity: 0.5; cursor: not-allowed;
+}
+input::placeholder { color: rgba(138,154,181,0.45); -webkit-text-fill-color: rgba(138,154,181,0.45); }
+input:focus, select:focus {
+  border-color: #c9943a; background: rgba(201,148,58,0.06);
+  box-shadow: 0 0 0 3px rgba(201,148,58,0.1);
+}
+.select-wrap { position: relative; }
+.select-wrap::after {
+  content: '▾'; position: absolute; right: 12px; top: 50%;
+  transform: translateY(-50%); color: #8a9ab5; pointer-events: none; font-size: 12px;
+}
+.select-wrap select { padding-right: 30px; }
+select option { background: #0f2040; color: #f0ece3; }
+
+/* ── Section divider ── */
+.section-label {
+  font-size: 0.68rem; color: #c9943a; -webkit-text-fill-color: #c9943a;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 0.9rem; margin-top: 1.25rem;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: rgba(201,148,58,0.2); }
+.section-label:first-child { margin-top: 0; }
+
+/* ── Buttons ── */
+.btn-save {
+  background: linear-gradient(135deg, #c9943a, #e8b85a);
+  color: #1a0e00; border: none; border-radius: 9px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 600;
+  padding: 12px 28px; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(201,148,58,0.3);
+  transition: opacity 0.2s, transform 0.15s;
+  position: relative;
+}
+.btn-save:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-save:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn-save .spi {
+  display: none; width: 16px; height: 16px;
+  border: 2px solid rgba(26,14,0,0.3); border-top-color: #1a0e00;
+  border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.btn-save.loading .bt  { display: none; }
+.btn-save.loading .spi { display: block; }
+
+.btn-pw {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(201,148,58,0.2); color: #8a9ab5;
+  -webkit-text-fill-color: #8a9ab5;
+  border-radius: 9px; font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem; padding: 11px 22px; cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-pw:hover { color: #f0ece3; -webkit-text-fill-color: #f0ece3; border-color: rgba(201,148,58,0.4); }
+
+.btn-danger-outline {
+  background: rgba(224,92,92,0.08);
+  border: 1px solid rgba(224,92,92,0.3); color: #e05c5c;
+  -webkit-text-fill-color: #e05c5c;
+  border-radius: 9px; font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem; padding: 11px 22px; cursor: pointer;
+  transition: all 0.2s; width: 100%;
+}
+.btn-danger-outline:hover { background: rgba(224,92,92,0.15); }
+
+/* ── Alert ── */
+.alert {
+  display: none; border-radius: 8px; padding: 10px 13px;
+  font-size: 0.82rem; margin-top: 0.75rem;
+}
+.alert.error   { background: rgba(224,92,92,0.12); border: 1px solid rgba(224,92,92,0.3); color: #ff9a9a; -webkit-text-fill-color: #ff9a9a; }
+.alert.success { background: rgba(76,175,130,0.12); border: 1px solid rgba(76,175,130,0.3); color: #7de8b8; -webkit-text-fill-color: #7de8b8; }
+.alert.show { display: block; }
+
+/* ── Password modal ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75); z-index: 500;
+  align-items: center; justify-content: center; padding: 1rem;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: #0d1e38; border: 1px solid rgba(201,148,58,0.2);
+  border-radius: 16px; width: 100%; max-width: 420px;
+  animation: modal-in 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+@keyframes modal-in { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
+.modal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(201,148,58,0.2);
+}
+.modal-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: #f0ece3; }
+.modal-close { background: none; border: none; color: #8a9ab5; cursor: pointer; font-size: 20px; }
+.modal-close:hover { color: #f0ece3; }
+.modal-body { padding: 1.5rem; }
+.modal-foot { padding: 1rem 1.5rem; border-top: 1px solid rgba(201,148,58,0.2); display: flex; gap: 0.75rem; }
+.btn-modal-save {
+  flex: 1; background: linear-gradient(135deg, #c9943a, #e8b85a);
+  color: #1a0e00; border: none; border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600;
+  padding: 10px; cursor: pointer; transition: opacity 0.2s;
+}
+.btn-modal-save:hover { opacity: 0.9; }
+.btn-modal-cancel {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(201,148,58,0.2);
+  color: #8a9ab5; -webkit-text-fill-color: #8a9ab5; border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
+  padding: 10px 18px; cursor: pointer; transition: all 0.2s;
+}
+.btn-modal-cancel:hover { color: #f0ece3; -webkit-text-fill-color: #f0ece3; }
+
+/* ── Toggle pw ── */
+.toggle-pw {
+  position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: #8a9ab5; cursor: pointer; font-size: 15px;
+  transition: color 0.2s;
+}
+.toggle-pw:hover { color: #e8b85a; }
+
+/* ── Responsive ── */
+@media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+@media (max-width: 680px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; width: 100%; padding: 4.75rem 0.9rem 5rem; }
+  .mobile-header { display: flex; }
+  .field-row { grid-template-columns: 1fr; }
+}
+```
+
+  </style>
+</head>
+<body>
+
+  <div class="bg"></div>
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar -->
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">⚓</div>
+      <div>
+        <div class="logo-name">ShipRemit</div>
+        <div class="logo-tag">Seafarer Remittance</div>
+      </div>
+    </div>
+    <nav>
+      <div class="nav-label">Main</div>
+      <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a class="nav-item" href="send.html"><span class="nav-icon">💸</span> Send Money</a>
+      <a class="nav-item" href="transactions.html"><span class="nav-icon">📋</span> Transactions</a>
+      <a class="nav-item" href="recipients.html"><span class="nav-icon">👥</span> Recipients</a>
+      <div class="nav-label">Account</div>
+      <a class="nav-item active" href="profile.html"><span class="nav-icon">👤</span> My Profile</a>
+      <a class="nav-item" href="notifications.html"><span class="nav-icon">🔔</span> Notifications</a>
+      <a class="nav-item" href="support.html"><span class="nav-icon">💬</span> Support</a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-avatar">👤</div>
+      <div style="flex:1;min-width:0">
+        <div class="user-name" id="sidebarName">Loading...</div>
+        <div class="user-rank" id="sidebarRank">—</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">⏻</button>
+    </div>
+  </aside>
+
+  <!-- Mobile header -->
+
+  <div class="mobile-header">
+    <button class="hamburger" onclick="openSidebar()">☰</button>
+    <span class="mobile-logo">👤 My Profile</span>
+  </div>
+
+  <!-- Main -->
+
+  <main class="main">
+
+```
+<a class="back-link" href="dashboard.html">← Back to Dashboard</a>
+<div class="page-title">My Profile</div>
+<div class="page-subtitle">Manage your personal and seafarer information</div>
+
+<div class="layout">
+
+  <!-- Left: avatar + quick info -->
+  <div>
+    <div class="avatar-card">
+      <div class="big-avatar" id="avatarInitial">?</div>
+      <div class="avatar-name" id="avatarName">Loading...</div>
+      <div class="avatar-rank" id="avatarRank">—</div>
+      <div class="avatar-email" id="avatarEmail">—</div>
+      <span class="avatar-badge">✓ Verified Seafarer</span>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>🚢 Vessel Info</h3></div>
+      <div class="card-body">
+        <div class="info-row"><span class="info-label">Vessel</span><span class="info-val" id="infoVessel">—</span></div>
+        <div class="info-row"><span class="info-label">Type</span><span class="info-val" id="infoVesselType">—</span></div>
+        <div class="info-row"><span class="info-label">Agency</span><span class="info-val" id="infoAgency">—</span></div>
+        <div class="info-row"><span class="info-label">Seaman Book</span><span class="info-val" id="infoSeamanBook">—</span></div>
+        <div class="info-row"><span class="info-label">Joined</span><span class="info-val" id="infoJoined">—</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>🔐 Security</h3></div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:0.75rem">
+        <button class="btn-pw" onclick="openPwModal()">🔒 Change Password</button>
+        <button class="btn-danger-outline" onclick="confirmSignOut()">⏻ Sign Out</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: edit forms -->
+  <div>
+
+    <!-- Personal info form -->
+    <div class="card">
+      <div class="card-head"><h3>👤 Personal Information</h3></div>
+      <div class="card-body">
+
+        <div class="section-label">Basic Info</div>
+
+        <div class="field">
+          <label>Full Name</label>
+          <div class="input-wrap"><span class="icon">👤</span>
+            <input type="text" id="fFullName" placeholder="Full name"/>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Mobile Number</label>
+            <div class="input-wrap"><span class="icon">📱</span>
+              <input type="tel" id="fMobile" placeholder="+63 9XX XXX XXXX"/>
+            </div>
+          </div>
+          <div class="field">
+            <label>Date of Birth</label>
+            <div class="input-wrap"><span class="icon">📅</span>
+              <input type="date" id="fDob"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Home Address</label>
+          <div class="input-wrap"><span class="icon">🏠</span>
+            <input type="text" id="fAddress" placeholder="Street, City, Province"/>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Nationality</label>
+            <div class="input-wrap select-wrap"><span class="icon">🌏</span>
+              <select id="fNationality">
+                <option value="">Select...</option>
+                <option>Filipino</option><option>Indonesian</option>
+                <option>Indian</option><option>Myanmar</option>
+                <option>Chinese</option><option>Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Gender</label>
+            <div class="input-wrap select-wrap"><span class="icon">⚧</span>
+              <select id="fGender">
+                <option value="">Select...</option>
+                <option>Male</option><option>Female</option><option>Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Email Address</label>
+          <div class="input-wrap"><span class="icon">✉</span>
+            <input type="email" id="fEmail" disabled style="opacity:0.5;cursor:not-allowed"/>
+          </div>
+          <div style="font-size:0.72rem;color:#8a9ab5;margin-top:4px">Email cannot be changed here.</div>
+        </div>
+
+        <div class="section-label">Seafarer Details</div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Rank / Position</label>
+            <div class="input-wrap select-wrap"><span class="icon">⚓</span>
+              <select id="fRank">
+                <option value="">Select rank...</option>
+                <optgroup label="Deck Department">
+                  <option>Master / Captain</option><option>Chief Officer</option>
+                  <option>Second Officer</option><option>Third Officer</option>
+                  <option>Deck Cadet</option><option>Bosun</option>
+                  <option>AB Seaman</option><option>OS Seaman</option>
+                </optgroup>
+                <optgroup label="Engine Department">
+                  <option>Chief Engineer</option><option>Second Engineer</option>
+                  <option>Third Engineer</option><option>Fourth Engineer</option>
+                  <option>Engine Cadet</option><option>Oiler / Wiper</option>
+                  <option>Fitter</option><option>Motorman</option><option>Electrician</option>
+                </optgroup>
+                <optgroup label="Catering / Others">
+                  <option>Chief Cook</option><option>Messman</option>
+                  <option>Steward</option><option>Other</option>
+                </optgroup>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Vessel Type</label>
+            <div class="input-wrap select-wrap"><span class="icon">🚢</span>
+              <select id="fVesselType">
+                <option value="">Select...</option>
+                <option>Bulk Carrier</option><option>Container Ship</option>
+                <option>Tanker</option><option>RORO</option>
+                <option>Passenger / Cruise</option><option>General Cargo</option>
+                <option>Offshore / OSV</option><option>Tugboat</option><option>Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Vessel / Ship Name</label>
+          <div class="input-wrap"><span class="icon">🌊</span>
+            <input type="text" id="fVesselName" placeholder="e.g. MV Pacific Star"/>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Manning Agency</label>
+            <div class="input-wrap"><span class="icon">🏢</span>
+              <input type="text" id="fAgency" placeholder="Agency name"/>
+            </div>
+          </div>
+          <div class="field">
+            <label>Seaman Book No.</label>
+            <div class="input-wrap"><span class="icon">📋</span>
+              <input type="text" id="fSeamanBook" placeholder="Optional"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert error"   id="profileAlert"></div>
+        <div class="alert success" id="profileSuccess"></div>
+
+        <div style="display:flex;gap:0.75rem;margin-top:0.25rem;flex-wrap:wrap">
+          <button class="btn-save" id="saveBtn" onclick="saveProfile()">
+            <span class="bt">Save Changes</span><span class="spi"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+```
+
+  </main>
+
+  <!-- Change Password Modal -->
+
+  <div class="modal-overlay" id="pwModal" onclick="closePwModal(event)">
+    <div class="modal">
+      <div class="modal-head">
+        <div class="modal-title">Change Password</div>
+        <button class="modal-close" onclick="closePwModalDirect()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label>Current Password</label>
+          <div class="input-wrap">
+            <span class="icon">🔒</span>
+            <input type="password" id="pwCurrent" placeholder="Current password"/>
+            <button class="toggle-pw" type="button" onclick="togglePw('pwCurrent',this)">👁</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>New Password</label>
+          <div class="input-wrap">
+            <span class="icon">🔑</span>
+            <input type="password" id="pwNew" placeholder="Min. 8 characters"/>
+            <button class="toggle-pw" type="button" onclick="togglePw('pwNew',this)">👁</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Confirm New Password</label>
+          <div class="input-wrap">
+            <span class="icon">🔑</span>
+            <input type="password" id="pwConfirm" placeholder="Repeat new password"/>
+            <button class="toggle-pw" type="button" onclick="togglePw('pwConfirm',this)">👁</button>
+          </div>
+        </div>
+        <div class="alert error"   id="pwAlert"></div>
+        <div class="alert success" id="pwSuccess"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-modal-cancel" onclick="closePwModalDirect()">Cancel</button>
+        <button class="btn-modal-save" id="pwSaveBtn" onclick="changePassword()">Update Password</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey:            "AIzaSyDjspj1rS3F3zt_VhCvY6ypDsU9IfAAvP0",
+      authDomain:        "shipremit.firebaseapp.com",
+      databaseURL:       "https://shipremit-default-rtdb.firebaseio.com",
+      projectId:         "shipremit",
+      storageBucket:     "shipremit.firebasestorage.app",
+      messagingSenderId: "516183209213",
+      appId:             "1:516183209213:web:d2ffdaa25b14b96de17a94",
+      measurementId:     "G-0SE4CEQP5X"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db   = firebase.database();
+
+    let currentUser = null;
+
+    // ── Auth guard ────────────────────────────────────────────────────────────
+    auth.onAuthStateChanged(async user => {
+      if (!user) { window.location.href = 'login.html'; return; }
+      currentUser = user;
+      await loadProfile(user);
+    });
+
+    // ── Load profile ──────────────────────────────────────────────────────────
+    async function loadProfile(user) {
+      try {
+        const snap = await db.ref('users/' + user.uid).once('value');
+        const p = snap.val() || {};
+
+        const name    = p.fullName || user.displayName || '';
+        const initial = name.charAt(0).toUpperCase() || '?';
+
+        // Avatar card
+        document.getElementById('avatarInitial').textContent = initial;
+        document.getElementById('avatarName').textContent    = name || '—';
+        document.getElementById('avatarRank').textContent    = p.rank || '—';
+        document.getElementById('avatarEmail').textContent   = p.email || user.email || '—';
+
+        // Sidebar
+        document.getElementById('sidebarName').textContent = name || 'User';
+        document.getElementById('sidebarRank').textContent = p.rank || 'Seafarer';
+
+        // Vessel info panel
+        document.getElementById('infoVessel').textContent     = p.vesselName  || '—';
+        document.getElementById('infoVesselType').textContent = p.vesselType  || '—';
+        document.getElementById('infoAgency').textContent     = p.agency      || '—';
+        document.getElementById('infoSeamanBook').textContent = p.seamanBook  || '—';
+        document.getElementById('infoJoined').textContent     = p.createdAt
+          ? new Date(p.createdAt).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})
+          : '—';
+
+        // Form fields
+        document.getElementById('fFullName').value    = p.fullName   || '';
+        document.getElementById('fMobile').value      = p.mobile     || '';
+        document.getElementById('fDob').value         = p.dob        || '';
+        document.getElementById('fAddress').value     = p.address    || '';
+        document.getElementById('fNationality').value = p.nationality|| '';
+        document.getElementById('fGender').value      = p.gender     || '';
+        document.getElementById('fEmail').value       = p.email      || user.email || '';
+        document.getElementById('fRank').value        = p.rank       || '';
+        document.getElementById('fVesselType').value  = p.vesselType || '';
+        document.getElementById('fVesselName').value  = p.vesselName || '';
+        document.getElementById('fAgency').value      = p.agency     || '';
+        document.getElementById('fSeamanBook').value  = p.seamanBook || '';
+
+      } catch(e) {
+        console.warn('Profile load error:', e);
+      }
+    }
+
+    // ── Save profile ──────────────────────────────────────────────────────────
+    async function saveProfile() {
+      hideAlerts();
+      const fullName   = document.getElementById('fFullName').value.trim();
+      if (!fullName) { showAlert('profileAlert', 'Please enter your full name.'); return; }
+
+      const btn = document.getElementById('saveBtn');
+      btn.disabled = true; btn.classList.add('loading');
+
+      try {
+        const updates = {
+          fullName:    fullName,
+          mobile:      document.getElementById('fMobile').value.trim(),
+          dob:         document.getElementById('fDob').value,
+          address:     document.getElementById('fAddress').value.trim(),
+          nationality: document.getElementById('fNationality').value,
+          gender:      document.getElementById('fGender').value,
+          rank:        document.getElementById('fRank').value,
+          vesselType:  document.getElementById('fVesselType').value,
+          vesselName:  document.getElementById('fVesselName').value.trim(),
+          agency:      document.getElementById('fAgency').value.trim(),
+          seamanBook:  document.getElementById('fSeamanBook').value.trim(),
+        };
+
+        await db.ref('users/' + currentUser.uid).update(updates);
+
+        // Update Firebase Auth display name
+        await currentUser.updateProfile({ displayName: fullName });
+
+        // Refresh avatar
+        document.getElementById('avatarInitial').textContent = fullName.charAt(0).toUpperCase();
+        document.getElementById('avatarName').textContent    = fullName;
+        document.getElementById('avatarRank').textContent    = updates.rank || '—';
+        document.getElementById('sidebarName').textContent   = fullName;
+        document.getElementById('sidebarRank').textContent   = updates.rank || 'Seafarer';
+        document.getElementById('infoVessel').textContent    = updates.vesselName || '—';
+        document.getElementById('infoVesselType').textContent= updates.vesselType || '—';
+        document.getElementById('infoAgency').textContent    = updates.agency || '—';
+        document.getElementById('infoSeamanBook').textContent= updates.seamanBook || '—';
+
+        showSuccess('profileSuccess', '✓ Profile updated successfully!');
+
+      } catch(e) {
+        showAlert('profileAlert', 'Failed to save. Please try again.');
+      }
+
+      btn.disabled = false; btn.classList.remove('loading');
+    }
+
+    // ── Change password ───────────────────────────────────────────────────────
+    function openPwModal() {
+      document.getElementById('pwCurrent').value = '';
+      document.getElementById('pwNew').value     = '';
+      document.getElementById('pwConfirm').value = '';
+      document.getElementById('pwAlert').classList.remove('show');
+      document.getElementById('pwSuccess').classList.remove('show');
+      document.getElementById('pwModal').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePwModal(e) {
+      if (e.target === document.getElementById('pwModal')) closePwModalDirect();
+    }
+    function closePwModalDirect() {
+      document.getElementById('pwModal').classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    async function changePassword() {
+      const current = document.getElementById('pwCurrent').value;
+      const newPw   = document.getElementById('pwNew').value;
+      const confirm = document.getElementById('pwConfirm').value;
+
+      document.getElementById('pwAlert').classList.remove('show');
+      document.getElementById('pwSuccess').classList.remove('show');
+
+      if (!current) { showAlert('pwAlert', 'Enter your current password.'); return; }
+      if (newPw.length < 8) { showAlert('pwAlert', 'New password must be at least 8 characters.'); return; }
+      if (newPw !== confirm) { showAlert('pwAlert', 'Passwords do not match.'); return; }
+
+      const btn = document.getElementById('pwSaveBtn');
+      btn.disabled = true; btn.textContent = 'Updating...';
+
+      try {
+        // Re-authenticate then update
+        const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, current);
+        await currentUser.reauthenticateWithCredential(credential);
+        await currentUser.updatePassword(newPw);
+        showSuccess('pwSuccess', '✓ Password updated successfully!');
+        document.getElementById('pwCurrent').value = '';
+        document.getElementById('pwNew').value     = '';
+        document.getElementById('pwConfirm').value = '';
+        setTimeout(() => closePwModalDirect(), 2000);
+      } catch(e) {
+        const map = {
+          'auth/wrong-password':       'Current password is incorrect.',
+          'auth/too-many-requests':    'Too many attempts. Try again later.',
+          'auth/requires-recent-login':'Please log out and log back in first.',
+          'auth/weak-password':        'New password is too weak.',
+        };
+        showAlert('pwAlert', map[e.code] || 'Failed to update password.');
+      }
+
+      btn.disabled = false; btn.textContent = 'Update Password';
+    }
+
+    // ── Sign out ──────────────────────────────────────────────────────────────
+    function confirmSignOut() {
+      if (!confirm('Sign out of ShipRemit?')) return;
+      auth.signOut().then(() => location.href = 'login.html');
+    }
+
+    // ── Toggle password visibility ────────────────────────────────────────────
+    function togglePw(inputId, btn) {
+      const inp = document.getElementById(inputId);
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+      btn.textContent = inp.type === 'text' ? '🙈' : '👁';
+    }
+
+    // ── Alert helpers ─────────────────────────────────────────────────────────
+    function showAlert(id, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg; el.classList.add('show');
+    }
+    function showSuccess(id, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg; el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 4000);
+    }
+    function hideAlerts() {
+      ['profileAlert','profileSuccess'].forEach(id => document.getElementById(id).classList.remove('show'));
+    }
+
+    // ── Sidebar helpers ───────────────────────────────────────────────────────
+
+    // ── Auto-hide mobile header on scroll ─────────────────────────────────────
+    let lastScroll = 0;
+    window.addEventListener('scroll', () => {
+      const header = document.querySelector('.mobile-header');
+      if (!header) return;
+      const current = window.scrollY;
+      if (current > lastScroll && current > 60) {
+        header.classList.add('hide');
+      } else {
+        header.classList.remove('hide');
+      }
+      lastScroll = current <= 0 ? 0 : current;
+    }, { passive: true });
+
+    function logout()       { auth.signOut().then(() => location.href='login.html'); }
+        function openSidebar()  {
+      document.getElementById('sidebar').classList.add('open');
+      document.getElementById('overlay').classList.add('show');
+      const h = document.querySelector('.mobile-header');
+      if (h) h.classList.add('hide');
+    }
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('overlay').classList.remove('show');
+      const h = document.querySelector('.mobile-header');
+      if (h) h.classList.remove('hide');
+    }
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
+          .catch(err => console.warn('[PWA] Service Worker failed:', err));
+      });
+    }
+  </script>
+
+</body>
+</html>
