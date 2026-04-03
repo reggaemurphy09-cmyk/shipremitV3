@@ -1,19 +1,22 @@
-const CACHE_NAME = ‘shipremit-v1’;
+const CACHE_NAME = ‘shipremit-v2’;
+const BASE = ‘https://reggaemurphy09-cmyk.github.io’;
 
 // All files to cache on install
 const FILES_TO_CACHE = [
-‘/login.html’,
-‘/register.html’,
-‘/dashboard.html’,
-‘/send.html’,
-‘/transactions.html’,
-‘/recipients.html’,
-‘/profile.html’,
-‘/forgot.html’,
-‘/notifications.html’,
-‘/support.html’,
-‘/admin.html’,
-‘/manifest.json’,
+BASE + ‘/login.html’,
+BASE + ‘/register.html’,
+BASE + ‘/dashboard.html’,
+BASE + ‘/send.html’,
+BASE + ‘/transactions.html’,
+BASE + ‘/recipients.html’,
+BASE + ‘/profile.html’,
+BASE + ‘/forgot.html’,
+BASE + ‘/notifications.html’,
+BASE + ‘/support.html’,
+BASE + ‘/admin.html’,
+BASE + ‘/manifest.json’,
+BASE + ‘/icon-192.png’,
+BASE + ‘/icon-512.png’,
 // Firebase SDKs
 ‘https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js’,
 ‘https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js’,
@@ -99,7 +102,7 @@ return cached;
   }).catch(() => {
     // Offline fallback for HTML pages
     if (request.destination === 'document') {
-      return caches.match('/dashboard.html');
+      return caches.match(BASE + '/dashboard.html');
     }
   });
 })
