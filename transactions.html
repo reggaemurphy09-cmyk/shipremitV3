@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="ShipRemit"/>
+  <meta name="theme-color" content="#0a1628"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>ShipRemit — Transactions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+```
+:root {
+  --navy:    #0a1628;
+  --navy2:   #0f2040;
+  --navy3:   #162545;
+  --brass:   #c9943a;
+  --brass2:  #e8b85a;
+  --white:   #f0ece3;
+  --muted:   #8a9ab5;
+  --success: #4caf82;
+  --danger:  #e05c5c;
+  --warning: #e8b85a;
+  --info:    #7eb8f7;
+  --card-bg: rgba(15, 32, 64, 0.75);
+  --border:  rgba(201, 148, 58, 0.2);
+  --sidebar-w: 240px;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--navy);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--white);
+  display: flex;
+  overflow-x: hidden;
+}
+
+.bg {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse at 10% 90%, rgba(12,60,120,0.4) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 10%, rgba(8,40,90,0.3) 0%, transparent 50%),
+    linear-gradient(160deg, #07101f 0%, #0a1e3d 60%, #061525 100%);
+}
+.grid-lines {
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(201,148,58,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,148,58,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  position: fixed; top: 0; left: 0;
+  width: var(--sidebar-w); height: 100vh;
+  background: rgba(10,22,40,0.95);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+.sidebar-logo {
+  display: flex; align-items: center; gap: 10px;
+  padding: 1.5rem 1.25rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+.logo-icon {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, var(--brass), var(--brass2));
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; box-shadow: 0 4px 12px rgba(201,148,58,0.3);
+}
+.logo-name { font-family: 'Playfair Display', serif; font-size: 1.15rem; }
+.logo-tag  { font-size: 0.62rem; color: var(--brass); letter-spacing: 0.1em; text-transform: uppercase; }
+
+nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
+.nav-label { font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(138,154,181,0.45); padding: 0.75rem 0.5rem 0.4rem; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 8px;
+  cursor: pointer; color: var(--muted);
+  font-size: 0.88rem; text-decoration: none;
+  transition: all 0.2s; margin-bottom: 2px;
+}
+.nav-item:hover  { background: rgba(201,148,58,0.08); color: var(--white); }
+.nav-item.active { background: rgba(201,148,58,0.12); color: var(--brass2); font-weight: 500; }
+.nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+
+.sidebar-user {
+  padding: 1rem 1.25rem; border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.user-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--navy3); border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center; font-size: 15px;
+}
+.user-name { font-size: 0.85rem; font-weight: 500; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-rank { font-size: 0.7rem; color: var(--muted); }
+.logout-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; margin-left: auto; transition: color 0.2s; }
+.logout-btn:hover { color: var(--danger); }
+
+/* ── Mobile header ── */
+.mobile-header {
+  display: none; position: fixed;
+  top: 0; left: 0; right: 0; height: 56px;
+  background: rgba(10,22,40,0.97);
+  border-bottom: 1px solid var(--border);
+  align-items: center; padding: 0 1rem; gap: 12px;
+  z-index: 200; backdrop-filter: blur(12px);
+}
+.hamburger { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 20px; padding: 4px; }
+.mobile-logo { font-family: 'Playfair Display', serif; font-size: 1.1rem; }
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 99; }
+.overlay.show { display: block; }
+
+/* ── Main ── */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1; position: relative; z-index: 1;
+  padding: 2rem 1.75rem 3rem;
+  max-width: calc(100vw - var(--sidebar-w));
+}
+
+/* ── Page header ── */
+.page-header {
+  display: flex; align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap;
+}
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--muted); font-size: 0.82rem;
+  text-decoration: none; margin-bottom: 0.6rem; transition: color 0.2s;
+}
+.back-link:hover { color: var(--brass); }
+.page-title    { font-family: 'Playfair Display', serif; font-size: 1.6rem; }
+.page-subtitle { font-size: 0.85rem; color: var(--muted); margin-top: 3px; }
+.send-btn {
+  background: linear-gradient(135deg, var(--brass), var(--brass2));
+  color: #1a0e00; border: none; border-radius: 10px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600;
+  padding: 10px 20px; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(201,148,58,0.3);
+  transition: opacity 0.2s, transform 0.15s; white-space: nowrap;
+}
+.send-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+/* ── Stats row ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.85rem; margin-bottom: 1.5rem;
+}
+.stat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 11px; padding: 1rem 1.1rem;
+  backdrop-filter: blur(12px);
+  position: relative; overflow: hidden;
+}
+.stat-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--brass), var(--brass2));
+  opacity: 0.5;
+}
+.stat-label { font-size: 0.68rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+.stat-value { font-size: 1.3rem; font-weight: 600; color: var(--white); }
+.stat-icon  { font-size: 18px; float: right; opacity: 0.6; }
+
+/* ── Filters bar ── */
+.filters-bar {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 1rem 1.25rem;
+  backdrop-filter: blur(12px);
+  margin-bottom: 1rem;
+  display: flex; align-items: center;
+  gap: 0.75rem; flex-wrap: wrap;
+}
+.search-wrap {
+  position: relative; flex: 1; min-width: 180px;
+}
+.search-icon {
+  position: absolute; left: 11px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted); font-size: 14px; pointer-events: none;
+}
+.search-input {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px; color: var(--white);
+  font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+  padding: 8px 12px 8px 34px; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.search-input::placeholder { color: rgba(138,154,181,0.4); }
+.search-input:focus { border-color: var(--brass); box-shadow: 0 0 0 3px rgba(201,148,58,0.1); }
+
+.filter-group { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.filter-btn {
+  padding: 7px 14px; border-radius: 7px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  color: var(--muted); font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem; cursor: pointer; transition: all 0.2s;
+  white-space: nowrap;
+}
+.filter-btn:hover  { border-color: rgba(201,148,58,0.4); color: var(--white); }
+.filter-btn.active { background: rgba(201,148,58,0.12); border-color: var(--brass); color: var(--brass2); }
+
+.sort-select {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border); border-radius: 8px;
+  color: var(--white); font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem; padding: 8px 12px; outline: none;
+  cursor: pointer; -webkit-appearance: none;
+}
+.sort-select option { background: #0f2040; }
+
+/* ── Table card ── */
+.table-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+}
+.table-head {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+.table-head h3 { font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.tx-count { font-size: 0.72rem; color: var(--muted); }
+
+/* ── Desktop table ── */
+.tx-table { width: 100%; border-collapse: collapse; }
+.tx-table th {
+  font-size: 0.68rem; color: var(--muted);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 10px 1.25rem; text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-weight: 500; white-space: nowrap;
+}
+.tx-table td {
+  padding: 12px 1.25rem;
+  border-bottom: 1px solid rgba(201,148,58,0.06);
+  font-size: 0.85rem; vertical-align: middle;
+}
+.tx-table tr:last-child td { border-bottom: none; }
+.tx-table tbody tr { transition: background 0.15s; cursor: pointer; }
+.tx-table tbody tr:hover { background: rgba(201,148,58,0.04); }
+
+.tx-ref    { font-size: 0.78rem; color: var(--brass); font-weight: 600; letter-spacing: 0.04em; }
+.tx-name   { font-weight: 500; color: var(--white); }
+.tx-bank   { font-size: 0.72rem; color: var(--muted); margin-top: 1px; }
+.tx-amount { font-weight: 600; color: var(--white); }
+.tx-php    { font-size: 0.72rem; color: var(--muted); }
+.tx-date   { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+.tx-method { font-size: 0.78rem; color: var(--muted); }
+
+.status-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 0.04em; white-space: nowrap;
+}
+.status-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.s-completed  { background: rgba(76,175,130,0.12);  color: var(--success); }
+.s-pending    { background: rgba(232,184,90,0.12);  color: var(--warning); }
+.s-processing { background: rgba(126,184,247,0.12); color: var(--info); }
+.s-failed     { background: rgba(224,92,92,0.12);   color: var(--danger); }
+
+.method-icon { font-size: 14px; }
+
+/* ── Mobile cards (hidden on desktop) ── */
+.tx-cards { display: none; }
+.tx-card {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(201,148,58,0.07);
+  cursor: pointer; transition: background 0.15s;
+}
+.tx-card:last-child { border-bottom: none; }
+.tx-card:hover { background: rgba(201,148,58,0.04); }
+.tx-card-top {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+.tx-card-left { display: flex; align-items: center; gap: 10px; }
+.tx-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--navy3); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 600; color: var(--brass2); flex-shrink: 0;
+}
+.tx-card-right { text-align: right; flex-shrink: 0; }
+.tx-card-bottom {
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* ── Empty state ── */
+.empty-state {
+  text-align: center; padding: 3rem 1.5rem;
+}
+.empty-icon { font-size: 3rem; display: block; margin-bottom: 0.75rem; opacity: 0.35; }
+.empty-title { font-size: 1rem; font-weight: 500; margin-bottom: 0.4rem; }
+.empty-sub   { font-size: 0.83rem; color: var(--muted); margin-bottom: 1.25rem; }
+.empty-btn {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--brass), var(--brass2));
+  color: #1a0e00; border: none; border-radius: 9px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600;
+  padding: 10px 22px; cursor: pointer; text-decoration: none;
+}
+
+/* ── Loading skeleton ── */
+.skeleton-row td { padding: 14px 1.25rem; }
+.skel {
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--navy3) 25%, var(--navy2) 50%, var(--navy3) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  display: inline-block;
+}
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+/* ── Modal (detail view) ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 500; align-items: center; justify-content: center;
+  padding: 1rem;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: #0f2040;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 100%; max-width: 460px;
+  max-height: 90vh; overflow-y: auto;
+  animation: modal-in 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+@keyframes modal-in { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
+.modal-head {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.modal-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; }
+.modal-close {
+  background: none; border: none; color: var(--muted);
+  cursor: pointer; font-size: 20px; padding: 2px;
+  transition: color 0.2s;
+}
+.modal-close:hover { color: var(--white); }
+.modal-body { padding: 1.5rem; }
+
+.detail-section { margin-bottom: 1.25rem; }
+.detail-section-title {
+  font-size: 0.68rem; color: var(--brass);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  display: flex; align-items: center; gap: 8px;
+}
+.detail-section-title::after { content:''; flex:1; height:1px; background: var(--border); }
+.detail-row {
+  display: flex; justify-content: space-between;
+  align-items: flex-start; padding: 6px 0;
+  border-bottom: 1px solid rgba(201,148,58,0.06); gap: 1rem;
+}
+.detail-row:last-child { border-bottom: none; }
+.detail-label { font-size: 0.78rem; color: var(--muted); flex-shrink: 0; }
+.detail-val   { font-size: 0.85rem; font-weight: 500; color: var(--white); text-align: right; word-break: break-all; }
+.detail-val.big { color: var(--brass2); font-size: 1.1rem; font-weight: 700; }
+
+.photo-thumb {
+  width: 100%; border-radius: 8px;
+  border: 1px solid var(--border);
+  margin-top: 0.5rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.photo-thumb:hover { opacity: 0.85; }
+
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 0.6rem;
+}
+.btn-ghost {
+  flex: 1; background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border); color: var(--muted);
+  border-radius: 8px; font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem; padding: 9px; cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-ghost:hover { color: var(--white); border-color: rgba(201,148,58,0.4); }
+
+/* ── Pagination ── */
+.pagination {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap; gap: 0.75rem;
+}
+.page-info { font-size: 0.78rem; color: var(--muted); }
+.page-btns { display: flex; gap: 0.4rem; }
+.page-btn {
+  width: 32px; height: 32px; border-radius: 6px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  color: var(--muted); cursor: pointer; font-size: 0.8rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.page-btn:hover  { border-color: rgba(201,148,58,0.4); color: var(--white); }
+.page-btn.active { background: rgba(201,148,58,0.12); border-color: var(--brass); color: var(--brass2); }
+.page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── Loading overlay ── */
+#loadingOverlay {
+  position: fixed; inset: 0; background: var(--navy);
+  z-index: 999; display: flex; align-items: center;
+  justify-content: center; flex-direction: column; gap: 1rem;
+  transition: opacity 0.4s;
+}
+#loadingOverlay.hidden { opacity: 0; pointer-events: none; }
+.loading-logo { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--white); }
+.loading-spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--border); border-top-color: var(--brass);
+  border-radius: 50%; animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .tx-table  { display: none; }
+  .tx-cards  { display: block; }
+}
+@media (max-width: 680px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; padding: 4.75rem 1rem 5rem; max-width: 100vw; }
+  .mobile-header { display: flex; }
+  .page-header .send-btn { display: none; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .filters-bar { padding: 0.85rem 1rem; }
+}
+@media (max-width: 400px) {
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .filter-group { gap: 0.3rem; }
+  .filter-btn { padding: 6px 10px; font-size: 0.73rem; }
+}
+```
+
+  </style>
+</head>
+<body>
+
+  <div id="loadingOverlay">
+    <div class="loading-logo">⚓ ShipRemit</div>
+    <div class="loading-spinner"></div>
+  </div>
+
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar -->
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">⚓</div>
+      <div>
+        <div class="logo-name">ShipRemit</div>
+        <div class="logo-tag">Seafarer Remittance</div>
+      </div>
+    </div>
+    <nav>
+      <div class="nav-label">Main</div>
+      <a class="nav-item" href="dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a class="nav-item" href="send.html"><span class="nav-icon">💸</span> Send Money</a>
+      <a class="nav-item active" href="transactions.html"><span class="nav-icon">📋</span> Transactions</a>
+      <a class="nav-item" href="recipients.html"><span class="nav-icon">👥</span> Recipients</a>
+      <div class="nav-label">Account</div>
+      <a class="nav-item" href="profile.html"><span class="nav-icon">👤</span> My Profile</a>
+      <a class="nav-item" href="notifications.html"><span class="nav-icon">🔔</span> Notifications</a>
+      <a class="nav-item" href="support.html"><span class="nav-icon">💬</span> Support</a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-avatar">👤</div>
+      <div style="flex:1;min-width:0">
+        <div class="user-name" id="sidebarName">Loading...</div>
+        <div class="user-rank" id="sidebarRank">—</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">⏻</button>
+    </div>
+  </aside>
+
+  <!-- Mobile header -->
+
+  <div class="mobile-header">
+    <button class="hamburger" onclick="openSidebar()">☰</button>
+    <span class="mobile-logo">📋 Transactions</span>
+  </div>
+
+  <!-- Main -->
+
+  <main class="main">
+
+```
+<div class="page-header">
+  <div>
+    <a class="back-link" href="dashboard.html">← Back to Dashboard</a>
+    <div class="page-title">Transactions</div>
+    <div class="page-subtitle">Your complete remittance history</div>
+  </div>
+  <button class="send-btn" onclick="location.href='send.html'">+ Send Money</button>
+</div>
+
+<!-- Stats -->
+<div class="stats-row">
+  <div class="stat-card">
+    <span class="stat-icon">💸</span>
+    <div class="stat-label">Total Sent</div>
+    <div class="stat-value" id="sTotalSent">—</div>
+  </div>
+  <div class="stat-card">
+    <span class="stat-icon">✅</span>
+    <div class="stat-label">Completed</div>
+    <div class="stat-value" id="sCompleted">—</div>
+  </div>
+  <div class="stat-card">
+    <span class="stat-icon">⏳</span>
+    <div class="stat-label">Pending</div>
+    <div class="stat-value" id="sPending">—</div>
+  </div>
+  <div class="stat-card">
+    <span class="stat-icon">📅</span>
+    <div class="stat-label">This Month</div>
+    <div class="stat-value" id="sThisMonth">—</div>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="filters-bar">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" type="text" id="searchInput" placeholder="Search by name, ref, bank..." oninput="applyFilters()"/>
+  </div>
+  <div class="filter-group" id="statusFilters">
+    <button class="filter-btn active" onclick="setStatusFilter('all', this)">All</button>
+    <button class="filter-btn" onclick="setStatusFilter('pending', this)">Pending</button>
+    <button class="filter-btn" onclick="setStatusFilter('processing', this)">Processing</button>
+    <button class="filter-btn" onclick="setStatusFilter('completed', this)">Completed</button>
+    <button class="filter-btn" onclick="setStatusFilter('failed', this)">Failed</button>
+  </div>
+  <select class="sort-select" id="sortSelect" onchange="applyFilters()">
+    <option value="newest">Newest first</option>
+    <option value="oldest">Oldest first</option>
+    <option value="amount-hi">Amount: High→Low</option>
+    <option value="amount-lo">Amount: Low→High</option>
+  </select>
+</div>
+
+<!-- Table card -->
+<div class="table-card">
+  <div class="table-head">
+    <h3>📋 Transaction History</h3>
+    <span class="tx-count" id="txCountLabel">0 transactions</span>
+  </div>
+
+  <!-- Desktop table -->
+  <table class="tx-table">
+    <thead>
+      <tr>
+        <th>Reference</th>
+        <th>Recipient</th>
+        <th>Amount</th>
+        <th>Method</th>
+        <th>Date</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="txTableBody">
+      <!-- skeleton -->
+      <tr class="skeleton-row"><td><span class="skel" style="width:80px;height:14px"></span></td><td><span class="skel" style="width:120px;height:14px"></span></td><td><span class="skel" style="width:70px;height:14px"></span></td><td><span class="skel" style="width:60px;height:14px"></span></td><td><span class="skel" style="width:80px;height:14px"></span></td><td><span class="skel" style="width:80px;height:20px;border-radius:20px"></span></td></tr>
+      <tr class="skeleton-row"><td><span class="skel" style="width:80px;height:14px"></span></td><td><span class="skel" style="width:100px;height:14px"></span></td><td><span class="skel" style="width:70px;height:14px"></span></td><td><span class="skel" style="width:60px;height:14px"></span></td><td><span class="skel" style="width:80px;height:14px"></span></td><td><span class="skel" style="width:80px;height:20px;border-radius:20px"></span></td></tr>
+      <tr class="skeleton-row"><td><span class="skel" style="width:80px;height:14px"></span></td><td><span class="skel" style="width:140px;height:14px"></span></td><td><span class="skel" style="width:70px;height:14px"></span></td><td><span class="skel" style="width:60px;height:14px"></span></td><td><span class="skel" style="width:80px;height:14px"></span></td><td><span class="skel" style="width:80px;height:20px;border-radius:20px"></span></td></tr>
+    </tbody>
+  </table>
+
+  <!-- Mobile cards -->
+  <div class="tx-cards" id="txCards"></div>
+
+  <!-- Pagination -->
+  <div class="pagination" id="paginationRow">
+    <span class="page-info" id="pageInfo">—</span>
+    <div class="page-btns" id="pageBtns"></div>
+  </div>
+</div>
+```
+
+  </main>
+
+  <!-- Detail Modal -->
+
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal" id="modal">
+      <div class="modal-head">
+        <div class="modal-title">Transaction Details</div>
+        <button class="modal-close" onclick="closeModalDirect()">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer">
+        <button class="btn-ghost" onclick="closeModalDirect()">Close</button>
+        <button class="btn-ghost" id="modalSendAgainBtn" onclick="sendAgain()">💸 Send Again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey:            "AIzaSyDjspj1rS3F3zt_VhCvY6ypDsU9IfAAvP0",
+      authDomain:        "shipremit.firebaseapp.com",
+      databaseURL:       "https://shipremit-default-rtdb.firebaseio.com",
+      projectId:         "shipremit",
+      storageBucket:     "shipremit.firebasestorage.app",
+      messagingSenderId: "516183209213",
+      appId:             "1:516183209213:web:d2ffdaa25b14b96de17a94",
+      measurementId:     "G-0SE4CEQP5X"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db   = firebase.database();
+
+    // ── State ─────────────────────────────────────────────────────────────────
+    let allTx        = [];
+    let filteredTx   = [];
+    let statusFilter = 'all';
+    let currentPage  = 1;
+    const PAGE_SIZE  = 10;
+    let selectedTx   = null;
+
+    // ── Auth guard ────────────────────────────────────────────────────────────
+    auth.onAuthStateChanged(async user => {
+      if (!user) { window.location.href = 'login.html'; return; }
+      await loadSidebarProfile(user);
+      await loadTransactions(user.uid);
+      hideLoading();
+    });
+
+    function hideLoading() {
+      const o = document.getElementById('loadingOverlay');
+      o.classList.add('hidden');
+      setTimeout(() => o.remove(), 500);
+    }
+
+    async function loadSidebarProfile(user) {
+      try {
+        const snap = await db.ref('users/' + user.uid).once('value');
+        const p = snap.val() || {};
+        document.getElementById('sidebarName').textContent = p.fullName || user.displayName || 'User';
+        document.getElementById('sidebarRank').textContent = p.rank || 'Seafarer';
+      } catch(e) {}
+    }
+
+    // ── Load transactions ─────────────────────────────────────────────────────
+    async function loadTransactions(uid) {
+      try {
+        const snap = await db.ref('transactions')
+          .orderByChild('senderUid').equalTo(uid).once('value');
+        const data = snap.val() || {};
+        allTx = Object.entries(data)
+          .map(([id, t]) => ({ id, ...t }))
+          .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      } catch(e) {
+        console.warn('Load error:', e);
+        allTx = [];
+      }
+      computeStats();
+      applyFilters();
+    }
+
+    // ── Stats ─────────────────────────────────────────────────────────────────
+    function computeStats() {
+      let totalSent = 0, completed = 0, pending = 0, thisMonth = 0;
+      const now = new Date();
+      allTx.forEach(tx => {
+        const amt = parseFloat(tx.amount) || 0;
+        if (tx.status === 'completed') { totalSent += amt; completed++; }
+        if (tx.status === 'pending' || tx.status === 'processing') pending++;
+        if (tx.createdAt) {
+          const d = new Date(tx.createdAt);
+          if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) thisMonth += amt;
+        }
+      });
+      document.getElementById('sTotalSent').textContent  = '$' + fmt(totalSent);
+      document.getElementById('sCompleted').textContent  = completed;
+      document.getElementById('sPending').textContent    = pending;
+      document.getElementById('sThisMonth').textContent  = '$' + fmt(thisMonth);
+    }
+
+    // ── Filters & sort ────────────────────────────────────────────────────────
+    function setStatusFilter(status, btn) {
+      statusFilter = status;
+      document.querySelectorAll('#statusFilters .filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentPage = 1;
+      applyFilters();
+    }
+
+    function applyFilters() {
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+      const sort   = document.getElementById('sortSelect').value;
+
+      filteredTx = allTx.filter(tx => {
+        const matchStatus = statusFilter === 'all' || tx.status === statusFilter;
+        const matchSearch = !search ||
+          (tx.recipientName || '').toLowerCase().includes(search) ||
+          (tx.refCode       || '').toLowerCase().includes(search) ||
+          (tx.recipientBank || '').toLowerCase().includes(search) ||
+          (tx.paymentMethod || '').toLowerCase().includes(search);
+        return matchStatus && matchSearch;
+      });
+
+      filteredTx.sort((a, b) => {
+        if (sort === 'newest')    return (b.createdAt||0) - (a.createdAt||0);
+        if (sort === 'oldest')    return (a.createdAt||0) - (b.createdAt||0);
+        if (sort === 'amount-hi') return (parseFloat(b.amount)||0) - (parseFloat(a.amount)||0);
+        if (sort === 'amount-lo') return (parseFloat(a.amount)||0) - (parseFloat(b.amount)||0);
+        return 0;
+      });
+
+      currentPage = 1;
+      renderPage();
+    }
+
+    // ── Render ────────────────────────────────────────────────────────────────
+    function renderPage() {
+      const total  = filteredTx.length;
+      const pages  = Math.max(1, Math.ceil(total / PAGE_SIZE));
+      currentPage  = Math.min(currentPage, pages);
+      const start  = (currentPage - 1) * PAGE_SIZE;
+      const slice  = filteredTx.slice(start, start + PAGE_SIZE);
+
+      document.getElementById('txCountLabel').textContent =
+        total + ' transaction' + (total !== 1 ? 's' : '');
+
+      renderTable(slice);
+      renderCards(slice);
+      renderPagination(total, pages);
+    }
+
+    function renderTable(txs) {
+      const tbody = document.getElementById('txTableBody');
+      if (!txs.length) {
+        tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+          <span class="empty-icon">📭</span>
+          <div class="empty-title">No transactions found</div>
+          <div class="empty-sub">Try adjusting your filters or send your first remittance.</div>
+          <a class="empty-btn" href="send.html">+ Send Money</a>
+        </div></td></tr>`;
+        return;
+      }
+      tbody.innerHTML = txs.map(tx => `
+        <tr onclick="openModal('${tx.id}')">
+          <td><div class="tx-ref">${escHtml(tx.refCode||'—')}</div></td>
+          <td>
+            <div class="tx-name">${escHtml(tx.recipientName||'—')}</div>
+            <div class="tx-bank">${escHtml(tx.recipientBank||'')} ${tx.recipientAccount ? '· '+escHtml(tx.recipientAccount) : ''}</div>
+          </td>
+          <td>
+            <div class="tx-amount">$${fmt(tx.amount||0)}</div>
+            <div class="tx-php">₱${fmt(tx.phpAmount||0)}</div>
+          </td>
+          <td><span class="method-icon">${methodIcon(tx.paymentMethod)}</span> <span class="tx-method">${methodLabel(tx.paymentMethod)}</span></td>
+          <td><div class="tx-date">${fmtDate(tx.createdAt)}</div></td>
+          <td><span class="status-badge s-${tx.status||'pending'}">${capFirst(tx.status||'pending')}</span></td>
+        </tr>`).join('');
+    }
+
+    function renderCards(txs) {
+      const el = document.getElementById('txCards');
+      if (!txs.length) {
+        el.innerHTML = `<div class="empty-state">
+          <span class="empty-icon">📭</span>
+          <div class="empty-title">No transactions found</div>
+          <div class="empty-sub">Try adjusting your filters.</div>
+          <a class="empty-btn" href="send.html">+ Send Money</a>
+        </div>`;
+        return;
+      }
+      el.innerHTML = txs.map(tx => `
+        <div class="tx-card" onclick="openModal('${tx.id}')">
+          <div class="tx-card-top">
+            <div class="tx-card-left">
+              <div class="tx-avatar">${(tx.recipientName||'?').charAt(0).toUpperCase()}</div>
+              <div>
+                <div class="tx-name">${escHtml(tx.recipientName||'—')}</div>
+                <div class="tx-bank">${escHtml(tx.recipientBank||'')} ${tx.recipientAccount?'·'+escHtml(tx.recipientAccount):''}</div>
+              </div>
+            </div>
+            <div class="tx-card-right">
+              <div class="tx-amount">$${fmt(tx.amount||0)}</div>
+              <div class="tx-php">₱${fmt(tx.phpAmount||0)}</div>
+            </div>
+          </div>
+          <div class="tx-card-bottom">
+            <span class="tx-ref">${escHtml(tx.refCode||'—')}</span>
+            <span class="tx-date">${fmtDate(tx.createdAt)}</span>
+            <span class="status-badge s-${tx.status||'pending'}">${capFirst(tx.status||'pending')}</span>
+          </div>
+        </div>`).join('');
+    }
+
+    function renderPagination(total, pages) {
+      const start = (currentPage - 1) * PAGE_SIZE + 1;
+      const end   = Math.min(currentPage * PAGE_SIZE, total);
+      document.getElementById('pageInfo').textContent =
+        total ? `Showing ${start}–${end} of ${total}` : 'No results';
+
+      const btns = document.getElementById('pageBtns');
+      if (pages <= 1) { btns.innerHTML = ''; return; }
+
+      let html = `<button class="page-btn" onclick="changePage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
+      for (let i = 1; i <= pages; i++) {
+        if (pages > 7 && i > 2 && i < pages - 1 && Math.abs(i - currentPage) > 1) {
+          if (i === 3 || i === pages - 2) html += `<span style="color:var(--muted);padding:0 4px;">…</span>`;
+          continue;
+        }
+        html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="changePage(${i})">${i}</button>`;
+      }
+      html += `<button class="page-btn" onclick="changePage(${currentPage+1})" ${currentPage===pages?'disabled':''}>›</button>`;
+      btns.innerHTML = html;
+    }
+
+    function changePage(n) {
+      currentPage = n;
+      renderPage();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ── Detail modal ──────────────────────────────────────────────────────────
+    function openModal(id) {
+      const tx = allTx.find(t => t.id === id);
+      if (!tx) return;
+      selectedTx = tx;
+
+      document.getElementById('modalBody').innerHTML = `
+        <div class="detail-section">
+          <div class="detail-section-title">Amount</div>
+          <div class="detail-row"><span class="detail-label">You sent</span><span class="detail-val big">$${fmt(tx.totalPaid||tx.amount||0)}</span></div>
+          <div class="detail-row"><span class="detail-label">They received</span><span class="detail-val">₱${fmt(tx.phpAmount||0)}</span></div>
+          <div class="detail-row"><span class="detail-label">Exchange rate</span><span class="detail-val">1 USD = ₱${(tx.exchangeRate||56.20).toFixed(2)}</span></div>
+          <div class="detail-row"><span class="detail-label">Service fee</span><span class="detail-val">$${fmt(tx.fee||0)}</span></div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-section-title">Recipient</div>
+          <div class="detail-row"><span class="detail-label">Name</span><span class="detail-val">${escHtml(tx.recipientName||'—')}</span></div>
+          <div class="detail-row"><span class="detail-label">Bank / Wallet</span><span class="detail-val">${escHtml(tx.recipientBank||'—')}</span></div>
+          <div class="detail-row"><span class="detail-label">Account No.</span><span class="detail-val">${escHtml(tx.recipientAccount||'—')}</span></div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-section-title">Payment</div>
+          <div class="detail-row"><span class="detail-label">Method</span><span class="detail-val">${methodIcon(tx.paymentMethod)} ${methodLabel(tx.paymentMethod)}</span></div>
+          ${tx.paymentRef ? `<div class="detail-row"><span class="detail-label">Reference</span><span class="detail-val">${escHtml(tx.paymentRef)}</span></div>` : ''}
+          ${tx.notes ? `<div class="detail-row"><span class="detail-label">Notes</span><span class="detail-val">${escHtml(tx.notes)}</span></div>` : ''}
+          ${tx.cashPhotoURL ? `<div class="detail-row" style="flex-direction:column;align-items:flex-start;gap:0.5rem"><span class="detail-label">Cash Photo</span><img class="photo-thumb" src="${escHtml(tx.cashPhotoURL)}" alt="Cash photo" onclick="window.open('${escHtml(tx.cashPhotoURL)}','_blank')"/></div>` : ''}
+        </div>
+        <div class="detail-section">
+          <div class="detail-section-title">Transaction Info</div>
+          <div class="detail-row"><span class="detail-label">Reference</span><span class="detail-val" style="color:var(--brass2);font-weight:700">${escHtml(tx.refCode||'—')}</span></div>
+          <div class="detail-row"><span class="detail-label">Date & Time</span><span class="detail-val">${fmtDateFull(tx.createdAt)}</span></div>
+          <div class="detail-row"><span class="detail-label">Status</span><span class="detail-val"><span class="status-badge s-${tx.status||'pending'}">${capFirst(tx.status||'pending')}</span></span></div>
+        </div>`;
+
+      document.getElementById('modalOverlay').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(e) {
+      if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
+    }
+    function closeModalDirect() {
+      document.getElementById('modalOverlay').classList.remove('show');
+      document.body.style.overflow = '';
+    }
+    function sendAgain() {
+      closeModalDirect();
+      location.href = 'send.html';
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+    function fmt(n) { return Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+    function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function capFirst(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+    function fmtDate(ts) {
+      if (!ts) return '—';
+      return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    }
+    function fmtDateFull(ts) {
+      if (!ts) return '—';
+      return new Date(ts).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    }
+
+    function methodLabel(m) {
+      return { cash:'Cash', gcash:'GCash', bank:'Bank Transfer', remit:'Remittance Ctr' }[m] || (m||'—');
+    }
+    function methodIcon(m) {
+      return { cash:'💵', gcash:'📱', bank:'🏦', remit:'🏪' }[m] || '💳';
+    }
+
+
+    // ── Auto-hide mobile header on scroll ─────────────────────────────────────
+    let lastScroll = 0;
+    window.addEventListener('scroll', () => {
+      const header = document.querySelector('.mobile-header');
+      if (!header) return;
+      const current = window.scrollY;
+      if (current > lastScroll && current > 60) {
+        header.classList.add('hide');
+      } else {
+        header.classList.remove('hide');
+      }
+      lastScroll = current <= 0 ? 0 : current;
+    }, { passive: true });
+
+    function logout()       { auth.signOut().then(() => location.href='login.html'); }
+        function openSidebar()  {
+      document.getElementById('sidebar').classList.add('open');
+      document.getElementById('overlay').classList.add('show');
+      const h = document.querySelector('.mobile-header');
+      if (h) h.classList.add('hide');
+    }
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('overlay').classList.remove('show');
+      const h = document.querySelector('.mobile-header');
+      if (h) h.classList.remove('hide');
+    }
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
+          .catch(err => console.warn('[PWA] Service Worker failed:', err));
+      });
+    }
+  </script>
+
+</body>
+</html>
