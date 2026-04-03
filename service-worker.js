@@ -1,8 +1,8 @@
-const CACHE_NAME = ‘shipremit-v2’;
+const CACHE_NAME = ‘shipremit-v3’;
 const BASE = ‘https://reggaemurphy09-cmyk.github.io’;
 
-// All files to cache on install
 const FILES_TO_CACHE = [
+BASE + ‘/’,
 BASE + ‘/login.html’,
 BASE + ‘/register.html’,
 BASE + ‘/dashboard.html’,
@@ -17,13 +17,66 @@ BASE + ‘/admin.html’,
 BASE + ‘/manifest.json’,
 BASE + ‘/icon-192.png’,
 BASE + ‘/icon-512.png’,
-// Firebase SDKs
-‘https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js’,
-‘https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js’,
-‘https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js’,
-// Google Fonts
-‘https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500;600&display=swap’,
 ];
+
+// ── Install ───────────────────────────────────────────────────────────────────
+self.addEventListener(‘install’, event => {
+self.skipWaiting();
+event.waitUntil(
+caches.open(CACHE_NAME).then(cache => {
+return Promise.allSettled(
+FILES_TO_CACHE.map(url => cache.add(url).catch(() => {}))
+);
+})
+);
+});
+
+// ── Activate ──────────────────────────────────────────────────────────────────
+self.addEventListener(‘activate’, event => {
+event.waitUntil(
+caches.keys().then(keys =>
+Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+).then(() => self.clients.claim())
+);
+});
+
+// ── Fetch: Network first, fallback to cache ───────────────────────────────────
+// Network-first strategy works better on iOS Safari for PWA
+self.addEventListener(‘fetch’, event => {
+const url = new URL(event.request.url);
+
+// Skip non-GET requests
+if (event.request.method !== ‘GET’) return;
+
+// Skip Firebase, ImgBB — always network
+if (
+url.hostname.includes(‘firebaseio.com’) ||
+url.hostname.includes(‘googleapis.com’) ||
+url.hostname.includes(‘firebaseapp.com’) ||
+url.hostname.includes(‘imgbb.com’)
+) return;
+
+// Network first → fallback to cache
+event.respondWith(
+fetch(event.request)
+.then(response => {
+// Cache fresh copy
+if (response && response.status === 200) {
+const clone = response.clone();
+caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+}
+return response;
+})
+.catch(() => {
+// Network failed → serve from cache
+return caches.match(event.request).then(cached => {
+if (cached) return cached;
+// Final fallback
+return caches.match(BASE + ‘/dashboard.html’);
+});
+})
+);
+});
 
 // ── Install: cache all files ──────────────────────────────────────────────────
 self.addEventListener(‘install’, event => {
