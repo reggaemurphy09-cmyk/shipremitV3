@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <!-- PWA -->
   <link rel="manifest" href="manifest.json"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
   <meta name="apple-mobile-web-app-title" content="ShipRemit"/>
   <meta name="theme-color" content="#0a1628"/>
   <link rel="apple-touch-icon" href="icon-192.png"/>
@@ -16,556 +15,560 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-```
-:root {
-  --navy:    #0a1628;
-  --navy2:   #0f2040;
-  --navy3:   #162545;
-  --brass:   #c9943a;
-  --brass2:  #e8b85a;
-  --white:   #f0ece3;
-  --muted:   #8a9ab5;
-  --success: #4caf82;
-  --danger:  #e05c5c;
-  --warning: #e8b85a;
-  --card-bg: #0f2040;
-  --border:  rgba(201, 148, 58, 0.2);
-  --sidebar-w: 240px;
-}
+    :root {
+      --navy:    #0a1628;
+      --navy2:   #0f2040;
+      --navy3:   #162545;
+      --brass:   #c9943a;
+      --brass2:  #e8b85a;
+      --white:   #f0ece3;
+      --muted:   #8a9ab5;
+      --success: #4caf82;
+      --danger:  #e05c5c;
+      --warning: #e8b85a;
+      --card-bg: #0f2040;
+      --border:  rgba(201, 148, 58, 0.2);
+      --sidebar-w: 240px;
+    }
 
-body {
-  min-height: 100vh;
-  background: #0a1628;
-  font-family: 'DM Sans', sans-serif;
-  color: #f0ece3;
-  display: flex;
-  overflow-x: hidden;
-}
+    body {
+      min-height: 100vh;
+      background: #0a1628;
+      font-family: 'DM Sans', sans-serif;
+      color: #f0ece3;
+      display: flex;
+      overflow-x: hidden;
+    }
 
-/* ── Background ── */
-.bg {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background: linear-gradient(160deg, #07101f 0%, #0a1e3d 60%, #061525 100%);
-}
-.grid-lines { display: none; }
+    /* ── Background ── */
+    .bg {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background: linear-gradient(160deg, #07101f 0%, #0a1e3d 60%, #061525 100%);
+    }
+    .grid-lines { display: none; }
 
-/* ── Sidebar ── */
-.sidebar {
-  position: fixed;
-  top: 0; left: 0;
-  width: var(--sidebar-w);
-  height: 100vh;
-  background: #060f1e;
-  border-right: 1px solid rgba(201,148,58,0.2);
-  display: flex;
-  flex-direction: column;
-  z-index: 100;
-  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
-}
-.sidebar-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 1.5rem 1.25rem 1.25rem;
-  border-bottom: 1px solid rgba(201,148,58,0.2);
-}
-.logo-icon {
-  width: 38px; height: 38px;
-  background: linear-gradient(135deg, #c9943a, #e8b85a);
-  border-radius: 9px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-  box-shadow: 0 4px 12px rgba(201,148,58,0.3);
-  flex-shrink: 0;
-}
-.logo-name {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.15rem;
-  color: #f0ece3;
-}
-.logo-tag {
-  font-size: 0.62rem;
-  color: #c9943a;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
+    /* ── Sidebar ── */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: var(--sidebar-w);
+      height: 100vh;
+      background: #060f1e;
+      border-right: 1px solid rgba(201,148,58,0.2);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+    }
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 1.5rem 1.25rem 1.25rem;
+      border-bottom: 1px solid rgba(201,148,58,0.2);
+    }
+    .logo-icon {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, #c9943a, #e8b85a);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 4px 12px rgba(201,148,58,0.3);
+      flex-shrink: 0;
+    }
+    .logo-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      color: #f0ece3;
+    }
+    .logo-tag {
+      font-size: 0.62rem;
+      color: #c9943a;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
 
-nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
-.nav-label {
-  font-size: 0.62rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(138,154,181,0.45);
-  padding: 0.75rem 0.5rem 0.4rem;
-}
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  color: #8a9ab5;
-  font-size: 0.88rem;
-  text-decoration: none;
-  transition: all 0.2s;
-  margin-bottom: 2px;
-}
-.nav-item:hover { background: rgba(201,148,58,0.08); color: #f0ece3; }
-.nav-item.active {
-  background: rgba(201,148,58,0.12);
-  color: #e8b85a;
-  font-weight: 500;
-}
-.nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
-.nav-badge {
-  margin-left: auto;
-  background: #c9943a;
-  color: #1a0e00;
-  font-size: 0.65rem;
-  font-weight: 700;
-  padding: 1px 6px;
-  border-radius: 10px;
-}
+    nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
+    .nav-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(138,154,181,0.45);
+      padding: 0.75rem 0.5rem 0.4rem;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #8a9ab5;
+      font-size: 0.88rem;
+      text-decoration: none;
+      transition: all 0.2s;
+      margin-bottom: 2px;
+    }
+    .nav-item:hover { background: rgba(201,148,58,0.08); color: #f0ece3; }
+    .nav-item.active {
+      background: rgba(201,148,58,0.12);
+      color: #e8b85a;
+      font-weight: 500;
+    }
+    .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+    .nav-badge {
+      margin-left: auto;
+      background: #c9943a;
+      color: #1a0e00;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 10px;
+    }
 
-.sidebar-user {
-  padding: 1rem 1.25rem;
-  border-top: 1px solid rgba(201,148,58,0.2);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.user-avatar {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  background: #162545;
-  border: 2px solid rgba(201,148,58,0.2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 15px;
-  flex-shrink: 0;
-}
-.user-info { flex: 1; min-width: 0; }
-.user-name {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #f0ece3;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.user-rank { font-size: 0.7rem; color: #8a9ab5; }
-.logout-btn {
-  background: none; border: none;
-  color: #8a9ab5; cursor: pointer;
-  font-size: 16px; padding: 4px;
-  transition: color 0.2s;
-  flex-shrink: 0;
-}
-.logout-btn:hover { color: #e05c5c; }
+    .sidebar-user {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid rgba(201,148,58,0.2);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .user-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: #162545;
+      border: 2px solid rgba(201,148,58,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+    .user-info { flex: 1; min-width: 0; }
+    .user-name {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #f0ece3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .user-rank { font-size: 0.7rem; color: #8a9ab5; }
+    .logout-btn {
+      background: none; border: none;
+      color: #8a9ab5; cursor: pointer;
+      font-size: 16px; padding: 4px;
+      transition: color 0.2s;
+      flex-shrink: 0;
+    }
+    .logout-btn:hover { color: #e05c5c; }
 
-/* ── Mobile header ── */
-.mobile-header {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: 56px;
-  background: #060f1e;
-  border-bottom: 1px solid rgba(201,148,58,0.2);
-  align-items: center;
-  padding: 0 1rem;
-  gap: 12px;
-  z-index: 200;
-  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
-}
-.mobile-header.hide { transform: translateY(-100%); }
-.hamburger {
-  background: none; border: none;
-  color: #8a9ab5; cursor: pointer;
-  font-size: 20px; padding: 4px;
-}
-.mobile-logo {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.1rem;
-  color: #f0ece3;
-}
-.mobile-send-btn {
-  margin-left: auto;
-  background: linear-gradient(135deg, #c9943a, #e8b85a);
-  color: #1a0e00;
-  border: none;
-  border-radius: 7px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 6px 14px;
-  cursor: pointer;
-}
+    /* ── Mobile header ── */
+    .mobile-header {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 56px;
+      background: #060f1e;
+      border-bottom: 1px solid rgba(201,148,58,0.2);
+      align-items: center;
+      padding: 0 1rem;
+      gap: 12px;
+      z-index: 200;
+      transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+    }
+    .mobile-header.hide { transform: translateY(-100%); }
+    .hamburger {
+      background: none; border: none;
+      color: #8a9ab5; cursor: pointer;
+      font-size: 20px; padding: 4px;
+    }
+    .mobile-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: #f0ece3;
+    }
+    .mobile-send-btn {
+      margin-left: auto;
+      background: linear-gradient(135deg, #c9943a, #e8b85a);
+      color: #1a0e00;
+      border: none;
+      border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 6px 14px;
+      cursor: pointer;
+    }
 
-/* ── Main content ── */
-.main {
-  margin-left: var(--sidebar-w);
-  flex: 1;
-  position: relative;
-  z-index: 1;
-  min-height: 100vh;
-  padding: 2rem 1.75rem 3rem;
-  width: calc(100% - var(--sidebar-w));
-  min-width: 0;
-}
+    /* ── Main content ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      padding: 2rem 1.75rem 3rem;
+      width: calc(100% - var(--sidebar-w));
+      min-width: 0;
+    }
 
-/* ── Page header ── */
-.page-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 1.75rem;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-.page-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.6rem;
-  color: #f0ece3;
-}
-.page-subtitle { font-size: 0.85rem; color: #8a9ab5; margin-top: 3px; }
-.send-btn {
-  background: linear-gradient(135deg, #c9943a, #e8b85a);
-  color: #1a0e00;
-  border: none;
-  border-radius: 10px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 600;
-  padding: 11px 22px;
-  cursor: pointer;
-  letter-spacing: 0.03em;
-  box-shadow: 0 4px 16px rgba(201,148,58,0.35);
-  transition: opacity 0.2s, transform 0.15s;
-  white-space: nowrap;
-}
-.send-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    /* ── Page header ── */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.75rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color: #f0ece3;
+    }
+    .page-subtitle { font-size: 0.85rem; color: #8a9ab5; margin-top: 3px; }
+    .send-btn {
+      background: linear-gradient(135deg, #c9943a, #e8b85a);
+      color: #1a0e00;
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 11px 22px;
+      cursor: pointer;
+      letter-spacing: 0.03em;
+      box-shadow: 0 4px 16px rgba(201,148,58,0.35);
+      transition: opacity 0.2s, transform 0.15s;
+      white-space: nowrap;
+    }
+    .send-btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
-/* ── Stat cards ── */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-.stat-card {
-  background: #0f2040;
-  border: 1px solid rgba(201,148,58,0.2);
-  border-radius: 12px;
-  padding: 1.1rem 1.25rem;
-  position: relative;
-  overflow: hidden;
-  transition: border-color 0.2s, transform 0.2s;
-}
-.stat-card:hover { border-color: rgba(201,148,58,0.4); transform: translateY(-2px); }
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #c9943a, #e8b85a);
-  opacity: 0.6;
-}
-.stat-icon {
-  font-size: 22px;
-  margin-bottom: 0.6rem;
-  display: block;
-}
-.stat-label {
-  font-size: 0.7rem;
-  color: #8a9ab5;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-.stat-value {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #f0ece3;
-  line-height: 1;
-}
-.stat-value.loading-shimmer {
-  background: linear-gradient(90deg, #162545 25%, #0f2040 50%, #162545 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.4s infinite;
-  border-radius: 6px;
-  color: transparent;
-  width: 80px; height: 28px;
-}
-@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-.stat-sub {
-  font-size: 0.72rem;
-  color: #8a9ab5;
-  margin-top: 4px;
-}
-.stat-sub.up   { color: #4caf82; }
-.stat-sub.down { color: #e05c5c; }
+    /* ── Stat cards ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-card {
+      background: #0f2040;
+      border: 1px solid rgba(201,148,58,0.2);
+      border-radius: 12px;
+      padding: 1.1rem 1.25rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .stat-card:hover { border-color: rgba(201,148,58,0.4); transform: translateY(-2px); }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #c9943a, #e8b85a);
+      opacity: 0.6;
+    }
+    .stat-icon {
+      font-size: 22px;
+      margin-bottom: 0.6rem;
+      display: block;
+    }
+    .stat-label {
+      font-size: 0.7rem;
+      color: #8a9ab5;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #f0ece3;
+      line-height: 1;
+    }
+    .stat-value.loading-shimmer {
+      background: linear-gradient(90deg, #162545 25%, #0f2040 50%, #162545 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 6px;
+      color: transparent;
+      width: 80px; height: 28px;
+    }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    .stat-sub {
+      font-size: 0.72rem;
+      color: #8a9ab5;
+      margin-top: 4px;
+    }
+    .stat-sub.up   { color: #4caf82; }
+    .stat-sub.down { color: #e05c5c; }
 
-/* ── Two-column layout ── */
-.two-col {
-  display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 1rem;
-  align-items: start;
-}
+    /* ── Two-column layout ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1rem;
+      align-items: start;
+    }
 
-/* ── Section card ── */
-.section-card {
-  background: #0f2040;
-  border: 1px solid rgba(201,148,58,0.2);
-  border-radius: 12px;
-  overflow: hidden;
-}
-.section-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid rgba(201,148,58,0.2);
-}
-.section-head h3 {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: #f0ece3;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.section-head h3 span { font-size: 16px; }
-.view-all {
-  font-size: 0.75rem;
-  color: #c9943a;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-.view-all:hover { color: #e8b85a; }
+    /* ── Section card ── */
+    .section-card {
+      background: #0f2040;
+      border: 1px solid rgba(201,148,58,0.2);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid rgba(201,148,58,0.2);
+    }
+    .section-head h3 {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #f0ece3;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-head h3 span { font-size: 16px; }
+    .view-all {
+      font-size: 0.75rem;
+      color: #c9943a;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .view-all:hover { color: #e8b85a; }
 
-/* ── Transactions list ── */
-.tx-list { padding: 0.25rem 0; }
-.tx-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0.9rem 1.25rem;
-  border-bottom: 1px solid rgba(201,148,58,0.08);
-  transition: background 0.15s;
-}
-.tx-item:last-child { border-bottom: none; }
-.tx-item:hover { background: rgba(201,148,58,0.04); }
-.tx-avatar {
-  width: 38px; height: 38px;
-  border-radius: 50%;
-  background: #162545;
-  border: 1px solid rgba(201,148,58,0.2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px;
-  flex-shrink: 0;
-}
-.tx-info { flex: 1; min-width: 0; }
-.tx-name {
-  font-size: 0.88rem;
-  font-weight: 500;
-  color: #f0ece3;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.tx-date { font-size: 0.72rem; color: #8a9ab5; margin-top: 1px; }
-.tx-right { text-align: right; flex-shrink: 0; }
-.tx-amount {
-  font-size: 0.92rem;
-  font-weight: 600;
-  color: #f0ece3;
-}
-.tx-status {
-  font-size: 0.68rem;
-  padding: 2px 8px;
-  border-radius: 10px;
-  display: inline-block;
-  margin-top: 3px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-}
-.status-completed  { background: rgba(76,175,130,0.15);  color: #4caf82; }
-.status-pending    { background: rgba(232,184,90,0.15);  color: #e8b85a; }
-.status-processing { background: rgba(74,144,217,0.15);  color: #7eb8f7; }
-.status-failed     { background: rgba(224,92,92,0.15);   color: #e05c5c; }
+    /* ── Transactions list ── */
+    .tx-list { padding: 0.25rem 0; }
+    .tx-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0.9rem 1.25rem;
+      border-bottom: 1px solid rgba(201,148,58,0.08);
+      transition: background 0.15s;
+    }
+    .tx-item:last-child { border-bottom: none; }
+    .tx-item:hover { background: rgba(201,148,58,0.04); }
+    .tx-avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: #162545;
+      border: 1px solid rgba(201,148,58,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .tx-info { flex: 1; min-width: 0; }
+    .tx-name {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: #f0ece3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .tx-date { font-size: 0.72rem; color: #8a9ab5; margin-top: 1px; }
+    .tx-right { text-align: right; flex-shrink: 0; }
+    .tx-amount {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: #f0ece3;
+    }
+    .tx-status {
+      font-size: 0.68rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      display: inline-block;
+      margin-top: 3px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+    }
+    .status-completed  { background: rgba(76,175,130,0.15);  color: #4caf82; }
+    .status-pending    { background: rgba(232,184,90,0.15);  color: #e8b85a; }
+    .status-processing { background: rgba(74,144,217,0.15);  color: #7eb8f7; }
+    .status-failed     { background: rgba(224,92,92,0.15);   color: #e05c5c; }
 
-.tx-empty {
-  padding: 2.5rem 1.25rem;
-  text-align: center;
-  color: #8a9ab5;
-  font-size: 0.85rem;
-}
-.tx-empty .empty-icon { font-size: 2.5rem; display: block; margin-bottom: 0.5rem; opacity: 0.4; }
+    .tx-empty {
+      padding: 2.5rem 1.25rem;
+      text-align: center;
+      color: #8a9ab5;
+      font-size: 0.85rem;
+    }
+    .tx-empty .empty-icon { font-size: 2.5rem; display: block; margin-bottom: 0.5rem; opacity: 0.4; }
 
-/* ── Quick actions panel ── */
-.quick-actions { padding: 0.75rem; }
-.qa-btn {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 11px 14px;
-  border-radius: 9px;
-  border: 1px solid rgba(201,148,58,0.2);
-  background: rgba(255,255,255,0.03);
-  color: #f0ece3;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.85rem;
-  cursor: pointer;
-  text-align: left;
-  text-decoration: none;
-  transition: all 0.2s;
-  margin-bottom: 0.5rem;
-}
-.qa-btn:last-child { margin-bottom: 0; }
-.qa-btn:hover { background: rgba(201,148,58,0.1); border-color: rgba(201,148,58,0.4); }
-.qa-icon {
-  width: 34px; height: 34px;
-  border-radius: 8px;
-  background: rgba(201,148,58,0.12);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px;
-  flex-shrink: 0;
-}
-.qa-label { flex: 1; }
-.qa-label strong { display: block; font-weight: 500; color: #f0ece3; }
-.qa-label small { font-size: 0.72rem; color: #8a9ab5; }
-.qa-arrow { color: #8a9ab5; font-size: 12px; }
+    /* ── Quick actions panel ── */
+    .quick-actions { padding: 0.75rem; }
+    .qa-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 9px;
+      border: 1px solid rgba(201,148,58,0.2);
+      background: rgba(255,255,255,0.03);
+      color: #f0ece3;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-align: left;
+      text-decoration: none;
+      transition: all 0.2s;
+      margin-bottom: 0.5rem;
+    }
+    .qa-btn:last-child { margin-bottom: 0; }
+    .qa-btn:hover { background: rgba(201,148,58,0.1); border-color: rgba(201,148,58,0.4); }
+    .qa-icon {
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      background: rgba(201,148,58,0.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .qa-label { flex: 1; }
+    .qa-label strong { display: block; font-weight: 500; color: #f0ece3; }
+    .qa-label small { font-size: 0.72rem; color: #8a9ab5; }
+    .qa-arrow { color: #8a9ab5; font-size: 12px; }
 
-/* ── Profile card ── */
-.profile-card {
-  background: #0f2040;
-  border: 1px solid rgba(201,148,58,0.2);
-  border-radius: 12px;
-  padding: 1.25rem;
-  margin-bottom: 1rem;
-}
-.profile-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(201,148,58,0.2);
-}
-.profile-avatar {
-  width: 50px; height: 50px;
-  border-radius: 50%;
-  background: #162545;
-  border: 2px solid rgba(201,148,58,0.2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  flex-shrink: 0;
-}
-.profile-name { font-weight: 600; font-size: 0.95rem; color: #f0ece3; }
-.profile-rank { font-size: 0.75rem; color: #c9943a; margin-top: 2px; }
-.profile-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 5px 0;
-  font-size: 0.8rem;
-}
-.profile-row-label { color: #8a9ab5; }
-.profile-row-val { color: #f0ece3; font-weight: 500; text-align: right; max-width: 55%; word-break: break-word; }
+    /* ── Profile card ── */
+    .profile-card {
+      background: #0f2040;
+      border: 1px solid rgba(201,148,58,0.2);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(201,148,58,0.2);
+    }
+    .profile-avatar {
+      width: 50px; height: 50px;
+      border-radius: 50%;
+      background: #162545;
+      border: 2px solid rgba(201,148,58,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .profile-name { font-weight: 600; font-size: 0.95rem; color: #f0ece3; }
+    .profile-rank { font-size: 0.75rem; color: #c9943a; margin-top: 2px; }
+    .profile-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      font-size: 0.8rem;
+    }
+    .profile-row-label { color: #8a9ab5; }
+    .profile-row-val { color: #f0ece3; font-weight: 500; text-align: right; max-width: 55%; word-break: break-word; }
 
-/* ── Exchange rate card ── */
-.rate-card {
-  background: #0f2040;
-  border: 1px solid rgba(201,148,58,0.2);
-  border-radius: 12px;
-  padding: 1.1rem 1.25rem;
-  margin-bottom: 1rem;
-}
-.rate-head {
-  font-size: 0.7rem;
-  color: #8a9ab5;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 0.6rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.rate-value { font-size: 1.3rem; font-weight: 600; color: #e8b85a; }
-.rate-sub { font-size: 0.72rem; color: #8a9ab5; margin-top: 3px; }
+    /* ── Exchange rate card ── */
+    .rate-card {
+      background: #0f2040;
+      border: 1px solid rgba(201,148,58,0.2);
+      border-radius: 12px;
+      padding: 1.1rem 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .rate-head {
+      font-size: 0.7rem;
+      color: #8a9ab5;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .rate-value { font-size: 1.3rem; font-weight: 600; color: #e8b85a; }
+    .rate-sub { font-size: 0.72rem; color: #8a9ab5; margin-top: 3px; }
 
-/* ── Overlay ── */
-.overlay {
-  display: none;
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.6);
-  z-index: 99;
-}
-.overlay.show { display: block; }
+    /* ── Overlay ── */
+    .overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 99;
+    }
+    .overlay.show { display: block; }
 
-/* ── Loading overlay ── */
-#loadingOverlay {
-  position: fixed; inset: 0;
-  background: #0a1628;
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 1rem;
-  transition: opacity 0.4s;
-}
-#loadingOverlay.hidden { opacity: 0; pointer-events: none; }
-.loading-logo { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #f0ece3; }
-.loading-spinner {
-  width: 36px; height: 36px;
-  border: 3px solid rgba(201,148,58,0.2);
-  border-top-color: #c9943a;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    body { animation: fadeIn 0.15s ease; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
 
-/* ── Responsive ── */
-@media (max-width: 900px) {
-  .two-col { grid-template-columns: 1fr; }
-}
-@media (max-width: 680px) {
-  .sidebar { transform: translateX(-100%); }
-  .sidebar.open { transform: translateX(0); }
-  .main { margin-left: 0; width: 100%; padding: 4.5rem 0.9rem 3rem; }
-  .mobile-header { display: flex; }
-  .page-header .send-btn { display: none; }
-  .stats-grid { grid-template-columns: 1fr 1fr; }
-}
-@media (max-width: 400px) {
-  .stats-grid { grid-template-columns: 1fr 1fr; }
-  .main { padding: 4.5rem 0.75rem 3rem; }
-}
-```
+    /* ── Responsive ── */
 
+    /* Mobile first — hide sidebar on small screens */
+    @media (max-width: 680px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; width: 100%; padding: 4.5rem 0.9rem 3rem; }
+      .mobile-header { display: flex; }
+      .page-header .send-btn { display: none; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .two-col { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 400px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .main { padding: 4.5rem 0.75rem 3rem; }
+    }
+
+    /* Tablet */
+    @media (min-width: 681px) and (max-width: 900px) {
+      .sidebar { transform: translateX(0); }
+      .main { margin-left: 240px; width: calc(100% - 240px); padding: 1.5rem 1.25rem 3rem; }
+      .two-col { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .mobile-header { display: none; }
+    }
+
+    /* PC / Desktop */
+    @media (min-width: 901px) {
+      .sidebar { transform: translateX(0); }
+      .main { margin-left: 240px; width: calc(100% - 240px); padding: 2rem 1.75rem 3rem; }
+      .two-col { grid-template-columns: 1fr 340px; }
+      .stats-grid { grid-template-columns: repeat(4, 1fr); }
+      .mobile-header { display: none; }
+    }
+    @media (min-width: 1280px) {
+      .two-col { grid-template-columns: 1fr 380px; }
+      .main { padding: 2.5rem 2.5rem 3rem; }
+    }
+    @media (min-width: 1600px) {
+      :root { --sidebar-w: 260px; }
+      .main { margin-left: 260px; width: calc(100% - 260px); padding: 2.5rem 3rem 3rem; }
+      .two-col { grid-template-columns: 1fr 420px; }
+    }
   </style>
+  <!-- Prefetch other pages for instant navigation -->
+  <link rel="prefetch" href="dashboard.html"/>
+  <link rel="prefetch" href="send.html"/>
+  <link rel="prefetch" href="transactions.html"/>
+  <link rel="prefetch" href="recipients.html"/>
+  <link rel="prefetch" href="profile.html"/>
+  <link rel="prefetch" href="notifications.html"/>
+  <link rel="prefetch" href="support.html"/>
 </head>
 <body>
-
-  <!-- Loading overlay -->
-
-  <div id="loadingOverlay">
-    <div class="loading-logo">⚓ ShipRemit</div>
-    <div class="loading-spinner"></div>
-  </div>
 
   <div class="bg"></div>
   <div class="grid-lines"></div>
 
   <!-- Sidebar overlay (mobile) -->
-
   <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
 
   <!-- ── Sidebar ── -->
-
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <div class="logo-icon">⚓</div>
@@ -575,49 +578,45 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
       </div>
     </div>
 
-```
-<nav>
-  <div class="nav-label">Main</div>
-  <a class="nav-item active" href="dashboard.html">
-    <span class="nav-icon">🏠</span> Dashboard
-  </a>
-  <a class="nav-item" href="send.html">
-    <span class="nav-icon">💸</span> Send Money
-  </a>
-  <a class="nav-item" href="transactions.html">
-    <span class="nav-icon">📋</span> Transactions
-    <span class="nav-badge" id="pendingBadge" style="display:none">0</span>
-  </a>
-  <a class="nav-item" href="recipients.html">
-    <span class="nav-icon">👥</span> Recipients
-  </a>
+    <nav>
+      <div class="nav-label">Main</div>
+      <a class="nav-item active" href="dashboard.html">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <a class="nav-item" href="send.html">
+        <span class="nav-icon">💸</span> Send Money
+      </a>
+      <a class="nav-item" href="transactions.html">
+        <span class="nav-icon">📋</span> Transactions
+        <span class="nav-badge" id="pendingBadge" style="display:none">0</span>
+      </a>
+      <a class="nav-item" href="recipients.html">
+        <span class="nav-icon">👥</span> Recipients
+      </a>
 
-  <div class="nav-label">Account</div>
-  <a class="nav-item" href="profile.html">
-    <span class="nav-icon">👤</span> My Profile
-  </a>
-  <a class="nav-item" href="notifications.html">
-    <span class="nav-icon">🔔</span> Notifications
-  </a>
-  <a class="nav-item" href="support.html">
-    <span class="nav-icon">💬</span> Support
-  </a>
-</nav>
+      <div class="nav-label">Account</div>
+      <a class="nav-item" href="profile.html">
+        <span class="nav-icon">👤</span> My Profile
+      </a>
+      <a class="nav-item" href="notifications.html">
+        <span class="nav-icon">🔔</span> Notifications
+      </a>
+      <a class="nav-item" href="support.html">
+        <span class="nav-icon">💬</span> Support
+      </a>
+    </nav>
 
-<div class="sidebar-user">
-  <div class="user-avatar">👤</div>
-  <div class="user-info">
-    <div class="user-name" id="sidebarName">Loading...</div>
-    <div class="user-rank" id="sidebarRank">—</div>
-  </div>
-  <button class="logout-btn" onclick="logout()" title="Logout">⏻</button>
-</div>
-```
-
+    <div class="sidebar-user">
+      <div class="user-avatar">👤</div>
+      <div class="user-info">
+        <div class="user-name" id="sidebarName">Loading...</div>
+        <div class="user-rank" id="sidebarRank">—</div>
+      </div>
+      <button class="logout-btn" onclick="logout()" title="Logout">⏻</button>
+    </div>
   </aside>
 
   <!-- ── Mobile header ── -->
-
   <div class="mobile-header">
     <button class="hamburger" onclick="openSidebar()">☰</button>
     <span class="mobile-logo">⚓ ShipRemit</span>
@@ -625,161 +624,157 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
   </div>
 
   <!-- ── Main content ── -->
-
   <main class="main">
 
-```
-<div class="page-header">
-  <div>
-    <div class="page-title" id="greetingTitle">Good day! 👋</div>
-    <div class="page-subtitle" id="greetingSubtitle">Here's your remittance overview</div>
-  </div>
-  <button class="send-btn" onclick="location.href='send.html'">+ Send Money</button>
-</div>
-
-<!-- Stats -->
-<div class="stats-grid">
-  <div class="stat-card">
-    <span class="stat-icon">💰</span>
-    <div class="stat-label">Available Balance</div>
-    <div class="stat-value" id="statBalance"><div class="loading-shimmer" style="width:90px;height:26px;border-radius:6px;background:linear-gradient(90deg,#162545 25%,#0f2040 50%,#162545 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;">&nbsp;</div></div>
-    <div class="stat-sub" id="statBalanceSub">Your wallet</div>
-  </div>
-  <div class="stat-card">
-    <span class="stat-icon">💸</span>
-    <div class="stat-label">Total Sent</div>
-    <div class="stat-value" id="statTotalSent"><div class="loading-shimmer" style="width:90px;height:26px;border-radius:6px;background:linear-gradient(90deg,#162545 25%,#0f2040 50%,#162545 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;">&nbsp;</div></div>
-    <div class="stat-sub" id="statTotalSentSub">All time</div>
-  </div>
-  <div class="stat-card">
-    <span class="stat-icon">⏳</span>
-    <div class="stat-label">Pending</div>
-    <div class="stat-value" id="statPending"><div class="loading-shimmer" style="width:40px;height:26px;border-radius:6px;background:linear-gradient(90deg,#162545 25%,#0f2040 50%,#162545 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;">&nbsp;</div></div>
-    <div class="stat-sub" id="statPendingSub">Awaiting processing</div>
-  </div>
-  <div class="stat-card">
-    <span class="stat-icon">📅</span>
-    <div class="stat-label">This Month</div>
-    <div class="stat-value" id="statMonth"><div class="loading-shimmer" style="width:90px;height:26px;border-radius:6px;background:linear-gradient(90deg,#162545 25%,#0f2040 50%,#162545 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;">&nbsp;</div></div>
-    <div class="stat-sub" id="statMonthSub">Current month</div>
-  </div>
-</div>
-
-<!-- Two column -->
-<div class="two-col">
-
-  <!-- Recent transactions -->
-  <div class="section-card">
-    <div class="section-head">
-      <h3><span>📋</span> Recent Transactions</h3>
-      <a href="transactions.html" class="view-all">View all →</a>
+    <div class="page-header">
+      <div>
+        <div class="page-title" id="greetingTitle">Good day! 👋</div>
+        <div class="page-subtitle" id="greetingSubtitle">Here's your remittance overview</div>
+      </div>
+      <button class="send-btn" onclick="location.href='send.html'">+ Send Money</button>
     </div>
-    <div class="tx-list" id="txList">
-      <!-- Loaded by JS -->
-      <div class="tx-empty">
-        <span class="empty-icon">⏳</span>
-        Loading transactions...
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-icon">💰</span>
+        <div class="stat-label">Available Balance</div>
+        <div class="stat-value" id="statBalance"><div class="loading-shimmer" style="width:90px;height:26px;border-radius:6px;background:linear-gradient(90deg,#162545 25%,#0f2040 50%,#162545 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;">&nbsp;</div></div>
+        <div class="stat-sub" id="statBalanceSub">Your wallet</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">💸</span>
+        <div class="stat-label">Total Sent</div>
+        <div class="stat-value" id="statTotalSent"><div class="loading-shimmer" style="width:90px;height:26px;border-radius:6px;background:linear-gradient(90deg,#162545 25%,#0f2040 50%,#162545 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;">&nbsp;</div></div>
+        <div class="stat-sub" id="statTotalSentSub">All time</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">⏳</span>
+        <div class="stat-label">Pending</div>
+        <div class="stat-value" id="statPending"><div class="loading-shimmer" style="width:40px;height:26px;border-radius:6px;background:linear-gradient(90deg,#162545 25%,#0f2040 50%,#162545 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;">&nbsp;</div></div>
+        <div class="stat-sub" id="statPendingSub">Awaiting processing</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">📅</span>
+        <div class="stat-label">This Month</div>
+        <div class="stat-value" id="statMonth"><div class="loading-shimmer" style="width:90px;height:26px;border-radius:6px;background:linear-gradient(90deg,#162545 25%,#0f2040 50%,#162545 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;">&nbsp;</div></div>
+        <div class="stat-sub" id="statMonthSub">Current month</div>
       </div>
     </div>
-  </div>
 
-  <!-- Right column -->
-  <div>
+    <!-- Two column -->
+    <div class="two-col">
 
-    <!-- Exchange rate -->
-    <div class="rate-card">
-      <div class="rate-head">
-        <span>💱 USD → PHP Rate</span>
-        <span id="rateTime" style="font-size:0.65rem">—</span>
-      </div>
-      <div class="rate-value" id="rateValue">₱ —</div>
-      <div class="rate-sub">Indicative rate · Final rate at time of send</div>
-    </div>
-
-    <!-- Profile summary -->
-    <div class="profile-card" id="profileCard">
-      <div class="profile-header">
-        <div class="profile-avatar">👤</div>
-        <div>
-          <div class="profile-name" id="profileName">Loading...</div>
-          <div class="profile-rank" id="profileRank">—</div>
+      <!-- Recent transactions -->
+      <div class="section-card">
+        <div class="section-head">
+          <h3><span>📋</span> Recent Transactions</h3>
+          <a href="transactions.html" class="view-all">View all →</a>
+        </div>
+        <div class="tx-list" id="txList">
+          <!-- Loaded by JS -->
+          <div class="tx-empty">
+            <span class="empty-icon">⏳</span>
+            Loading transactions...
+          </div>
         </div>
       </div>
-      <div class="profile-row">
-        <span class="profile-row-label">Vessel</span>
-        <span class="profile-row-val" id="profileVessel">—</span>
-      </div>
-      <div class="profile-row">
-        <span class="profile-row-label">Agency</span>
-        <span class="profile-row-val" id="profileAgency">—</span>
-      </div>
-      <div class="profile-row">
-        <span class="profile-row-label">Email</span>
-        <span class="profile-row-val" id="profileEmail">—</span>
-      </div>
-      <div class="profile-row">
-        <span class="profile-row-label">Mobile</span>
-        <span class="profile-row-val" id="profileMobile">—</span>
+
+      <!-- Right column -->
+      <div>
+
+        <!-- Exchange rate -->
+        <div class="rate-card">
+          <div class="rate-head">
+            <span>💱 USD → PHP Rate</span>
+            <span id="rateTime" style="font-size:0.65rem">—</span>
+          </div>
+          <div class="rate-value" id="rateValue">₱ —</div>
+          <div class="rate-sub">Indicative rate · Final rate at time of send</div>
+        </div>
+
+        <!-- Profile summary -->
+        <div class="profile-card" id="profileCard">
+          <div class="profile-header">
+            <div class="profile-avatar">👤</div>
+            <div>
+              <div class="profile-name" id="profileName">Loading...</div>
+              <div class="profile-rank" id="profileRank">—</div>
+            </div>
+          </div>
+          <div class="profile-row">
+            <span class="profile-row-label">Vessel</span>
+            <span class="profile-row-val" id="profileVessel">—</span>
+          </div>
+          <div class="profile-row">
+            <span class="profile-row-label">Agency</span>
+            <span class="profile-row-val" id="profileAgency">—</span>
+          </div>
+          <div class="profile-row">
+            <span class="profile-row-label">Email</span>
+            <span class="profile-row-val" id="profileEmail">—</span>
+          </div>
+          <div class="profile-row">
+            <span class="profile-row-label">Mobile</span>
+            <span class="profile-row-val" id="profileMobile">—</span>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="section-card">
+          <div class="section-head">
+            <h3><span>⚡</span> Quick Actions</h3>
+          </div>
+          <div class="quick-actions">
+            <a class="qa-btn" href="send.html">
+              <div class="qa-icon">💸</div>
+              <div class="qa-label">
+                <strong>Send Money</strong>
+                <small>Transfer to your family</small>
+              </div>
+              <span class="qa-arrow">›</span>
+            </a>
+            <button class="qa-btn" onclick="openTransferModal()" style="width:100%;text-align:left;cursor:pointer;">
+              <div class="qa-icon" style="background:rgba(76,175,130,0.12)">🔄</div>
+              <div class="qa-label">
+                <strong>Transfer to Crew</strong>
+                <small>Send balance to a crewmate</small>
+              </div>
+              <span class="qa-arrow">›</span>
+            </button>
+            <a class="qa-btn" href="recipients.html">
+              <div class="qa-icon">👥</div>
+              <div class="qa-label">
+                <strong>Manage Recipients</strong>
+                <small>Add or edit beneficiaries</small>
+              </div>
+              <span class="qa-arrow">›</span>
+            </a>
+            <a class="qa-btn" href="transactions.html">
+              <div class="qa-icon">📋</div>
+              <div class="qa-label">
+                <strong>Transaction History</strong>
+                <small>View all past remittances</small>
+              </div>
+              <span class="qa-arrow">›</span>
+            </a>
+            <a class="qa-btn" href="profile.html">
+              <div class="qa-icon">⚙️</div>
+              <div class="qa-label">
+                <strong>Account Settings</strong>
+                <small>Update your profile</small>
+              </div>
+              <span class="qa-arrow">›</span>
+            </a>
+          </div>
+        </div>
+
       </div>
     </div>
-
-    <!-- Quick actions -->
-    <div class="section-card">
-      <div class="section-head">
-        <h3><span>⚡</span> Quick Actions</h3>
-      </div>
-      <div class="quick-actions">
-        <a class="qa-btn" href="send.html">
-          <div class="qa-icon">💸</div>
-          <div class="qa-label">
-            <strong>Send Money</strong>
-            <small>Transfer to your family</small>
-          </div>
-          <span class="qa-arrow">›</span>
-        </a>
-        <button class="qa-btn" onclick="openTransferModal()" style="width:100%;text-align:left;cursor:pointer;">
-          <div class="qa-icon" style="background:rgba(76,175,130,0.12)">🔄</div>
-          <div class="qa-label">
-            <strong>Transfer to Crew</strong>
-            <small>Send balance to a crewmate</small>
-          </div>
-          <span class="qa-arrow">›</span>
-        </button>
-        <a class="qa-btn" href="recipients.html">
-          <div class="qa-icon">👥</div>
-          <div class="qa-label">
-            <strong>Manage Recipients</strong>
-            <small>Add or edit beneficiaries</small>
-          </div>
-          <span class="qa-arrow">›</span>
-        </a>
-        <a class="qa-btn" href="transactions.html">
-          <div class="qa-icon">📋</div>
-          <div class="qa-label">
-            <strong>Transaction History</strong>
-            <small>View all past remittances</small>
-          </div>
-          <span class="qa-arrow">›</span>
-        </a>
-        <a class="qa-btn" href="profile.html">
-          <div class="qa-icon">⚙️</div>
-          <div class="qa-label">
-            <strong>Account Settings</strong>
-            <small>Update your profile</small>
-          </div>
-          <span class="qa-arrow">›</span>
-        </a>
-      </div>
-    </div>
-
-  </div>
-</div>
-```
 
   </main>
 
   <!-- ── Transfer to Crew Modal ── -->
-
   <div id="transferModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;align-items:center;justify-content:center;padding:1rem;" onclick="closeTransferModal(event)">
     <div style="background:#0d1e38;border:1px solid rgba(201,148,58,0.2);border-radius:16px;width:100%;max-width:400px;animation:modal-in 0.3s cubic-bezier(0.22,1,0.36,1)">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:1px solid rgba(201,148,58,0.2)">
@@ -788,83 +783,80 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
       </div>
       <div style="padding:1.5rem">
 
-```
-    <!-- Balance display -->
-    <div style="background:rgba(76,175,130,0.08);border:1px solid rgba(76,175,130,0.2);border-radius:10px;padding:0.85rem 1rem;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center">
-      <span style="font-size:0.78rem;color:#8a9ab5;-webkit-text-fill-color:#8a9ab5">Your balance</span>
-      <span id="transferBalanceDisplay" style="font-size:1rem;font-weight:700;color:#4caf82;-webkit-text-fill-color:#4caf82">$0.00</span>
-    </div>
-
-    <!-- Step 1: Email -->
-    <div id="transferStep1">
-      <div style="margin-bottom:1rem">
-        <label style="font-size:0.72rem;color:#e8b85a;-webkit-text-fill-color:#e8b85a;letter-spacing:0.08em;text-transform:uppercase;display:block;margin-bottom:5px">Recipient Email</label>
-        <input type="text" inputmode="email" id="transferEmail" placeholder="crewmate@email.com"
-          style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(201,148,58,0.2);border-radius:9px;color:#f0ece3;-webkit-text-fill-color:#f0ece3;font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:10px 14px;outline:none;-webkit-appearance:none"
-          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      </div>
-      <div style="margin-bottom:1rem">
-        <label style="font-size:0.72rem;color:#e8b85a;-webkit-text-fill-color:#e8b85a;letter-spacing:0.08em;text-transform:uppercase;display:block;margin-bottom:5px">Amount (USD)</label>
-        <div style="position:relative">
-          <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#e8b85a;-webkit-text-fill-color:#e8b85a;font-weight:700">$</span>
-          <input type="number" id="transferAmount" placeholder="0.00" min="1" step="0.01"
-            style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(201,148,58,0.2);border-radius:9px;color:#f0ece3;-webkit-text-fill-color:#f0ece3;font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:600;padding:10px 12px 10px 28px;outline:none;-webkit-appearance:none"/>
+        <!-- Balance display -->
+        <div style="background:rgba(76,175,130,0.08);border:1px solid rgba(76,175,130,0.2);border-radius:10px;padding:0.85rem 1rem;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:0.78rem;color:#8a9ab5;-webkit-text-fill-color:#8a9ab5">Your balance</span>
+          <span id="transferBalanceDisplay" style="font-size:1rem;font-weight:700;color:#4caf82;-webkit-text-fill-color:#4caf82">$0.00</span>
         </div>
-      </div>
-      <div id="transferAlert" style="display:none;background:rgba(224,92,92,0.12);border:1px solid rgba(224,92,92,0.3);border-radius:8px;padding:9px 13px;font-size:0.82rem;color:#ff9a9a;-webkit-text-fill-color:#ff9a9a;margin-bottom:0.75rem;text-align:center"></div>
-      <button onclick="lookupTransferUser()" id="transferLookupBtn"
-        style="width:100%;background:linear-gradient(135deg,#c9943a,#e8b85a);color:#1a0e00;-webkit-text-fill-color:#1a0e00;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:600;padding:12px;cursor:pointer;">
-        Find Crew Member →
-      </button>
-    </div>
 
-    <!-- Step 2: Confirm -->
-    <div id="transferStep2" style="display:none">
-      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(201,148,58,0.15);border-radius:10px;padding:1rem;margin-bottom:1rem">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:0.75rem;padding-bottom:0.75rem;border-bottom:1px solid rgba(201,148,58,0.1)">
-          <div style="width:40px;height:40px;border-radius:50%;background:#162545;border:2px solid rgba(201,148,58,0.2);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#e8b85a;-webkit-text-fill-color:#e8b85a;flex-shrink:0" id="transferRecipientInitial">?</div>
-          <div>
-            <div style="font-size:0.9rem;font-weight:600;color:#f0ece3;-webkit-text-fill-color:#f0ece3" id="transferRecipientName">—</div>
-            <div style="font-size:0.73rem;color:#8a9ab5;-webkit-text-fill-color:#8a9ab5" id="transferRecipientRank">—</div>
+        <!-- Step 1: Email -->
+        <div id="transferStep1">
+          <div style="margin-bottom:1rem">
+            <label style="font-size:0.72rem;color:#e8b85a;-webkit-text-fill-color:#e8b85a;letter-spacing:0.08em;text-transform:uppercase;display:block;margin-bottom:5px">Recipient Email</label>
+            <input type="text" inputmode="email" id="transferEmail" placeholder="crewmate@email.com"
+              style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(201,148,58,0.2);border-radius:9px;color:#f0ece3;-webkit-text-fill-color:#f0ece3;font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:10px 14px;outline:none;-webkit-appearance:none"
+              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+          </div>
+          <div style="margin-bottom:1rem">
+            <label style="font-size:0.72rem;color:#e8b85a;-webkit-text-fill-color:#e8b85a;letter-spacing:0.08em;text-transform:uppercase;display:block;margin-bottom:5px">Amount (USD)</label>
+            <div style="position:relative">
+              <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#e8b85a;-webkit-text-fill-color:#e8b85a;font-weight:700">$</span>
+              <input type="number" id="transferAmount" placeholder="0.00" min="1" step="0.01"
+                style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(201,148,58,0.2);border-radius:9px;color:#f0ece3;-webkit-text-fill-color:#f0ece3;font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:600;padding:10px 12px 10px 28px;outline:none;-webkit-appearance:none"/>
+            </div>
+          </div>
+          <div id="transferAlert" style="display:none;background:rgba(224,92,92,0.12);border:1px solid rgba(224,92,92,0.3);border-radius:8px;padding:9px 13px;font-size:0.82rem;color:#ff9a9a;-webkit-text-fill-color:#ff9a9a;margin-bottom:0.75rem;text-align:center"></div>
+          <button onclick="lookupTransferUser()" id="transferLookupBtn"
+            style="width:100%;background:linear-gradient(135deg,#c9943a,#e8b85a);color:#1a0e00;-webkit-text-fill-color:#1a0e00;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:600;padding:12px;cursor:pointer;">
+            Find Crew Member →
+          </button>
+        </div>
+
+        <!-- Step 2: Confirm -->
+        <div id="transferStep2" style="display:none">
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(201,148,58,0.15);border-radius:10px;padding:1rem;margin-bottom:1rem">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:0.75rem;padding-bottom:0.75rem;border-bottom:1px solid rgba(201,148,58,0.1)">
+              <div style="width:40px;height:40px;border-radius:50%;background:#162545;border:2px solid rgba(201,148,58,0.2);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#e8b85a;-webkit-text-fill-color:#e8b85a;flex-shrink:0" id="transferRecipientInitial">?</div>
+              <div>
+                <div style="font-size:0.9rem;font-weight:600;color:#f0ece3;-webkit-text-fill-color:#f0ece3" id="transferRecipientName">—</div>
+                <div style="font-size:0.73rem;color:#8a9ab5;-webkit-text-fill-color:#8a9ab5" id="transferRecipientRank">—</div>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.83rem;padding:4px 0">
+              <span style="color:#8a9ab5;-webkit-text-fill-color:#8a9ab5">Transfer amount</span>
+              <span style="color:#f0ece3;-webkit-text-fill-color:#f0ece3;font-weight:600" id="transferConfirmAmt">$0.00</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.83rem;padding:4px 0">
+              <span style="color:#8a9ab5;-webkit-text-fill-color:#8a9ab5">Your balance after</span>
+              <span style="color:#4caf82;-webkit-text-fill-color:#4caf82;font-weight:600" id="transferConfirmAfter">$0.00</span>
+            </div>
+          </div>
+          <div id="transferAlert2" style="display:none;background:rgba(224,92,92,0.12);border:1px solid rgba(224,92,92,0.3);border-radius:8px;padding:9px 13px;font-size:0.82rem;color:#ff9a9a;-webkit-text-fill-color:#ff9a9a;margin-bottom:0.75rem;text-align:center"></div>
+          <div style="display:flex;gap:0.6rem">
+            <button onclick="backToTransferStep1()"
+              style="flex:0 0 auto;background:rgba(255,255,255,0.05);border:1px solid rgba(201,148,58,0.2);color:#8a9ab5;-webkit-text-fill-color:#8a9ab5;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:11px 16px;cursor:pointer;">
+              ← Back
+            </button>
+            <button onclick="confirmTransfer()" id="transferConfirmBtn"
+              style="flex:1;background:linear-gradient(135deg,#4caf82,#7de8b8);color:#0a2818;-webkit-text-fill-color:#0a2818;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:600;padding:12px;cursor:pointer;">
+              ✓ Confirm Transfer
+            </button>
           </div>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:0.83rem;padding:4px 0">
-          <span style="color:#8a9ab5;-webkit-text-fill-color:#8a9ab5">Transfer amount</span>
-          <span style="color:#f0ece3;-webkit-text-fill-color:#f0ece3;font-weight:600" id="transferConfirmAmt">$0.00</span>
+
+        <!-- Step 3: Success -->
+        <div id="transferStep3" style="display:none;text-align:center;padding:0.5rem 0">
+          <div style="width:60px;height:60px;border-radius:50%;background:rgba(76,175,130,0.15);border:2px solid #4caf82;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 1rem">✓</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:#f0ece3;margin-bottom:0.4rem">Transfer Sent!</div>
+          <div style="font-size:0.83rem;color:#8a9ab5;-webkit-text-fill-color:#8a9ab5;margin-bottom:1.25rem" id="transferSuccessMsg">Balance transferred successfully.</div>
+          <button onclick="closeTransferModalDirect()"
+            style="width:100%;background:linear-gradient(135deg,#c9943a,#e8b85a);color:#1a0e00;-webkit-text-fill-color:#1a0e00;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:600;padding:12px;cursor:pointer;">
+            Done
+          </button>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:0.83rem;padding:4px 0">
-          <span style="color:#8a9ab5;-webkit-text-fill-color:#8a9ab5">Your balance after</span>
-          <span style="color:#4caf82;-webkit-text-fill-color:#4caf82;font-weight:600" id="transferConfirmAfter">$0.00</span>
-        </div>
-      </div>
-      <div id="transferAlert2" style="display:none;background:rgba(224,92,92,0.12);border:1px solid rgba(224,92,92,0.3);border-radius:8px;padding:9px 13px;font-size:0.82rem;color:#ff9a9a;-webkit-text-fill-color:#ff9a9a;margin-bottom:0.75rem;text-align:center"></div>
-      <div style="display:flex;gap:0.6rem">
-        <button onclick="backToTransferStep1()"
-          style="flex:0 0 auto;background:rgba(255,255,255,0.05);border:1px solid rgba(201,148,58,0.2);color:#8a9ab5;-webkit-text-fill-color:#8a9ab5;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:11px 16px;cursor:pointer;">
-          ← Back
-        </button>
-        <button onclick="confirmTransfer()" id="transferConfirmBtn"
-          style="flex:1;background:linear-gradient(135deg,#4caf82,#7de8b8);color:#0a2818;-webkit-text-fill-color:#0a2818;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:600;padding:12px;cursor:pointer;">
-          ✓ Confirm Transfer
-        </button>
+
       </div>
     </div>
-
-    <!-- Step 3: Success -->
-    <div id="transferStep3" style="display:none;text-align:center;padding:0.5rem 0">
-      <div style="width:60px;height:60px;border-radius:50%;background:rgba(76,175,130,0.15);border:2px solid #4caf82;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 1rem">✓</div>
-      <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:#f0ece3;margin-bottom:0.4rem">Transfer Sent!</div>
-      <div style="font-size:0.83rem;color:#8a9ab5;-webkit-text-fill-color:#8a9ab5;margin-bottom:1.25rem" id="transferSuccessMsg">Balance transferred successfully.</div>
-      <button onclick="closeTransferModalDirect()"
-        style="width:100%;background:linear-gradient(135deg,#c9943a,#e8b85a);color:#1a0e00;-webkit-text-fill-color:#1a0e00;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:600;padding:12px;cursor:pointer;">
-        Done
-      </button>
-    </div>
-
-  </div>
-</div>
-```
-
   </div>
   <style>
     @keyframes modal-in { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
@@ -898,13 +890,8 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
     let currentUser = null;
 
     // ── Auth guard ────────────────────────────────────────────────────────────
-    // Failsafe: always hide spinner after 6 seconds
-    const loadingFailsafe = setTimeout(hideLoading, 6000);
-
     auth.onAuthStateChanged(user => {
       if (!user) {
-        clearTimeout(loadingFailsafe);
-        hideLoading();
         window.location.href = 'login.html';
         return;
       }
@@ -923,17 +910,7 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
         loadExchangeRate();
       } catch(e) {
         console.warn('Dashboard init error:', e);
-      } finally {
-        clearTimeout(loadingFailsafe);
-        hideLoading();
       }
-    }
-
-    function hideLoading() {
-      const overlay = document.getElementById('loadingOverlay');
-      if (!overlay) return;
-      overlay.classList.add('hidden');
-      setTimeout(() => { if (overlay.parentNode) overlay.remove(); }, 500);
     }
 
     // ── Greeting ──────────────────────────────────────────────────────────────
@@ -961,6 +938,14 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
         document.getElementById('profileMobile').textContent  = p.mobile    || '—';
         document.getElementById('greetingSubtitle').textContent =
           p.vesselName ? `Aboard ${p.vesselName} · Here's your overview` : "Here's your remittance overview";
+
+        // Show profile photo if exists
+        if (p.photoURL) {
+          document.querySelector('.profile-avatar').innerHTML =
+            `<img src="${p.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;
+          document.querySelector('.user-avatar').innerHTML =
+            `<img src="${p.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;
+        }
 
         // Balance stat card
         const balEl = document.getElementById('statBalance');
@@ -1271,7 +1256,6 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
       lastScroll = current <= 0 ? 0 : current;
     }, { passive: true });
   </script>
-
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js', { scope: '/' })
@@ -1279,6 +1263,5 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
         .catch(err => console.warn('[PWA] SW failed:', err));
     }
   </script>
-
 </body>
 </html>
