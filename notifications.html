@@ -2,15 +2,8 @@
 
 <html lang="en">
 <head>
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
-  <meta name="apple-mobile-web-app-title" content="ShipRemit"/>
-  <meta name="theme-color" content="#0a1628"/>
-  <link rel="apple-touch-icon" href="icon-192.png"/>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <title>ShipRemit — Notifications</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
@@ -228,42 +221,9 @@
     }
 
     function fmt(n) { return Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
-
-    // ── Auto-hide mobile header on scroll ─────────────────────────────────────
-    let lastScroll = 0;
-    window.addEventListener('scroll', () => {
-      const header = document.querySelector('.mobile-header');
-      if (!header) return;
-      const current = window.scrollY;
-      if (current > lastScroll && current > 60) {
-        header.classList.add('hide');
-      } else {
-        header.classList.remove('hide');
-      }
-      lastScroll = current <= 0 ? 0 : current;
-    }, { passive: true });
-
     function logout()       { auth.signOut().then(() => location.href='login.html'); }
-        function openSidebar()  {
-      document.getElementById('sidebar').classList.add('open');
-      document.getElementById('overlay').classList.add('show');
-      const h = document.querySelector('.mobile-header');
-      if (h) h.classList.add('hide');
-    }
-    function closeSidebar() {
-      document.getElementById('sidebar').classList.remove('open');
-      document.getElementById('overlay').classList.remove('show');
-      const h = document.querySelector('.mobile-header');
-      if (h) h.classList.remove('hide');
-    }
-  </script>
-
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js', { scope: '/' })
-        .then(reg => console.log('[PWA] SW registered:', reg.scope))
-        .catch(err => console.warn('[PWA] SW failed:', err));
-    }
+    function openSidebar()  { document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('show'); }
+    function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
   </script>
 
 </body>
