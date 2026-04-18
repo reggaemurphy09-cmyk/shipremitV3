@@ -2,702 +2,179 @@
 
 <html lang="en">
 <head>
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="apple-mobile-web-app-title" content="ShipRemit"/>
-  <meta name="theme-color" content="#0a1628"/>
-  <link rel="apple-touch-icon" href="icon-192.png"/>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ShipRemit — Create Account</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:#0a1628;--navy2:#0f2040;--brass:#c9943a;--brass2:#e8b85a;
+      --white:#f0ece3;--muted:#8a9ab5;--success:#4caf82;--danger:#e05c5c;
+      --card-bg:rgba(15,32,64,0.85);--border:rgba(201,148,58,0.25);
+    }
+    body{min-height:100vh;background:var(--navy);font-family:'DM Sans',sans-serif;color:var(--white);display:flex;align-items:flex-start;justify-content:center;overflow-x:hidden;padding:1.5rem 1rem 3rem;position:relative;}
+    .ocean-bg{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse at 20% 80%,rgba(12,60,120,0.6) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(8,40,90,0.5) 0%,transparent 50%),linear-gradient(160deg,#07101f 0%,#0a1e3d 50%,#061525 100%);}
+    .grid-lines{position:fixed;inset:0;background-image:linear-gradient(rgba(201,148,58,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(201,148,58,0.04) 1px,transparent 1px);background-size:60px 60px;z-index:0;}
+    .wave{position:fixed;bottom:0;left:0;width:200%;height:180px;opacity:0.08;animation:wave 12s linear infinite;z-index:0;}
+    .wave:nth-child(2){animation-delay:-4s;opacity:0.05;height:140px;}
+    .wave:nth-child(3){animation-delay:-8s;opacity:0.04;height:100px;}
+    @keyframes wave{100%{transform:translateX(-50%);}}
+    .card{position:relative;z-index:1;width:100%;max-width:480px;background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:2.25rem 2.25rem 2rem;backdrop-filter:blur(20px);box-shadow:0 32px 80px rgba(0,0,0,0.5),0 0 0 1px rgba(201,148,58,0.1) inset;animation:card-in 0.7s cubic-bezier(0.22,1,0.36,1) both;}
+    @keyframes card-in{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);}}
+    .logo-area{display:flex;align-items:center;gap:12px;margin-bottom:1.75rem;}
+    .logo-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--brass),var(--brass2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 16px rgba(201,148,58,0.35);flex-shrink:0;}
+    .logo-name{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--white);letter-spacing:0.02em;line-height:1;}
+    .logo-tagline{font-size:0.72rem;color:var(--brass);letter-spacing:0.12em;text-transform:uppercase;margin-top:3px;}
+    .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin-bottom:1.5rem;}
+    h2{font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:0.25rem;}
+    .subtitle{font-size:0.84rem;color:var(--muted);margin-bottom:1.5rem;}
+    .steps{display:flex;align-items:center;gap:0;margin-bottom:1.75rem;}
+    .step{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;}
+    .step-circle{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:600;color:var(--muted);background:rgba(255,255,255,0.03);transition:all 0.3s;position:relative;z-index:1;}
+    .step.active .step-circle{border-color:var(--brass);color:var(--brass);background:rgba(201,148,58,0.1);box-shadow:0 0 0 4px rgba(201,148,58,0.1);}
+    .step.done .step-circle{border-color:var(--success);background:var(--success);color:#fff;}
+    .step-label{font-size:0.65rem;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;text-align:center;}
+    .step.active .step-label{color:var(--brass);}
+    .step.done .step-label{color:var(--success);}
+    .step-line{flex:1;height:1px;background:var(--border);margin-bottom:18px;transition:background 0.3s;}
+    .step-line.done{background:var(--success);}
+    .section-title{font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--brass);margin-bottom:0.9rem;display:flex;align-items:center;gap:8px;}
+    .section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+    .field{margin-bottom:1rem;}
+    .field-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;}
+    label{display:block;font-size:0.75rem;color:var(--brass2);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:5px;}
+    .input-wrap{position:relative;}
+    .input-wrap .icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--muted);pointer-events:none;}
+    input:not([type=checkbox]),select{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:9px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:10px 12px 10px 38px;outline:none;transition:border-color 0.2s,box-shadow 0.2s,background 0.2s;-webkit-appearance:none;}
+    select{cursor:pointer;}
+    select option{background:#0f2040;color:var(--white);}
+    input::placeholder{color:rgba(138,154,181,0.45);}
+    input:not([type=checkbox]):focus,select:focus{border-color:var(--brass);background:rgba(201,148,58,0.05);box-shadow:0 0 0 3px rgba(201,148,58,0.12);}
+    .pw-strength{margin-top:6px;display:none;}
+    .pw-strength.show{display:block;}
+    .strength-bar{height:3px;border-radius:2px;background:var(--border);overflow:hidden;margin-bottom:4px;}
+    .strength-fill{height:100%;border-radius:2px;transition:width 0.3s,background 0.3s;width:0%;}
+    .strength-text{font-size:0.7rem;color:var(--muted);}
+    .toggle-pw{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px;transition:color 0.2s;}
+    .toggle-pw:hover{color:var(--brass2);}
+    .btn-row{display:flex;gap:0.75rem;margin-top:1.5rem;}
+    .btn-back{flex:0 0 auto;background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--muted);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:12px 20px;cursor:pointer;transition:all 0.2s;}
+    .btn-back:hover{color:var(--white);border-color:rgba(201,148,58,0.4);}
+    .btn-primary{flex:1;background:linear-gradient(135deg,var(--brass),var(--brass2));color:#1a0e00;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:600;padding:12px;cursor:pointer;letter-spacing:0.04em;transition:opacity 0.2s,transform 0.15s,box-shadow 0.2s;box-shadow:0 4px 20px rgba(201,148,58,0.35);position:relative;}
+    .btn-primary:hover{opacity:0.9;transform:translateY(-1px);}
+    .btn-primary:active{transform:translateY(0);}
+    .btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+    .btn-primary .spinner{display:none;width:16px;height:16px;border:2px solid rgba(26,14,0,0.3);border-top-color:#1a0e00;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .btn-primary.loading .btn-text{display:none;}
+    .btn-primary.loading .spinner{display:block;}
+    .alert{display:none;border-radius:8px;padding:10px 13px;font-size:0.82rem;margin-top:1rem;text-align:center;}
+    .alert.error{background:rgba(224,92,92,0.12);border:1px solid rgba(224,92,92,0.3);color:#ff9a9a;}
+    .alert.success{background:rgba(76,175,130,0.12);border:1px solid rgba(76,175,130,0.3);color:#7de8b8;}
+    .alert.show{display:block;}
 
 ```
-:root {
-  --navy:    #0a1628;
-  --navy2:   #0f2040;
-  --brass:   #c9943a;
-  --brass2:  #e8b85a;
-  --white:   #f0ece3;
-  --muted:   #8a9ab5;
-  --success: #4caf82;
-  --danger:  #e05c5c;
-  --card-bg: rgba(15, 32, 64, 0.85);
-  --border:  rgba(201, 148, 58, 0.25);
-}
+/* ── FIXED TERMS CHECKBOX ── */
+.terms-wrap{display:flex;align-items:center;gap:12px;margin-top:1.2rem;padding:12px 14px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;cursor:pointer;}
+.terms-wrap:active{background:rgba(201,148,58,0.05);}
+.terms-checkbox{width:20px;height:20px;min-width:20px;border-radius:5px;border:2px solid var(--brass);background:transparent;appearance:none;-webkit-appearance:none;cursor:pointer;position:relative;transition:background 0.2s;}
+.terms-checkbox:checked{background:var(--brass);}
+.terms-checkbox:checked::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#1a0e00;font-size:13px;font-weight:bold;}
+.terms-text{font-size:0.82rem;color:var(--muted);line-height:1.4;}
+.terms-text a{color:var(--brass);text-decoration:none;}
+.terms-text a:hover{color:var(--brass2);}
 
-body {
-  min-height: 100vh;
-  background: var(--navy);
-  font-family: 'DM Sans', sans-serif;
-  color: var(--white);
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  overflow-x: hidden;
-  padding: 1.5rem 1rem 3rem;
-  position: relative;
-}
-
-.ocean-bg {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  background:
-    radial-gradient(ellipse at 20% 80%, rgba(12, 60, 120, 0.6) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(8, 40, 90, 0.5) 0%, transparent 50%),
-    linear-gradient(160deg, #07101f 0%, #0a1e3d 50%, #061525 100%);
-}
-
-.grid-lines {
-  position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(201,148,58,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(201,148,58,0.04) 1px, transparent 1px);
-  background-size: 60px 60px;
-  z-index: 0;
-}
-
-.wave {
-  position: fixed;
-  bottom: 0; left: 0;
-  width: 200%; height: 180px;
-  opacity: 0.08;
-  animation: wave 12s linear infinite;
-  z-index: 0;
-}
-.wave:nth-child(2) { animation-delay: -4s; opacity: 0.05; height: 140px; }
-.wave:nth-child(3) { animation-delay: -8s; opacity: 0.04; height: 100px; }
-@keyframes wave { 100% { transform: translateX(-50%); } }
-
-/* Card */
-.card {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  max-width: 480px;
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 2.25rem 2.25rem 2rem;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,148,58,0.1) inset;
-  animation: card-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-@keyframes card-in {
-  from { opacity: 0; transform: translateY(28px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* Logo */
-.logo-area {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 1.75rem;
-}
-.logo-icon {
-  width: 44px; height: 44px;
-  background: linear-gradient(135deg, var(--brass), var(--brass2));
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  box-shadow: 0 4px 16px rgba(201,148,58,0.35);
-  flex-shrink: 0;
-}
-.logo-name {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.4rem;
-  color: var(--white);
-  letter-spacing: 0.02em;
-  line-height: 1;
-}
-.logo-tagline {
-  font-size: 0.72rem;
-  color: var(--brass);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-top: 3px;
-}
-
-.divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--border), transparent);
-  margin-bottom: 1.5rem;
-}
-
-h2 {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.4rem;
-  margin-bottom: 0.25rem;
-}
-.subtitle {
-  font-size: 0.84rem;
-  color: var(--muted);
-  margin-bottom: 1.5rem;
-}
-
-/* Step indicator */
-.steps {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  margin-bottom: 1.75rem;
-}
-.step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  flex: 1;
-}
-.step-circle {
-  width: 30px; height: 30px;
-  border-radius: 50%;
-  border: 2px solid var(--border);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--muted);
-  background: rgba(255,255,255,0.03);
-  transition: all 0.3s;
-  position: relative;
-  z-index: 1;
-}
-.step.active .step-circle {
-  border-color: var(--brass);
-  color: var(--brass);
-  background: rgba(201,148,58,0.1);
-  box-shadow: 0 0 0 4px rgba(201,148,58,0.1);
-}
-.step.done .step-circle {
-  border-color: var(--success);
-  background: var(--success);
-  color: #fff;
-}
-.step-label {
-  font-size: 0.65rem;
-  color: var(--muted);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  text-align: center;
-}
-.step.active .step-label { color: var(--brass); }
-.step.done .step-label { color: var(--success); }
-.step-line {
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-  margin-bottom: 18px;
-  transition: background 0.3s;
-}
-.step-line.done { background: var(--success); }
-
-/* Section title */
-.section-title {
-  font-size: 0.7rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--brass);
-  margin-bottom: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.section-title::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
-
-/* Fields */
-.field { margin-bottom: 1rem; }
-.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-
-label {
-  display: block;
-  font-size: 0.75rem;
-  color: var(--brass2);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 5px;
-}
-.input-wrap { position: relative; }
-.input-wrap .icon {
-  position: absolute;
-  left: 13px; top: 50%;
-  transform: translateY(-50%);
-  font-size: 15px;
-  color: var(--muted);
-  pointer-events: none;
-}
-input, select {
-  width: 100%;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  color: var(--white);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
-  padding: 10px 12px 10px 38px;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-  -webkit-appearance: none;
-}
-select { cursor: pointer; }
-select option { background: #0f2040; color: var(--white); }
-input::placeholder { color: rgba(138,154,181,0.45); }
-input:focus, select:focus {
-  border-color: var(--brass);
-  background: rgba(201,148,58,0.05);
-  box-shadow: 0 0 0 3px rgba(201,148,58,0.12);
-}
-input.error-field { border-color: var(--danger); }
-
-/* Password strength */
-.pw-strength {
-  margin-top: 6px;
-  display: none;
-}
-.pw-strength.show { display: block; }
-.strength-bar {
-  height: 3px;
-  border-radius: 2px;
-  background: var(--border);
-  overflow: hidden;
-  margin-bottom: 4px;
-}
-.strength-fill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 0.3s, background 0.3s;
-  width: 0%;
-}
-.strength-text { font-size: 0.7rem; color: var(--muted); }
-
-/* Toggle pw */
-.toggle-pw {
-  position: absolute;
-  right: 11px; top: 50%;
-  transform: translateY(-50%);
-  background: none; border: none;
-  color: var(--muted); cursor: pointer;
-  font-size: 14px; padding: 2px;
-  transition: color 0.2s;
-}
-.toggle-pw:hover { color: var(--brass2); }
-
-/* Rank badge */
-.rank-hint {
-  font-size: 0.72rem;
-  color: var(--muted);
-  margin-top: 4px;
-}
-
-/* Navigation buttons */
-.btn-row {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-}
-.btn-back {
-  flex: 0 0 auto;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--border);
-  color: var(--muted);
-  border-radius: 9px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
-  padding: 12px 20px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.btn-back:hover { color: var(--white); border-color: rgba(201,148,58,0.4); }
-
-.btn-primary {
-  flex: 1;
-  background: linear-gradient(135deg, var(--brass), var(--brass2));
-  color: #1a0e00;
-  border: none;
-  border-radius: 9px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 600;
-  padding: 12px;
-  cursor: pointer;
-  letter-spacing: 0.04em;
-  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
-  box-shadow: 0 4px 20px rgba(201,148,58,0.35);
-  position: relative;
-}
-.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-.btn-primary:active { transform: translateY(0); }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-.btn-primary .spinner {
-  display: none;
-  width: 16px; height: 16px;
-  border: 2px solid rgba(26,14,0,0.3);
-  border-top-color: #1a0e00;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  margin: 0 auto;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-.btn-primary.loading .btn-text { display: none; }
-.btn-primary.loading .spinner { display: block; }
-
-/* Error / Success */
-.alert {
-  display: none;
-  border-radius: 8px;
-  padding: 10px 13px;
-  font-size: 0.82rem;
-  margin-top: 1rem;
-  text-align: center;
-}
-.alert.error {
-  background: rgba(224,92,92,0.12);
-  border: 1px solid rgba(224,92,92,0.3);
-  color: #ff9a9a;
-}
-.alert.success {
-  background: rgba(76,175,130,0.12);
-  border: 1px solid rgba(76,175,130,0.3);
-  color: #7de8b8;
-}
-.alert.show { display: block; }
-
-/* Terms */
-.terms-check {
-  display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  margin-top: 1rem;
-  font-size: 0.81rem;
-  color: var(--muted);
-  cursor: pointer;
-}
-.terms-check input[type=checkbox] {
-  margin-top: 2px;
-  width: 15px; height: 15px;
-  flex-shrink: 0;
-  accent-color: var(--brass);
-  padding: 0;
-}
-.terms-check a { color: var(--brass); text-decoration: none; }
-.terms-check a:hover { color: var(--brass2); }
-
-/* Bottom */
-.bottom-text {
-  text-align: center;
-  margin-top: 1.25rem;
-  font-size: 0.82rem;
-  color: var(--muted);
-}
-.bottom-text a { color: var(--brass); text-decoration: none; }
-.bottom-text a:hover { color: var(--brass2); }
-
-.card-footer {
-  margin-top: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  font-size: 0.72rem;
-  color: rgba(138,154,181,0.45);
-  letter-spacing: 0.06em;
-}
-
-/* Step panels */
-.step-panel { display: none; }
-.step-panel.active { display: block; }
-
-/* Select arrow fix */
-.select-wrap { position: relative; }
-.select-wrap::after {
-  content: '▾';
-  position: absolute;
-  right: 13px; top: 50%;
-  transform: translateY(-50%);
-  color: var(--muted);
-  pointer-events: none;
-  font-size: 12px;
-}
-.select-wrap select { padding-right: 30px; }
+.bottom-text{text-align:center;margin-top:1.25rem;font-size:0.82rem;color:var(--muted);}
+.bottom-text a{color:var(--brass);text-decoration:none;}
+.card-footer{margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:6px;font-size:0.72rem;color:rgba(138,154,181,0.45);letter-spacing:0.06em;}
+.step-panel{display:none;}
+.step-panel.active{display:block;}
+.select-wrap{position:relative;}
+.select-wrap::after{content:'▾';position:absolute;right:13px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:12px;}
+.select-wrap select{padding-right:30px;}
 ```
 
   </style>
 </head>
 <body>
-
   <div class="ocean-bg"></div>
   <div class="grid-lines"></div>
-  <svg class="wave" viewBox="0 0 1440 180" preserveAspectRatio="none">
-    <path fill="#4a90d9" d="M0,80 C360,160 1080,0 1440,80 L1440,180 L0,180 Z"/>
-  </svg>
-  <svg class="wave" viewBox="0 0 1440 180" preserveAspectRatio="none">
-    <path fill="#4a90d9" d="M0,100 C400,20 1040,160 1440,100 L1440,180 L0,180 Z"/>
-  </svg>
-  <svg class="wave" viewBox="0 0 1440 180" preserveAspectRatio="none">
-    <path fill="#4a90d9" d="M0,120 C480,60 960,140 1440,120 L1440,180 L0,180 Z"/>
-  </svg>
+  <svg class="wave" viewBox="0 0 1440 180" preserveAspectRatio="none"><path fill="#4a90d9" d="M0,80 C360,160 1080,0 1440,80 L1440,180 L0,180 Z"/></svg>
+  <svg class="wave" viewBox="0 0 1440 180" preserveAspectRatio="none"><path fill="#4a90d9" d="M0,100 C400,20 1040,160 1440,100 L1440,180 L0,180 Z"/></svg>
+  <svg class="wave" viewBox="0 0 1440 180" preserveAspectRatio="none"><path fill="#4a90d9" d="M0,120 C480,60 960,140 1440,120 L1440,180 L0,180 Z"/></svg>
 
   <div class="card">
+    <div class="logo-area">
+      <div class="logo-icon">⚓</div>
+      <div>
+        <div class="logo-name">ShipRemit</div>
+        <div class="logo-tagline">Seafarer Remittance</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <h2>Create your account</h2>
+    <p class="subtitle">Join thousands of seafarers sending money home</p>
 
 ```
-<!-- Logo -->
-<div class="logo-area">
-  <div class="logo-icon">⚓</div>
-  <div>
-    <div class="logo-name">ShipRemit</div>
-    <div class="logo-tagline">Seafarer Remittance</div>
-  </div>
-</div>
-<div class="divider"></div>
-
-<h2>Create your account</h2>
-<p class="subtitle">Join thousands of seafarers sending money home</p>
-
-<!-- Step indicator -->
 <div class="steps">
-  <div class="step active" id="step-ind-1">
-    <div class="step-circle" id="sc1">1</div>
-    <div class="step-label">Account</div>
-  </div>
+  <div class="step active" id="step-ind-1"><div class="step-circle" id="sc1">1</div><div class="step-label">Account</div></div>
   <div class="step-line" id="line-1"></div>
-  <div class="step" id="step-ind-2">
-    <div class="step-circle" id="sc2">2</div>
-    <div class="step-label">Personal</div>
-  </div>
+  <div class="step" id="step-ind-2"><div class="step-circle" id="sc2">2</div><div class="step-label">Personal</div></div>
   <div class="step-line" id="line-2"></div>
-  <div class="step" id="step-ind-3">
-    <div class="step-circle" id="sc3">3</div>
-    <div class="step-label">Seafarer</div>
-  </div>
+  <div class="step" id="step-ind-3"><div class="step-circle" id="sc3">3</div><div class="step-label">Seafarer</div></div>
 </div>
 
-<!-- ── Step 1: Account credentials ── -->
+<!-- Step 1 -->
 <div class="step-panel active" id="panel-1">
   <div class="section-title">Account Credentials</div>
-
-  <div class="field">
-    <label>Full Name</label>
-    <div class="input-wrap">
-      <span class="icon">👤</span>
-      <input type="text" id="fullName" placeholder="Juan dela Cruz" autocomplete="name"/>
-    </div>
+  <div class="field"><label>Full Name</label><div class="input-wrap"><span class="icon">👤</span><input type="text" id="fullName" placeholder="Juan dela Cruz" autocomplete="name"/></div></div>
+  <div class="field"><label>Email Address</label><div class="input-wrap"><span class="icon">✉</span><input type="email" id="emailInput" placeholder="you@example.com" autocomplete="email"/></div></div>
+  <div class="field"><label>Password</label><div class="input-wrap"><span class="icon">🔒</span><input type="password" id="passwordInput" placeholder="Min. 8 characters" autocomplete="new-password"/><button class="toggle-pw" id="togglePw1" type="button">👁</button></div>
+    <div class="pw-strength" id="pwStrength"><div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div><div class="strength-text" id="strengthText"></div></div>
   </div>
-
-  <div class="field">
-    <label>Email Address</label>
-    <div class="input-wrap">
-      <span class="icon">✉</span>
-      <input type="email" id="emailInput" placeholder="you@example.com" autocomplete="email"/>
-    </div>
-  </div>
-
-  <div class="field">
-    <label>Password</label>
-    <div class="input-wrap">
-      <span class="icon">🔒</span>
-      <input type="password" id="passwordInput" placeholder="Min. 8 characters" autocomplete="new-password"/>
-      <button class="toggle-pw" id="togglePw1" type="button">👁</button>
-    </div>
-    <div class="pw-strength" id="pwStrength">
-      <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
-      <div class="strength-text" id="strengthText"></div>
-    </div>
-  </div>
-
-  <div class="field">
-    <label>Confirm Password</label>
-    <div class="input-wrap">
-      <span class="icon">🔒</span>
-      <input type="password" id="confirmPassword" placeholder="Repeat password" autocomplete="new-password"/>
-      <button class="toggle-pw" id="togglePw2" type="button">👁</button>
-    </div>
-  </div>
-
+  <div class="field"><label>Confirm Password</label><div class="input-wrap"><span class="icon">🔒</span><input type="password" id="confirmPassword" placeholder="Repeat password" autocomplete="new-password"/><button class="toggle-pw" id="togglePw2" type="button">👁</button></div></div>
   <div class="alert error" id="alert1"></div>
-
-  <div class="btn-row">
-    <button class="btn-primary" id="next1Btn" onclick="goStep(2)">
-      <span class="btn-text">Continue →</span>
-    </button>
-  </div>
+  <div class="btn-row"><button class="btn-primary" id="next1Btn" onclick="goStep(2)"><span class="btn-text">Continue →</span></button></div>
 </div>
 
-<!-- ── Step 2: Personal Info ── -->
+<!-- Step 2 -->
 <div class="step-panel" id="panel-2">
   <div class="section-title">Personal Information</div>
-
   <div class="field-row">
-    <div class="field">
-      <label>Mobile Number</label>
-      <div class="input-wrap">
-        <span class="icon">📱</span>
-        <input type="tel" id="mobile" placeholder="+63 9XX XXX XXXX" autocomplete="tel"/>
-      </div>
-    </div>
-    <div class="field">
-      <label>Date of Birth</label>
-      <div class="input-wrap">
-        <span class="icon">📅</span>
-        <input type="date" id="dob" style="padding-left:38px"/>
-      </div>
-    </div>
+    <div class="field"><label>Mobile Number</label><div class="input-wrap"><span class="icon">📱</span><input type="tel" id="mobile" placeholder="+63 9XX XXX XXXX"/></div></div>
+    <div class="field"><label>Date of Birth</label><div class="input-wrap"><span class="icon">📅</span><input type="date" id="dob" style="padding-left:38px"/></div></div>
   </div>
-
-  <div class="field">
-    <label>Home Address</label>
-    <div class="input-wrap">
-      <span class="icon">🏠</span>
-      <input type="text" id="address" placeholder="Street, City, Province"/>
-    </div>
-  </div>
-
+  <div class="field"><label>Home Address</label><div class="input-wrap"><span class="icon">🏠</span><input type="text" id="address" placeholder="Street, City, Province"/></div></div>
   <div class="field-row">
-    <div class="field">
-      <label>Nationality</label>
-      <div class="input-wrap select-wrap">
-        <span class="icon">🌏</span>
-        <select id="nationality">
-          <option value="">Select...</option>
-          <option value="Filipino" selected>Filipino</option>
-          <option value="Indonesian">Indonesian</option>
-          <option value="Indian">Indian</option>
-          <option value="Myanmar">Myanmar</option>
-          <option value="Chinese">Chinese</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-    </div>
-    <div class="field">
-      <label>Gender</label>
-      <div class="input-wrap select-wrap">
-        <span class="icon">⚧</span>
-        <select id="gender">
-          <option value="">Select...</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-    </div>
+    <div class="field"><label>Nationality</label><div class="input-wrap select-wrap"><span class="icon">🌏</span><select id="nationality"><option value="">Select...</option><option value="Filipino" selected>Filipino</option><option value="Indonesian">Indonesian</option><option value="Indian">Indian</option><option value="Myanmar">Myanmar</option><option value="Chinese">Chinese</option><option value="Other">Other</option></select></div></div>
+    <div class="field"><label>Gender</label><div class="input-wrap select-wrap"><span class="icon">⚧</span><select id="gender"><option value="">Select...</option><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div></div>
   </div>
-
   <div class="alert error" id="alert2"></div>
-
-  <div class="btn-row">
-    <button class="btn-back" onclick="goStep(1)">← Back</button>
-    <button class="btn-primary" onclick="goStep(3)">
-      <span class="btn-text">Continue →</span>
-    </button>
-  </div>
+  <div class="btn-row"><button class="btn-back" onclick="goStep(1)">← Back</button><button class="btn-primary" onclick="goStep(3)"><span class="btn-text">Continue →</span></button></div>
 </div>
 
-<!-- ── Step 3: Seafarer Info ── -->
+<!-- Step 3 -->
 <div class="step-panel" id="panel-3">
   <div class="section-title">Seafarer Details</div>
-
   <div class="field-row">
-    <div class="field">
-      <label>Rank / Position</label>
-      <div class="input-wrap select-wrap">
-        <span class="icon">⚓</span>
-        <select id="rank">
-          <option value="">Select rank...</option>
-          <optgroup label="Deck Department">
-            <option>Master / Captain</option>
-            <option>Chief Officer</option>
-            <option>Second Officer</option>
-            <option>Third Officer</option>
-            <option>Deck Cadet</option>
-            <option>Bosun</option>
-            <option>AB Seaman</option>
-            <option>OS Seaman</option>
-          </optgroup>
-          <optgroup label="Engine Department">
-            <option>Chief Engineer</option>
-            <option>Second Engineer</option>
-            <option>Third Engineer</option>
-            <option>Fourth Engineer</option>
-            <option>Engine Cadet</option>
-            <option>Oiler / Wiper</option>
-            <option>Fitter</option>
-            <option>Motorman</option>
-            <option>Electrician</option>
-          </optgroup>
-          <optgroup label="Catering / Others">
-            <option>Chief Cook</option>
-            <option>Messman</option>
-            <option>Steward</option>
-            <option>Other</option>
-          </optgroup>
-        </select>
-      </div>
-    </div>
-    <div class="field">
-      <label>Vessel Type</label>
-      <div class="input-wrap select-wrap">
-        <span class="icon">🚢</span>
-        <select id="vesselType">
-          <option value="">Select...</option>
-          <option>Bulk Carrier</option>
-          <option>Container Ship</option>
-          <option>Tanker</option>
-          <option>RORO</option>
-          <option>Passenger / Cruise</option>
-          <option>General Cargo</option>
-          <option>Offshore / OSV</option>
-          <option>Tugboat</option>
-          <option>Other</option>
-        </select>
-      </div>
-    </div>
+    <div class="field"><label>Rank / Position</label><div class="input-wrap select-wrap"><span class="icon">⚓</span><select id="rank"><option value="">Select rank...</option><optgroup label="Deck Department"><option>Master / Captain</option><option>Chief Officer</option><option>Second Officer</option><option>Third Officer</option><option>Deck Cadet</option><option>Bosun</option><option>AB Seaman</option><option>OS Seaman</option></optgroup><optgroup label="Engine Department"><option>Chief Engineer</option><option>Second Engineer</option><option>Third Engineer</option><option>Fourth Engineer</option><option>Engine Cadet</option><option>Oiler / Wiper</option><option>Fitter</option><option>Motorman</option><option>Electrician</option></optgroup><optgroup label="Catering / Others"><option>Chief Cook</option><option>Messman</option><option>Steward</option><option>Other</option></optgroup></select></div></div>
+    <div class="field"><label>Vessel Type</label><div class="input-wrap select-wrap"><span class="icon">🚢</span><select id="vesselType"><option value="">Select...</option><option>Bulk Carrier</option><option>Container Ship</option><option>Tanker</option><option>RORO</option><option>Passenger / Cruise</option><option>General Cargo</option><option>Offshore / OSV</option><option>Tugboat</option><option>Other</option></select></div></div>
   </div>
-
-  <div class="field">
-    <label>Vessel / Ship Name</label>
-    <div class="input-wrap">
-      <span class="icon">🌊</span>
-      <input type="text" id="vesselName" placeholder="e.g. MV Pacific Star"/>
-    </div>
-  </div>
-
+  <div class="field"><label>Vessel / Ship Name</label><div class="input-wrap"><span class="icon">🌊</span><input type="text" id="vesselName" placeholder="e.g. MV Pacific Star"/></div></div>
   <div class="field-row">
-    <div class="field">
-      <label>Manning Agency</label>
-      <div class="input-wrap">
-        <span class="icon">🏢</span>
-        <input type="text" id="agency" placeholder="Agency name (optional)"/>
-      </div>
-    </div>
-    <div class="field">
-      <label>Seaman Book No.</label>
-      <div class="input-wrap">
-        <span class="icon">📋</span>
-        <input type="text" id="seamanBook" placeholder="Optional"/>
-      </div>
-    </div>
+    <div class="field"><label>Manning Agency</label><div class="input-wrap"><span class="icon">🏢</span><input type="text" id="agency" placeholder="Agency name (optional)"/></div></div>
+    <div class="field"><label>Seaman Book No.</label><div class="input-wrap"><span class="icon">📋</span><input type="text" id="seamanBook" placeholder="Optional"/></div></div>
   </div>
 
-  <label class="terms-check">
-    <input type="checkbox" id="termsCheck"/>
-    <span>I agree to the <a href="terms.html">Terms of Service</a> and <a href="privacy.html">Privacy Policy</a></span>
-  </label>
+  <!-- FIXED TERMS CHECKBOX -->
+  <div class="terms-wrap" onclick="toggleTerms()">
+    <input type="checkbox" class="terms-checkbox" id="termsCheck" onclick="event.stopPropagation();updateTerms()"/>
+    <div class="terms-text">I agree to the <a href="terms.html" onclick="event.stopPropagation()">Terms of Service</a> and <a href="privacy.html" onclick="event.stopPropagation()">Privacy Policy</a></div>
+  </div>
 
   <div class="alert error" id="alert3"></div>
   <div class="alert success" id="alertSuccess"></div>
-
   <div class="btn-row">
     <button class="btn-back" onclick="goStep(2)">← Back</button>
     <button class="btn-primary" id="registerBtn" onclick="submitRegistration()">
@@ -708,213 +185,152 @@ input.error-field { border-color: var(--danger); }
 </div>
 
 <p class="bottom-text">Already have an account? <a href="login.html">Sign in</a></p>
-
-<div class="card-footer">
-  <span>🔒</span> Secured &amp; encrypted &nbsp;·&nbsp; ShipRemit © 2025
-</div>
+<div class="card-footer"><span>🔒</span> Secured &amp; encrypted &nbsp;·&nbsp; ShipRemit © 2025</div>
 ```
 
   </div>
 
-  <!-- Firebase v8 compat -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
-  <script>
-    // ── Firebase ─────────────────────────────────────────────────────────────
     const firebaseConfig = {
-      apiKey:            "AIzaSyDjspj1rS3F3zt_VhCvY6ypDsU9IfAAvP0",
-      authDomain:        "shipremit.firebaseapp.com",
-      databaseURL:       "https://shipremit-default-rtdb.firebaseio.com",
-      projectId:         "shipremit",
-      storageBucket:     "shipremit.firebasestorage.app",
-      messagingSenderId: "516183209213",
-      appId:             "1:516183209213:web:d2ffdaa25b14b96de17a94",
-      measurementId:     "G-0SE4CEQP5X"
+      apiKey:"AIzaSyDjspj1rS3F3zt_VhCvY6ypDsU9IfAAvP0",
+      authDomain:"shipremit.firebaseapp.com",
+      databaseURL:"https://shipremit-default-rtdb.firebaseio.com",
+      projectId:"shipremit",
+      storageBucket:"shipremit.firebasestorage.app",
+      messagingSenderId:"516183209213",
+      appId:"1:516183209213:web:d2ffdaa25b14b96de17a94"
     };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db   = firebase.database();
 
-    // ── Step navigation ───────────────────────────────────────────────────────
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
     let currentStep = 1;
 
-    function goStep(n) {
-      if (n > currentStep && !validateStep(currentStep)) return;
+    // Expose functions to global scope
+    window.toggleTerms = () => {
+      const cb = document.getElementById('termsCheck');
+      cb.checked = !cb.checked;
+    };
+    window.updateTerms = () => {}; // checkbox handles itself
+
+    window.goStep = (n) => {
+      if(n > currentStep && !validateStep(currentStep)) return;
       currentStep = n;
-
-      document.querySelectorAll('.step-panel').forEach((p, i) => {
-        p.classList.toggle('active', i + 1 === n);
+      document.querySelectorAll('.step-panel').forEach((p,i) => p.classList.toggle('active', i+1===n));
+      [1,2,3].forEach(i => {
+        const ind = document.getElementById('step-ind-'+i);
+        const sc  = document.getElementById('sc'+i);
+        ind.classList.remove('active','done');
+        if(i<n){ind.classList.add('done');sc.textContent='✓';}
+        else if(i===n){ind.classList.add('active');sc.textContent=i;}
+        else{sc.textContent=i;}
+        if(i<3) document.getElementById('line-'+i).classList.toggle('done',i<n);
       });
+    };
 
-      [1, 2, 3].forEach(i => {
-        const ind  = document.getElementById('step-ind-' + i);
-        const sc   = document.getElementById('sc' + i);
-        ind.classList.remove('active', 'done');
-        if (i < n)       { ind.classList.add('done'); sc.textContent = '✓'; }
-        else if (i === n){ ind.classList.add('active'); sc.textContent = i; }
-        else             { sc.textContent = i; }
-        if (i < 3) {
-          document.getElementById('line-' + i).classList.toggle('done', i < n);
-        }
-      });
-    }
+    function showAlert(id,msg){const el=document.getElementById(id);el.textContent=msg;el.classList.add('show');}
+    function hideAlert(id){document.getElementById(id).classList.remove('show');}
 
-    // ── Validation helpers ────────────────────────────────────────────────────
-    function showAlert(id, msg) {
-      const el = document.getElementById(id);
-      el.textContent = msg;
-      el.classList.add('show');
-    }
-    function hideAlert(id) {
-      document.getElementById(id).classList.remove('show');
-    }
-
-    function validateStep(step) {
-      if (step === 1) {
+    function validateStep(step){
+      if(step===1){
         hideAlert('alert1');
-        const name  = document.getElementById('fullName').value.trim();
-        const email = document.getElementById('emailInput').value.trim();
-        const pw    = document.getElementById('passwordInput').value;
-        const cpw   = document.getElementById('confirmPassword').value;
-        if (!name)               { showAlert('alert1', 'Please enter your full name.'); return false; }
-        if (!email || !email.includes('@')) { showAlert('alert1', 'Please enter a valid email.'); return false; }
-        if (pw.length < 8)       { showAlert('alert1', 'Password must be at least 8 characters.'); return false; }
-        if (pw !== cpw)          { showAlert('alert1', 'Passwords do not match.'); return false; }
+        const name=document.getElementById('fullName').value.trim();
+        const email=document.getElementById('emailInput').value.trim();
+        const pw=document.getElementById('passwordInput').value;
+        const cpw=document.getElementById('confirmPassword').value;
+        if(!name){showAlert('alert1','Please enter your full name.');return false;}
+        if(!email||!email.includes('@')){showAlert('alert1','Please enter a valid email.');return false;}
+        if(pw.length<8){showAlert('alert1','Password must be at least 8 characters.');return false;}
+        if(pw!==cpw){showAlert('alert1','Passwords do not match.');return false;}
         return true;
       }
-      if (step === 2) {
+      if(step===2){
         hideAlert('alert2');
-        const mobile = document.getElementById('mobile').value.trim();
-        const dob    = document.getElementById('dob').value;
-        const addr   = document.getElementById('address').value.trim();
-        const nat    = document.getElementById('nationality').value;
-        if (!mobile) { showAlert('alert2', 'Please enter your mobile number.'); return false; }
-        if (!dob)    { showAlert('alert2', 'Please enter your date of birth.'); return false; }
-        if (!addr)   { showAlert('alert2', 'Please enter your home address.'); return false; }
-        if (!nat)    { showAlert('alert2', 'Please select your nationality.'); return false; }
+        const mobile=document.getElementById('mobile').value.trim();
+        const dob=document.getElementById('dob').value;
+        const addr=document.getElementById('address').value.trim();
+        const nat=document.getElementById('nationality').value;
+        if(!mobile){showAlert('alert2','Please enter your mobile number.');return false;}
+        if(!dob){showAlert('alert2','Please enter your date of birth.');return false;}
+        if(!addr){showAlert('alert2','Please enter your home address.');return false;}
+        if(!nat){showAlert('alert2','Please select your nationality.');return false;}
         return true;
       }
       return true;
     }
 
-    // ── Password strength ─────────────────────────────────────────────────────
-    document.getElementById('passwordInput').addEventListener('input', function() {
-      const pw = this.value;
-      const el = document.getElementById('pwStrength');
-      const fill = document.getElementById('strengthFill');
-      const text = document.getElementById('strengthText');
-      if (!pw) { el.classList.remove('show'); return; }
+    document.getElementById('passwordInput').addEventListener('input',function(){
+      const pw=this.value;
+      const el=document.getElementById('pwStrength');
+      const fill=document.getElementById('strengthFill');
+      const text=document.getElementById('strengthText');
+      if(!pw){el.classList.remove('show');return;}
       el.classList.add('show');
-      let score = 0;
-      if (pw.length >= 8)  score++;
-      if (pw.length >= 12) score++;
-      if (/[A-Z]/.test(pw)) score++;
-      if (/[0-9]/.test(pw)) score++;
-      if (/[^A-Za-z0-9]/.test(pw)) score++;
-      const levels = [
-        { pct: '20%', color: '#e05c5c', label: 'Very weak' },
-        { pct: '40%', color: '#e08a3a', label: 'Weak' },
-        { pct: '60%', color: '#e8b85a', label: 'Fair' },
-        { pct: '80%', color: '#6ab04c', label: 'Strong' },
-        { pct: '100%',color: '#4caf82', label: 'Very strong' },
-      ];
-      const lvl = levels[Math.min(score - 1, 4)] || levels[0];
-      fill.style.width = lvl.pct;
-      fill.style.background = lvl.color;
-      text.textContent = lvl.label;
-      text.style.color = lvl.color;
+      let score=0;
+      if(pw.length>=8)score++;if(pw.length>=12)score++;
+      if(/[A-Z]/.test(pw))score++;if(/[0-9]/.test(pw))score++;if(/[^A-Za-z0-9]/.test(pw))score++;
+      const levels=[{pct:'20%',color:'#e05c5c',label:'Very weak'},{pct:'40%',color:'#e08a3a',label:'Weak'},{pct:'60%',color:'#e8b85a',label:'Fair'},{pct:'80%',color:'#6ab04c',label:'Strong'},{pct:'100%',color:'#4caf82',label:'Very strong'}];
+      const lvl=levels[Math.min(score-1,4)]||levels[0];
+      fill.style.width=lvl.pct;fill.style.background=lvl.color;
+      text.textContent=lvl.label;text.style.color=lvl.color;
     });
 
-    // ── Toggle password visibility ────────────────────────────────────────────
-    document.getElementById('togglePw1').addEventListener('click', () => {
-      const inp = document.getElementById('passwordInput');
-      inp.type = inp.type === 'password' ? 'text' : 'password';
-      document.getElementById('togglePw1').textContent = inp.type === 'text' ? '🙈' : '👁';
+    document.getElementById('togglePw1').addEventListener('click',()=>{
+      const inp=document.getElementById('passwordInput');
+      inp.type=inp.type==='password'?'text':'password';
+      document.getElementById('togglePw1').textContent=inp.type==='text'?'🙈':'👁';
     });
-    document.getElementById('togglePw2').addEventListener('click', () => {
-      const inp = document.getElementById('confirmPassword');
-      inp.type = inp.type === 'password' ? 'text' : 'password';
-      document.getElementById('togglePw2').textContent = inp.type === 'text' ? '🙈' : '👁';
+    document.getElementById('togglePw2').addEventListener('click',()=>{
+      const inp=document.getElementById('confirmPassword');
+      inp.type=inp.type==='password'?'text':'password';
+      document.getElementById('togglePw2').textContent=inp.type==='text'?'🙈':'👁';
     });
 
-    // ── Submit registration ───────────────────────────────────────────────────
-    async function submitRegistration() {
-      hideAlert('alert3');
-      hideAlert('alertSuccess');
+    window.submitRegistration = async () => {
+      hideAlert('alert3'); hideAlert('alertSuccess');
+      const rank=document.getElementById('rank').value;
+      const terms=document.getElementById('termsCheck').checked;
+      if(!rank){showAlert('alert3','Please select your rank.');return;}
+      if(!terms){showAlert('alert3','Please accept the Terms of Service.');return;}
 
-      const rank   = document.getElementById('rank').value;
-      const terms  = document.getElementById('termsCheck').checked;
+      const btn=document.getElementById('registerBtn');
+      btn.disabled=true; btn.classList.add('loading');
 
-      if (!rank)  { showAlert('alert3', 'Please select your rank.'); return; }
-      if (!terms) { showAlert('alert3', 'Please accept the Terms of Service.'); return; }
+      const email=document.getElementById('emailInput').value.trim();
+      const password=document.getElementById('passwordInput').value;
+      const fullName=document.getElementById('fullName').value.trim();
 
-      const btn = document.getElementById('registerBtn');
-      btn.disabled = true;
-      btn.classList.add('loading');
-
-      const email    = document.getElementById('emailInput').value.trim();
-      const password = document.getElementById('passwordInput').value;
-      const fullName = document.getElementById('fullName').value.trim();
-
-      try {
-        // Create Firebase Auth user
-        const cred = await auth.createUserWithEmailAndPassword(email, password);
-        const uid  = cred.user.uid;
-
-        // Update display name
-        await cred.user.updateProfile({ displayName: fullName });
-
-        // Save full profile to Realtime Database
-        await db.ref('users/' + uid).set({
-          fullName,
-          email,
-          mobile:      document.getElementById('mobile').value.trim(),
-          dob:         document.getElementById('dob').value,
-          address:     document.getElementById('address').value.trim(),
-          nationality: document.getElementById('nationality').value,
-          gender:      document.getElementById('gender').value,
+      try{
+        const cred=await createUserWithEmailAndPassword(auth,email,password);
+        await updateProfile(cred.user,{displayName:fullName});
+        await set(ref(db,'users/'+cred.user.uid),{
+          fullName,email,
+          mobile:document.getElementById('mobile').value.trim(),
+          dob:document.getElementById('dob').value,
+          address:document.getElementById('address').value.trim(),
+          nationality:document.getElementById('nationality').value,
+          gender:document.getElementById('gender').value,
           rank,
-          vesselType:  document.getElementById('vesselType').value,
-          vesselName:  document.getElementById('vesselName').value.trim(),
-          agency:      document.getElementById('agency').value.trim(),
-          seamanBook:  document.getElementById('seamanBook').value.trim(),
-          role:        'sender',
-          status:      'active',
-          createdAt:   Date.now()
+          vesselType:document.getElementById('vesselType').value,
+          vesselName:document.getElementById('vesselName').value.trim(),
+          agency:document.getElementById('agency').value.trim(),
+          seamanBook:document.getElementById('seamanBook').value.trim(),
+          role:'user',balance:0,status:'active',createdAt:Date.now()
         });
-
-        // Show success then redirect
-        const successEl = document.getElementById('alertSuccess');
-        successEl.textContent = '✓ Account created! Redirecting to dashboard...';
-        successEl.classList.add('show');
-
-        setTimeout(() => { window.location.href = 'dashboard.html'; }, 2000);
-
-      } catch (err) {
-        const map = {
-          'auth/email-already-in-use': 'This email is already registered. Try logging in.',
-          'auth/invalid-email':        'Invalid email address.',
-          'auth/weak-password':        'Password is too weak.',
-          'auth/network-request-failed': 'Network error. Check your connection.'
-        };
-        showAlert('alert3', map[err.code] || 'Registration failed. Please try again.');
-        btn.disabled = false;
-        btn.classList.remove('loading');
+        document.getElementById('alertSuccess').textContent='✓ Account created! Redirecting...';
+        document.getElementById('alertSuccess').classList.add('show');
+        setTimeout(()=>window.location.href='dashboard.html',2000);
+      }catch(err){
+        const map={'auth/email-already-in-use':'This email is already registered.','auth/invalid-email':'Invalid email address.','auth/weak-password':'Password is too weak.','auth/network-request-failed':'Network error.'};
+        showAlert('alert3',map[err.code]||'Registration failed. Please try again.');
+        btn.disabled=false; btn.classList.remove('loading');
       }
-    }
-  </script>
-
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js', { scope: '/' })
-        .then(reg => console.log('[PWA] SW registered:', reg.scope))
-        .catch(err => console.warn('[PWA] SW failed:', err));
-    }
+    };
   </script>
 
 </body>
