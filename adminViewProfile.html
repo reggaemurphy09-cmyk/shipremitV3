@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ShipRemit — User Profile (Admin View)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+```
+body { min-height: 100vh; background: #0a1628; font-family: 'DM Sans', sans-serif; color: #f0ece3; display: flex; overflow-x: hidden; }
+.bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(160deg, #07101f 0%, #0a1e3d 60%, #061525 100%); }
+
+/* ── Sidebar ── */
+.sidebar { position: fixed; top: 0; left: 0; width: 240px; height: 100vh; background: #060f1e; border-right: 1px solid rgba(201,148,58,0.2); display: flex; flex-direction: column; z-index: 100; transition: transform 0.3s cubic-bezier(0.22,1,0.36,1); }
+.sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 1.5rem 1.25rem 1.25rem; border-bottom: 1px solid rgba(201,148,58,0.2); }
+.logo-icon { width: 38px; height: 38px; background: linear-gradient(135deg, #c9943a, #e8b85a); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.logo-name { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #f0ece3; }
+.logo-tag  { font-size: 0.6rem; color: #c9943a; letter-spacing: 0.1em; text-transform: uppercase; }
+.admin-badge { display: inline-block; background: rgba(224,92,92,0.18); border: 1px solid rgba(224,92,92,0.35); color: #ff9a9a; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; margin-top: 2px; }
+nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
+.nav-label { font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(138,154,181,0.45); padding: 0.75rem 0.5rem 0.4rem; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; cursor: pointer; color: #8a9ab5; font-size: 0.88rem; text-decoration: none; transition: all 0.2s; margin-bottom: 2px; }
+.nav-item:hover  { background: rgba(201,148,58,0.08); color: #f0ece3; }
+.nav-item.active { background: rgba(201,148,58,0.12); color: #e8b85a; font-weight: 500; }
+.nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+.sidebar-admin-info { padding: 1rem 1.25rem; border-top: 1px solid rgba(201,148,58,0.2); display: flex; align-items: center; gap: 10px; }
+.admin-avatar { width: 36px; height: 36px; border-radius: 50%; background: #1a2a3a; border: 2px solid rgba(224,92,92,0.3); display: flex; align-items: center; justify-content: center; font-size: 15px; }
+.admin-name  { font-size: 0.85rem; font-weight: 500; color: #f0ece3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.admin-label { font-size: 0.68rem; color: #ff9a9a; }
+.logout-btn  { background: none; border: none; color: #8a9ab5; cursor: pointer; font-size: 16px; margin-left: auto; }
+
+/* ── Mobile header ── */
+.mobile-header { display: none; position: fixed; top: 0; left: 0; right: 0; height: 56px; background: #060f1e; border-bottom: 1px solid rgba(201,148,58,0.2); align-items: center; padding: 0 1rem; gap: 12px; z-index: 200; }
+.hamburger { background: none; border: none; color: #8a9ab5; cursor: pointer; font-size: 20px; }
+.mobile-logo { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #f0ece3; }
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 99; }
+.overlay.show { display: block; }
+
+/* ── Main ── */
+.main { margin-left: 240px; flex: 1; position: relative; z-index: 1; padding: 2rem 1.75rem 3rem; width: calc(100% - 240px); min-width: 0; }
+
+/* ── Page header ── */
+.back-link { display: inline-flex; align-items: center; gap: 6px; color: #8a9ab5; font-size: 0.82rem; text-decoration: none; margin-bottom: 0.6rem; transition: color 0.2s; }
+.back-link:hover { color: #c9943a; }
+.page-title    { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #f0ece3; margin-bottom: 0.25rem; }
+.page-subtitle { font-size: 0.85rem; color: #8a9ab5; margin-bottom: 1.75rem; }
+
+/* ── Layout ── */
+.layout { display: grid; grid-template-columns: 280px 1fr; gap: 1.25rem; align-items: start; }
+
+/* ── Card ── */
+.card { background: #0f2040; border: 1px solid rgba(201,148,58,0.2); border-radius: 14px; overflow: hidden; margin-bottom: 1.25rem; }
+.card:last-child { margin-bottom: 0; }
+.card-head { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid rgba(201,148,58,0.2); }
+.card-head h3 { font-size: 0.9rem; font-weight: 600; color: #f0ece3; display: flex; align-items: center; gap: 8px; }
+.card-body { padding: 1.25rem; }
+
+/* ── Avatar card ── */
+.avatar-card { background: #0f2040; border: 1px solid rgba(201,148,58,0.2); border-radius: 14px; padding: 1.75rem 1.25rem; text-align: center; margin-bottom: 1.25rem; }
+.big-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #162545, #1a2e50); border: 3px solid rgba(201,148,58,0.3); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; color: #e8b85a; -webkit-text-fill-color: #e8b85a; margin: 0 auto 1rem; }
+.avatar-name  { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #f0ece3; margin-bottom: 4px; }
+.avatar-rank  { font-size: 0.8rem; color: #c9943a; -webkit-text-fill-color: #c9943a; margin-bottom: 4px; }
+.avatar-email { font-size: 0.75rem; color: #8a9ab5; -webkit-text-fill-color: #8a9ab5; }
+.avatar-badge { display: inline-block; margin-top: 0.75rem; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; }
+.badge-sender { background: rgba(126,184,247,0.15); border: 1px solid rgba(126,184,247,0.3); color: #7eb8f7; -webkit-text-fill-color: #7eb8f7; }
+.badge-admin  { background: rgba(224,92,92,0.15);   border: 1px solid rgba(224,92,92,0.3);   color: #ff9a9a; -webkit-text-fill-color: #ff9a9a; }
+
+/* ── Info rows ── */
+.info-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid rgba(201,148,58,0.07); gap: 1rem; }
+.info-row:last-child { border-bottom: none; }
+.info-label { font-size: 0.77rem; color: #8a9ab5; -webkit-text-fill-color: #8a9ab5; flex-shrink: 0; }
+.info-val   { font-size: 0.85rem; font-weight: 500; color: #f0ece3; -webkit-text-fill-color: #f0ece3; text-align: right; word-break: break-word; }
+.info-val.green { color: #4caf82 !important; -webkit-text-fill-color: #4caf82 !important; }
+.info-val.gold  { color: #e8b85a !important; -webkit-text-fill-color: #e8b85a !important; font-size: 1rem; font-weight: 700; }
+
+/* ── Section divider ── */
+.section-label { font-size: 0.68rem; color: #c9943a; -webkit-text-fill-color: #c9943a; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.9rem; margin-top: 1.25rem; display: flex; align-items: center; gap: 8px; }
+.section-label::after { content: ''; flex: 1; height: 1px; background: rgba(201,148,58,0.2); }
+.section-label:first-child { margin-top: 0; }
+
+/* ── Balance ── */
+.bal-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+.bal-input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(201,148,58,0.2); border-radius: 8px; color: #f0ece3; -webkit-text-fill-color: #f0ece3; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; padding: 9px 12px; outline: none; }
+.bal-input.red { border-color: rgba(224,92,92,0.2); }
+.btn-add    { background: linear-gradient(135deg,#c9943a,#e8b85a); color: #1a0e00; -webkit-text-fill-color: #1a0e00; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 600; padding: 9px 14px; cursor: pointer; white-space: nowrap; }
+.btn-deduct { background: rgba(224,92,92,0.15); border: 1px solid rgba(224,92,92,0.3); color: #e05c5c; -webkit-text-fill-color: #e05c5c; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 600; padding: 9px 14px; cursor: pointer; white-space: nowrap; }
+
+/* ── Buttons ── */
+.btn-primary { background: linear-gradient(135deg, #c9943a, #e8b85a); color: #1a0e00; -webkit-text-fill-color: #1a0e00; border: none; border-radius: 9px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600; padding: 11px 22px; cursor: pointer; transition: opacity 0.2s; width: 100%; }
+.btn-primary:hover { opacity: 0.9; }
+.btn-danger-outline { background: rgba(224,92,92,0.08); border: 1px solid rgba(224,92,92,0.3); color: #e05c5c; -webkit-text-fill-color: #e05c5c; border-radius: 9px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; padding: 11px 22px; cursor: pointer; transition: all 0.2s; width: 100%; }
+.btn-danger-outline:hover { background: rgba(224,92,92,0.15); }
+
+/* ── Stats strip ── */
+.stat-strip { display: grid; grid-template-columns: repeat(3,1fr); gap: 0.75rem; margin-bottom: 1.25rem; }
+.stat-mini { background: #0f2040; border: 1px solid rgba(201,148,58,0.2); border-radius: 10px; padding: 1rem; text-align: center; }
+.stat-mini-val { font-size: 1.2rem; font-weight: 700; color: #f0ece3; -webkit-text-fill-color: #f0ece3; }
+.stat-mini-lbl { font-size: 0.68rem; color: #8a9ab5; -webkit-text-fill-color: #8a9ab5; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 3px; }
+
+/* ── Transaction items ── */
+.tx-item { display: flex; align-items: center; gap: 12px; padding: 0.85rem 1.25rem; border-bottom: 1px solid rgba(201,148,58,0.07); transition: background 0.15s; }
+.tx-item:last-child { border-bottom: none; }
+.tx-item:hover { background: rgba(201,148,58,0.04); }
+.tx-avatar { width: 36px; height: 36px; border-radius: 50%; background: #162545; border: 1px solid rgba(201,148,58,0.2); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; color: #e8b85a; -webkit-text-fill-color: #e8b85a; flex-shrink: 0; }
+.tx-name   { font-size: 0.87rem; font-weight: 500; color: #f0ece3; -webkit-text-fill-color: #f0ece3; }
+.tx-date   { font-size: 0.72rem; color: #8a9ab5; -webkit-text-fill-color: #8a9ab5; margin-top: 1px; }
+.tx-amount { font-size: 0.9rem; font-weight: 600; color: #f0ece3; -webkit-text-fill-color: #f0ece3; }
+.tx-status { font-size: 0.68rem; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-top: 3px; font-weight: 500; }
+.status-completed  { background: rgba(76,175,130,0.15);  color: #4caf82; }
+.status-pending    { background: rgba(232,184,90,0.15);  color: #e8b85a; }
+.status-processing { background: rgba(74,144,217,0.15);  color: #7eb8f7; }
+.status-failed     { background: rgba(224,92,92,0.15);   color: #e05c5c; }
+
+/* ── Skel / Empty ── */
+.skel { display: block; border-radius: 6px; background: linear-gradient(90deg, #162545 25%, #0f2040 50%, #162545 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.empty { text-align: center; padding: 2.5rem 1rem; }
+.empty-icon  { font-size: 2.5rem; display: block; margin-bottom: 0.5rem; opacity: 0.35; }
+.empty-title { font-size: 0.95rem; color: #f0ece3; }
+
+/* ── Toast ── */
+.toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: #162545; border: 1px solid rgba(201,148,58,0.2); border-radius: 10px; padding: 12px 18px; font-size: 0.85rem; color: #f0ece3; box-shadow: 0 8px 30px rgba(0,0,0,0.4); z-index: 1000; transform: translateY(20px); opacity: 0; transition: all 0.3s; pointer-events: none; max-width: 320px; }
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-color: rgba(76,175,130,0.4); color: #7de8b8; -webkit-text-fill-color: #7de8b8; }
+.toast.error   { border-color: rgba(224,92,92,0.4);  color: #ff9a9a; -webkit-text-fill-color: #ff9a9a; }
+
+/* ── Responsive ── */
+@media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+@media (max-width: 680px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; width: 100%; padding: 4.75rem 0.9rem 5rem; }
+  .mobile-header { display: flex; }
+}
+@media (min-width: 681px) {
+  .sidebar { transform: translateX(0); }
+  .main { margin-left: 240px; width: calc(100% - 240px); }
+  .mobile-header { display: none; }
+}
+```
+
+  </style>
+</head>
+<body>
+
+  <div class="bg"></div>
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">⚓</div>
+      <div><div class="logo-name">ShipRemit</div><div class="logo-tag">Admin Panel</div><div class="admin-badge">Administrator</div></div>
+    </div>
+    <nav>
+      <div class="nav-label">Dashboard</div>
+      <a class="nav-item" href="admin.html"><span class="nav-icon">📊</span> Overview</a>
+      <div class="nav-label">Manage</div>
+      <a class="nav-item" href="admin.html"><span class="nav-icon">💸</span> Transactions</a>
+      <a class="nav-item active" href="admin.html"><span class="nav-icon">👥</span> Users</a>
+      <div class="nav-label">Settings</div>
+      <a class="nav-item" href="admin.html"><span class="nav-icon">⚙️</span> Settings</a>
+      <a class="nav-item" href="dashboard.html"><span class="nav-icon">↩</span> Sender View</a>
+    </nav>
+    <div class="sidebar-admin-info">
+      <div class="admin-avatar">🛡</div>
+      <div style="flex:1;min-width:0">
+        <div class="admin-name" id="adminName">Admin</div>
+        <div class="admin-label">Administrator</div>
+      </div>
+      <button class="logout-btn" onclick="auth.signOut().then(()=>location.href='login.html')">⏻</button>
+    </div>
+  </aside>
+
+  <div class="mobile-header">
+    <button class="hamburger" onclick="openSidebar()">☰</button>
+    <span class="mobile-logo">👤 User Profile</span>
+  </div>
+
+  <main class="main">
+    <a class="back-link" href="admin.html">← Back to Admin Panel</a>
+    <div class="page-title" id="pageTitle">User Profile</div>
+    <div class="page-subtitle">Viewing as Administrator</div>
+
+```
+<div class="stat-strip">
+  <div class="stat-mini"><div class="stat-mini-val" id="statBal" style="color:#4caf82;-webkit-text-fill-color:#4caf82">—</div><div class="stat-mini-lbl">Balance</div></div>
+  <div class="stat-mini"><div class="stat-mini-val" id="statTx">—</div><div class="stat-mini-lbl">Transactions</div></div>
+  <div class="stat-mini"><div class="stat-mini-val" id="statSent" style="color:#e8b85a;-webkit-text-fill-color:#e8b85a">—</div><div class="stat-mini-lbl">Total Sent</div></div>
+</div>
+
+<div class="layout">
+
+  <!-- Left -->
+  <div>
+    <div class="avatar-card">
+      <div class="big-avatar" id="avatarInitial">?</div>
+      <div class="avatar-name"  id="avatarName">Loading...</div>
+      <div class="avatar-rank"  id="avatarRank">—</div>
+      <div class="avatar-email" id="avatarEmail">—</div>
+      <span class="avatar-badge badge-sender" id="avatarBadge">Sender</span>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>🚢 Vessel Info</h3></div>
+      <div class="card-body">
+        <div class="info-row"><span class="info-label">Vessel</span><span class="info-val" id="infoVessel">—</span></div>
+        <div class="info-row"><span class="info-label">Type</span><span class="info-val" id="infoVesselType">—</span></div>
+        <div class="info-row"><span class="info-label">Agency</span><span class="info-val" id="infoAgency">—</span></div>
+        <div class="info-row"><span class="info-label">Seaman Book</span><span class="info-val" id="infoSeamanBook">—</span></div>
+        <div class="info-row"><span class="info-label">Joined</span><span class="info-val" id="infoJoined">—</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>💰 Balance Management</h3></div>
+      <div class="card-body">
+        <div style="background:rgba(201,148,58,0.08);border:1px solid rgba(201,148,58,0.2);border-radius:10px;padding:1rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:0.7rem;color:#8a9ab5;-webkit-text-fill-color:#8a9ab5;text-transform:uppercase;letter-spacing:0.08em">Available Balance</div>
+            <div style="font-size:1.5rem;font-weight:700;color:#4caf82;-webkit-text-fill-color:#4caf82" id="balDisplay">$0.00</div>
+          </div>
+          <div style="font-size:2rem">💵</div>
+        </div>
+        <div class="bal-row">
+          <input type="number" id="addAmt" placeholder="Amount to add (USD)" min="1" step="0.01" class="bal-input"/>
+          <button class="btn-add" onclick="doTopUp()">+ Add</button>
+        </div>
+        <div class="bal-row">
+          <input type="number" id="deductAmt" placeholder="Amount to deduct" min="1" step="0.01" class="bal-input red"/>
+          <button class="btn-deduct" onclick="doDeduct()">− Deduct</button>
+        </div>
+        <div id="balMsg" style="font-size:0.78rem;min-height:18px;margin-top:4px"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>⚙️ Admin Controls</h3></div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:0.75rem">
+        <button class="btn-primary" id="roleBtn" onclick="toggleRole()">Loading...</button>
+        <button class="btn-danger-outline" onclick="confirmDelete()">🗑️ Delete User Data</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right -->
+  <div>
+    <div class="card">
+      <div class="card-head"><h3>👤 Personal Information</h3></div>
+      <div class="card-body">
+        <div class="section-label">Basic Info</div>
+        <div class="info-row"><span class="info-label">Full Name</span><span class="info-val" id="pFullName">—</span></div>
+        <div class="info-row"><span class="info-label">Email</span><span class="info-val" id="pEmail">—</span></div>
+        <div class="info-row"><span class="info-label">Mobile</span><span class="info-val" id="pMobile">—</span></div>
+        <div class="info-row"><span class="info-label">Date of Birth</span><span class="info-val" id="pDob">—</span></div>
+        <div class="info-row"><span class="info-label">Gender</span><span class="info-val" id="pGender">—</span></div>
+        <div class="info-row"><span class="info-label">Nationality</span><span class="info-val" id="pNationality">—</span></div>
+        <div class="info-row"><span class="info-label">Address</span><span class="info-val" id="pAddress">—</span></div>
+
+        <div class="section-label">Seafarer Details</div>
+        <div class="info-row"><span class="info-label">Rank</span><span class="info-val" id="pRank">—</span></div>
+        <div class="info-row"><span class="info-label">Vessel Type</span><span class="info-val" id="pVesselType">—</span></div>
+        <div class="info-row"><span class="info-label">Vessel Name</span><span class="info-val" id="pVesselName">—</span></div>
+        <div class="info-row"><span class="info-label">Agency</span><span class="info-val" id="pAgency">—</span></div>
+        <div class="info-row"><span class="info-label">Seaman Book</span><span class="info-val" id="pSeamanBook">—</span></div>
+
+        <div class="section-label">Account Summary</div>
+        <div class="info-row"><span class="info-label">Current Balance</span><span class="info-val green" id="pBalance">—</span></div>
+        <div class="info-row"><span class="info-label">Total Transactions</span><span class="info-val" id="pTxCount">—</span></div>
+        <div class="info-row"><span class="info-label">Total Sent</span><span class="info-val gold" id="pTotalSent">—</span></div>
+        <div class="info-row"><span class="info-label">Role</span><span class="info-val" id="pRole">—</span></div>
+        <div class="info-row"><span class="info-label">Member Since</span><span class="info-val" id="pJoined">—</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h3>📋 Transaction History</h3>
+        <span id="txCount" style="font-size:0.75rem;color:#8a9ab5"></span>
+      </div>
+      <div id="txList">
+        <div style="padding:1rem 1.25rem">
+          <div class="skel" style="width:100%;height:14px;margin-bottom:10px"></div>
+          <div class="skel" style="width:80%;height:14px;margin-bottom:10px"></div>
+          <div class="skel" style="width:90%;height:14px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey:"AIzaSyDjspj1rS3F3zt_VhCvY6ypDsU9IfAAvP0",authDomain:"shipremit.firebaseapp.com",
+      databaseURL:"https://shipremit-default-rtdb.firebaseio.com",projectId:"shipremit",
+      storageBucket:"shipremit.firebasestorage.app",messagingSenderId:"516183209213",
+      appId:"1:516183209213:web:d2ffdaa25b14b96de17a94"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db   = firebase.database();
+
+    const ADMIN_EMAIL = 'reggae.murphy09@gmail.com';
+    const uid = new URLSearchParams(location.search).get('uid');
+    let profileData = {};
+
+    if (!uid) location.href = 'admin.html';
+
+    auth.onAuthStateChanged(async user => {
+      if (!user) { location.href = 'login.html'; return; }
+      const snap = await db.ref('users/' + user.uid + '/role').once('value');
+      if (snap.val() !== 'admin' && user.email !== ADMIN_EMAIL) { location.href = 'dashboard.html'; return; }
+      document.getElementById('adminName').textContent = user.displayName || user.email || 'Admin';
+      await Promise.all([loadProfile(), loadTransactions()]);
+    });
+
+    async function loadProfile() {
+      const snap = await db.ref('users/' + uid).once('value');
+      const p = snap.val() || {};
+      profileData = p;
+      const name = p.fullName || p.email || '—';
+      const bal  = parseFloat(p.balance || 0);
+      const role = p.role || 'sender';
+
+      document.getElementById('pageTitle').textContent     = name;
+      document.getElementById('avatarInitial').textContent = name.charAt(0).toUpperCase();
+      document.getElementById('avatarName').textContent    = name;
+      document.getElementById('avatarRank').textContent    = p.rank  || '—';
+      document.getElementById('avatarEmail').textContent   = p.email || '—';
+
+      // Show photo if user has one
+      if (p.photoURL) {
+        const el = document.getElementById('avatarInitial');
+        el.parentElement.innerHTML = `<img src="${p.photoURL}" alt="${name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;
+      }
+
+      const badge = document.getElementById('avatarBadge');
+      badge.textContent = cap(role);
+      badge.className   = 'avatar-badge ' + (role === 'admin' ? 'badge-admin' : 'badge-sender');
+
+      document.getElementById('infoVessel').textContent     = p.vesselName  || '—';
+      document.getElementById('infoVesselType').textContent = p.vesselType  || '—';
+      document.getElementById('infoAgency').textContent     = p.agency      || '—';
+      document.getElementById('infoSeamanBook').textContent = p.seamanBook  || '—';
+      document.getElementById('infoJoined').textContent     = p.createdAt ? new Date(p.createdAt).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : '—';
+
+      document.getElementById('balDisplay').textContent    = '$' + fmt(bal);
+      document.getElementById('statBal').textContent       = '$' + fmt(bal);
+      document.getElementById('pFullName').textContent     = p.fullName    || '—';
+      document.getElementById('pEmail').textContent        = p.email       || '—';
+      document.getElementById('pMobile').textContent       = p.mobile      || '—';
+      document.getElementById('pDob').textContent          = p.dob         || '—';
+      document.getElementById('pGender').textContent       = p.gender      || '—';
+      document.getElementById('pNationality').textContent  = p.nationality || '—';
+      document.getElementById('pAddress').textContent      = p.address     || '—';
+      document.getElementById('pRank').textContent         = p.rank        || '—';
+      document.getElementById('pVesselType').textContent   = p.vesselType  || '—';
+      document.getElementById('pVesselName').textContent   = p.vesselName  || '—';
+      document.getElementById('pAgency').textContent       = p.agency      || '—';
+      document.getElementById('pSeamanBook').textContent   = p.seamanBook  || '—';
+      document.getElementById('pBalance').textContent      = '$' + fmt(bal);
+      document.getElementById('pRole').textContent         = cap(role);
+      document.getElementById('pJoined').textContent       = p.createdAt ? new Date(p.createdAt).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : '—';
+
+      updateRoleBtn(role);
+    }
+
+    function updateRoleBtn(role) {
+      const btn = document.getElementById('roleBtn');
+      if (role === 'admin') {
+        btn.textContent = 'Revoke Admin Role';
+        btn.style.cssText = 'background:rgba(224,92,92,0.15);border:1px solid rgba(224,92,92,0.3);color:#e05c5c;-webkit-text-fill-color:#e05c5c;border-radius:9px;font-family:DM Sans,sans-serif;font-size:0.9rem;font-weight:600;padding:11px 22px;cursor:pointer;width:100%';
+      } else {
+        btn.textContent = '🛡 Make Admin';
+        btn.style.cssText = 'background:linear-gradient(135deg,#c9943a,#e8b85a);color:#1a0e00;-webkit-text-fill-color:#1a0e00;border:none;border-radius:9px;font-family:DM Sans,sans-serif;font-size:0.9rem;font-weight:600;padding:11px 22px;cursor:pointer;width:100%';
+      }
+    }
+
+    async function loadTransactions() {
+      const snap = await db.ref('transactions').orderByChild('senderUid').equalTo(uid).once('value');
+      const data = snap.val() || {};
+      const txs  = Object.entries(data).map(([id,t])=>({id,...t})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+      const totalSent = txs.filter(t=>t.status==='completed').reduce((s,t)=>s+(parseFloat(t.amount)||0),0);
+
+      document.getElementById('statTx').textContent     = txs.length;
+      document.getElementById('statSent').textContent   = '$' + fmt(totalSent);
+      document.getElementById('pTxCount').textContent   = txs.length;
+      document.getElementById('pTotalSent').textContent = '$' + fmt(totalSent);
+      document.getElementById('txCount').textContent    = txs.length + ' transactions';
+
+      const list = document.getElementById('txList');
+      if (!txs.length) {
+        list.innerHTML = `<div class="empty"><span class="empty-icon">📭</span><div class="empty-title">No transactions yet</div></div>`;
+        return;
+      }
+      list.innerHTML = txs.slice(0,15).map(t => `
+        <div class="tx-item">
+          <div class="tx-avatar">${(t.recipientName||'?').charAt(0).toUpperCase()}</div>
+          <div style="flex:1;min-width:0">
+            <div class="tx-name">${escHtml(t.recipientName||'—')}</div>
+            <div class="tx-date">${t.createdAt?new Date(t.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'—'} · ${escHtml(t.recipientBank||'')} · <span style="color:#c9943a;-webkit-text-fill-color:#c9943a">${escHtml(t.refCode||'')}</span></div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div class="tx-amount">$${fmt(t.amount||0)}</div>
+            <span class="tx-status status-${t.status||'pending'}">${cap(t.status||'pending')}</span>
+          </div>
+        </div>`).join('');
+    }
+
+    async function doTopUp() {
+      const amt = parseFloat(document.getElementById('addAmt').value);
+      const msg = document.getElementById('balMsg');
+      if (!amt||amt<=0){msg.style.color='#e05c5c';msg.textContent='Enter a valid amount.';return;}
+      const snap=await db.ref('users/'+uid+'/balance').once('value');
+      const newBal=+(parseFloat(snap.val()||0)+amt).toFixed(2);
+      await db.ref('users/'+uid+'/balance').set(newBal);
+      document.getElementById('balDisplay').textContent='$'+fmt(newBal);
+      document.getElementById('statBal').textContent='$'+fmt(newBal);
+      document.getElementById('pBalance').textContent='$'+fmt(newBal);
+      document.getElementById('addAmt').value='';
+      msg.style.color='#4caf82';msg.textContent=`✓ Added $${fmt(amt)} · New: $${fmt(newBal)}`;
+      showToast('✅ Balance topped up: $'+fmt(newBal),'success');
+    }
+
+    async function doDeduct() {
+      const amt=parseFloat(document.getElementById('deductAmt').value);
+      const msg=document.getElementById('balMsg');
+      if(!amt||amt<=0){msg.style.color='#e05c5c';msg.textContent='Enter a valid amount.';return;}
+      const snap=await db.ref('users/'+uid+'/balance').once('value');
+      const cur=parseFloat(snap.val()||0);
+      if(amt>cur){msg.style.color='#e05c5c';msg.textContent=`Insufficient ($${fmt(cur)}).`;return;}
+      const newBal=+(cur-amt).toFixed(2);
+      await db.ref('users/'+uid+'/balance').set(newBal);
+      document.getElementById('balDisplay').textContent='$'+fmt(newBal);
+      document.getElementById('statBal').textContent='$'+fmt(newBal);
+      document.getElementById('pBalance').textContent='$'+fmt(newBal);
+      document.getElementById('deductAmt').value='';
+      msg.style.color='#e8b85a';msg.textContent=`✓ Deducted $${fmt(amt)} · New: $${fmt(newBal)}`;
+      showToast('✅ Balance deducted: $'+fmt(newBal),'success');
+    }
+
+    async function toggleRole() {
+      const newRole = profileData.role==='admin'?'sender':'admin';
+      if(!confirm(`Set this user as ${newRole}?`)) return;
+      await db.ref('users/'+uid+'/role').set(newRole);
+      profileData.role=newRole;
+      updateRoleBtn(newRole);
+      document.getElementById('pRole').textContent=cap(newRole);
+      const badge=document.getElementById('avatarBadge');
+      badge.textContent=cap(newRole);
+      badge.className='avatar-badge '+(newRole==='admin'?'badge-admin':'badge-sender');
+      showToast('✅ Role updated to '+cap(newRole),'success');
+    }
+
+    async function confirmDelete() {
+      if(!confirm('Delete this user data from the database?')) return;
+      await db.ref('users/'+uid).remove();
+      showToast('✅ User data deleted.','success');
+      setTimeout(()=>location.href='admin.html',1500);
+    }
+
+    let toastTimer;
+    function showToast(msg,type=''){
+      const el=document.getElementById('toast');
+      el.textContent=msg;el.className='toast '+type+' show';
+      clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3200);
+    }
+
+    function fmt(n){return Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+    function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+    function openSidebar(){document.getElementById('sidebar').classList.add('open');document.getElementById('overlay').classList.add('show');}
+    function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('show');}
+  </script>
+
+</body>
+</html>
